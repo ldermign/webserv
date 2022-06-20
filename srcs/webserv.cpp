@@ -20,7 +20,7 @@ int		recv_maybe(int fd, char *buff)
 }
 
 int 	main (int argc, char **argv)
-{
+{ (void)argc;(void)argv;
 	int								socket_fd;
 	int								new_socket_fd;
 	socklen_t						addrlen = sizeof(struct sockaddr_in);

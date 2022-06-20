@@ -1,34 +1,37 @@
-SRC = \
-		webserv.cpp \
+NAME		= webserv
 
-SRCSDIR = ./srcs
+SRCS		= ${SRCSDIR}webserv.cpp
 
-SRCS = ${SRC:%.cpp=$(SRCSDIR)/%.cpp}
+INCSDIR		= ./incs/
 
-OBJS = $(SRCS:.cpp=.o)
+SRCSDIR 	= ./srcs/
 
-NAME = webserv
+OBJS 		= $(SRCS:.cpp=.o)
 
-CC = c++
+DEPS		= ${SRCS:.cpp=.d}
 
-CFLAGS = -Wall -Wextra -Werror --std=c++98
+CC			= c++
 
-RM = rm -rf
+CFLAGS		= -Wall -Wextra -Werror --std=c++98 #-g3
 
-.c.o :
-	$(CC)  $(CFLAGS) -c $< -o ${<:.cpp=.o}
+RM			= rm -rf
 
-$(NAME): $(OBJS)
-	$(CC) -o $(NAME) $(OBJS)
+all:		${NAME}
 
-all: $(NAME)
+${NAME}: 	${OBJS}
+			${CC} ${CFLAGS} -o ${NAME} ${OBJS}
+
+-include	${DEPS}
+
+%.o:%.cpp
+			${CC} -I ${INCSDIR} -MMD -MP -o $@ -c $< ${CFLAGS}
 
 clean:
-	$(RM) $(OBJS)
+			${RM} ${OBJS} ${DEPS}
 
-fclean: clean
-	$(RM) $(NAME)
+fclean:		clean
+			${RM} ${NAME}
 
-re: fclean all
+re:			fclean all
 
-.PHONY: all clean fclean re
+.PHONY:		all clean fclean re
