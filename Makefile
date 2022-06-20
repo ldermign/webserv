@@ -1,6 +1,7 @@
 NAME		= webserv
 
-SRCS		= ${SRCSDIR}webserv.cpp
+SRCS		= ${SRCSDIR}webserv.cpp \
+			  ${SRCSDIR}loop_server.cpp \
 
 INCSDIR		= ./incs/
 
@@ -12,7 +13,7 @@ DEPS		= ${SRCS:.cpp=.d}
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror --std=c++98 #-g3
+CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I${INCSDIR}#-g3
 
 RM			= rm -rf
 
