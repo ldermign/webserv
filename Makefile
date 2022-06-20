@@ -1,11 +1,16 @@
 NAME		= webserv
 
-SRCS		= ${SRCSDIR}webserv.cpp \
-			  ${SRCSDIR}loop_server.cpp \
+SRCS		=	${SRCSDIR}webserv.cpp \
+				${SRCSDIR}loop_server.cpp \
+
+# parsing 
+SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
 
 INCSDIR		= incs/
 
-SRCSDIR 	= srcs
+SRCSDIR 	= srcs/
+
+PARSDIR		= srcs/parsing/
 
 OBJSDIR		= objs
 
@@ -15,7 +20,7 @@ DEPS		= ${SRCS:.cpp=.d}
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I${INCSDIR}#-g3
+CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I ${INCSDIR}#-g3
 
 RM			= rm -rf
 
