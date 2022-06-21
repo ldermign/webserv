@@ -105,7 +105,6 @@ class Get : public Request
 		this->set_type("GET");
 		this->set_source(this->get_elem_at(2));
 	}
-
 };
 
 void	execute_request(std::string request);

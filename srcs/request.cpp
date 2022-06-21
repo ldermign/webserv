@@ -18,4 +18,5 @@ void	execute_request(std::string request)
 		req = new Get(request);
 		std::cout << req->get_type() << " " << req->get_source() << std::endl;
 	}
+	std::cout << "request  = " << request << std::endl;
 }
