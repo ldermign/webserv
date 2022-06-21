@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "request.hpp"
+
 #define QUEUE_SIZE 100
 #define PORT 3245
 #define BUFFER_SIZE 10
@@ -20,7 +22,9 @@ int		recv_maybe(int fd, char *buff)
 }
 
 int 	main (int argc, char **argv)
-{ (void)argc;(void)argv;
+{
+	(void)argc;(void)argv;
+	execute_request(argv[1]);
 	return (0);
 }
 

@@ -2,6 +2,7 @@ NAME		= webserv
 
 SRCS		= ${SRCSDIR}webserv.cpp \
 			  ${SRCSDIR}loop_server.cpp \
+			  ${SRCSDIR}request.cpp \
 
 INCSDIR		= ./incs/
 
