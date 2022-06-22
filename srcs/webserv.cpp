@@ -16,4 +16,3 @@ int 	main (int argc, char **argv)
 	initServ();
 	return (0);
 }
-
