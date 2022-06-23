@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <cstring>
 #define QUEUE_SIZE 100
-#define PORT 3245
+#define PORT 3455
 #define BUFFER_SIZE 10
 
 int	initServ(void);
