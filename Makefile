@@ -3,18 +3,24 @@ NAME		= webserv
 SRCS		= ${SRCSDIR}webserv.cpp \
 			  ${SRCSDIR}loop_server.cpp \
 			  ${SRCSDIR}request.cpp \
+# parsing 
+SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
 
-INCSDIR		= ./incs/
+INCSDIR		= incs/
 
-SRCSDIR 	= ./srcs/
+SRCSDIR 	= srcs/
 
-OBJS 		= $(SRCS:.cpp=.o)
+PARSDIR		= srcs/parsing/
+
+OBJSDIR		= objs
+
+OBJS 		= ${SRCS:%.cpp=${OBJSDIR}/%.o}
 
 DEPS		= ${SRCS:.cpp=.d}
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I${INCSDIR}#-g3
+CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I ${INCSDIR}#-g3
 
 RM			= rm -rf
 
@@ -25,11 +31,12 @@ ${NAME}: 	${OBJS}
 
 -include	${DEPS}
 
-%.o:%.cpp
+${OBJS}:	${OBJSDIR}/%.o:%.cpp
+			mkdir -p ${@D}
 			${CC} -I ${INCSDIR} -MMD -MP -o $@ -c $< ${CFLAGS}
 
 clean:
-			${RM} ${OBJS} ${DEPS}
+			${RM} ${OBJS} ${OBJSDIR} ${DEPS}
 
 fclean:		clean
 			${RM} ${NAME}
