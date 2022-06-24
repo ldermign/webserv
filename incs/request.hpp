@@ -107,4 +107,26 @@ class Get : public Request
 	}
 };
 
+class Post : public Request
+{
+	public :
+
+	Post(std::string request) : Request(request)
+	{
+		this->set_type("Post");
+		this->set_source(this->get_elem_at(2));
+	}
+};
+
+class Delete : public Request
+{
+	public :
+
+	Delete(std::string request) : Request(request)
+	{
+		this->set_type("Delete");
+		this->set_source(this->get_elem_at(2));
+	}
+};
+
 void	execute_request(std::string request);
