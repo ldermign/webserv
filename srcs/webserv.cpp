@@ -17,7 +17,7 @@ int 	main (int argc, char **argv)
 	// 	std::cout << "Wrong number of arguments." << std::endl;
 	// 	return 1;
 	// }
-	recup_config_file(argv[1]);
+	// recup_config_file(argv[1]);
 	initServ();
 	return (0);
 }

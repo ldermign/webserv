@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/27 14:07:28 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/27 14:20:59 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ private:
 	std::string	_rootFile;
 	int			_port;
 	std::string	_serverName;
-	client_body_buffer_size
+	// client_body_buffer_size
 	
 };
 
