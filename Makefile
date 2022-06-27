@@ -1,10 +1,11 @@
 NAME		= webserv
 
-SRCS		= ${SRCSDIR}webserv.cpp \
-			  ${SRCSDIR}loop_server.cpp \
-			  ${SRCSDIR}request.cpp \
+SRCS		=	${SRCSDIR}webserv.cpp \
+			 	${SRCSDIR}loop_server.cpp \
+			 	${SRCSDIR}request.cpp \
 # parsing 
 SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
+				${PARSDIR}parsing_config_file.cpp
 
 INCSDIR		= incs/
 
