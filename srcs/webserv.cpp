@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <cstdlib>
 #include "request.hpp"
 #include "webserv.hpp"
 
@@ -15,9 +16,9 @@ int 	main (int argc, char **argv)
 	(void)argc;(void)argv;
 	// if (argc != 2) {
 	// 	std::cout << "Wrong number of arguments." << std::endl;
-	// 	return 1;
+	// 	EXIT (EXIT_FAILURE);
 	// }
-	// recup_config_file(argv[1]);
-	initServ();
+	recup_config_file(argv[1]);
+	// initServ();
 	return (0);
 }

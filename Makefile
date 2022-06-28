@@ -21,7 +21,7 @@ DEPS		= ${SRCS:.cpp=.d}
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I ${INCSDIR}#-g3
+CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I ${INCSDIR} #-g3
 
 RM			= rm -rf
 

@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/27 14:20:59 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/28 11:20:29 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,21 @@ public:
 	class BadFile : public std::exception {
 	public:
 		virtual const char	*what( void ) const throw() {
-			return ("\033[38;5;124mCouldn't open file.\033[0m\n");
+			return ("\033[38;5;124mCouldn't open file.\033[0m");
+		}	
+	};
+
+	class EmptyFile : public std::exception {
+	public:
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mFile is empty.\033[0m");
+		}	
+	};
+
+	class FileIsDir : public std::exception {
+	public:
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mArgument is a directory.\033[0m");
 		}	
 	};
 

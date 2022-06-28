@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:27:38 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/27 14:05:48 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/28 11:41:05 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,20 @@
 #include "ConfigurationFile.hpp"
 #include <fstream>
 #include <exception>
+#include <sys/stat.h>
+#include <cstdlib>
+
+void	check_parsing_file( char const *str ) {
+
+	std::string line;
+	std::ifstream tmp(str);
+
+	do {
+		std::getline(tmp, line);
+		std::cerr << line << std::endl;
+	} while (!tmp.eof());
+
+}
 
 void	check_file( char const *str ) {
 
@@ -22,6 +36,19 @@ void	check_file( char const *str ) {
 	tmp.open(str);
 	if (tmp.fail())
 		throw ConfigurationFile::BadFile();
+	{
+		bool empty = (tmp.get(), tmp.eof());
+		if (empty) {
+			tmp.close();
+			throw ConfigurationFile::EmptyFile();
+		}
+	}
+	{
+		struct stat path_stat;
+    	stat(str, &path_stat);
+    	if (!S_ISREG(path_stat.st_mode))
+			throw ConfigurationFile::FileIsDir();
+	}
 	tmp.close();
 }
 
@@ -29,14 +56,11 @@ void	recup_config_file( char const *str ) { (void)str;
 
 	try {
 		check_file(str);
-		std::fstream tmp;
-		tmp.open(str);
-		
-		tmp.close();
+		check_parsing_file(str);
 	}
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
-		return ;
+		exit (EXIT_FAILURE);
 	}
 
 	return ;
