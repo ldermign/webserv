@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:27:38 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/29 09:48:18 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/29 14:51:24 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,35 @@
 #include <exception>
 #include <sys/stat.h>
 #include <cstdlib>
+#include <vector>
+#include <sstream>
+
+void	check_line_by_line( std::string::iterator str ) {
+
+	static int line = 0;
+	
+	std::cout << *str << std::endl;
+	if (*str != ';' && *str != '{' && *str != '}') {
+		std::ostringstream add;
+		add << line;
+		std::string error_msg = "Error line " + add.str();
+		std::cout << error_msg << std::endl;
+		// throw std::string(error_msg);
+	}
+	line++;
+}
 
 void	check_parsing_file( char const *str ) {
 
 	std::string line;
 	std::ifstream tmp(str);
-	std::iterator<>
-
+	
 	do {
-		while ()
 		std::getline(tmp, line);
-		std::cerr << line << std::endl;
+		std::string::iterator it = line.begin();
+		while (*it == ' ')
+			it++;
+		check_line_by_line(it);
 	} while (!tmp.eof());
 	tmp.close();
 }
