@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:31:34 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/27 13:32:23 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/29 09:39:55 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,7 @@ int	recv_request(int fd);
 */
 
 void	recup_config_file( char const *str );
+int		is_directive( const char *str );
+
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:27:38 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/28 11:41:05 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/06/29 09:48:18 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@ void	check_parsing_file( char const *str ) {
 
 	std::string line;
 	std::ifstream tmp(str);
+	std::iterator<>
 
 	do {
+		while ()
 		std::getline(tmp, line);
 		std::cerr << line << std::endl;
 	} while (!tmp.eof());
-
+	tmp.close();
 }
 
 void	check_file( char const *str ) {

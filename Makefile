@@ -5,7 +5,8 @@ SRCS		=	${SRCSDIR}webserv.cpp \
 			 	${SRCSDIR}request.cpp \
 # parsing 
 SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
-				${PARSDIR}parsing_config_file.cpp
+				${PARSDIR}parsing_config_file.cpp \
+				${PARSDIR}utils_parsing.cpp
 
 INCSDIR		= incs/
 
