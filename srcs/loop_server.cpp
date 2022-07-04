@@ -21,7 +21,8 @@ int	initServ(void)
 
 	struct sockaddr_in				serv_bind = {	.sin_family = AF_INET,
 													.sin_port = htons(PORT),
-													.sin_addr = {.s_addr = INADDR_ANY}};
+													.sin_addr = {.s_addr = INADDR_ANY},
+													.sin_zero = {0}};
 	struct sockaddr_in				cli_bind;
 
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
