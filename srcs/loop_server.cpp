@@ -33,7 +33,6 @@ int	initServ(void)
 			std::cerr << "Error in poll() function;" << std::endl << "quit" << std::endl;
 			break ;
 		}
-
 		if ((new_socket_fd = accept(socket_fd, (struct sockaddr*)&option_bind, &addrlen)) < 0)
 		{
 			std::cerr << "Error while the socket accepted informations" << std::endl;

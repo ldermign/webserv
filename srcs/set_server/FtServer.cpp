@@ -1,4 +1,5 @@
-#include "FtServer"
+#include "FtServer.hpp"
+//To-Do::1 seul polltrouver un moyen de
 
 
 FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose")
@@ -20,6 +21,7 @@ const FtServer& FtServer::operator=(const FtServer& fs)
 
 int			FtServer::init_server(void) throw()
 {
+	
 	try 
 	{
 		::_create_main_fd();
@@ -44,7 +46,7 @@ FtClient		&FtServer::get_last_client(void)
 	return (_queue_fd.pop());
 }
 
-void					FtServer::_create_main_socket(void);
+void					FtServer::_create_main_socket(void)
 {
 	std::runtime_error		socket_error("socket()");
 
@@ -53,6 +55,7 @@ void					FtServer::_create_main_socket(void);
 		throw socket_error;
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 }
+
 void					FtServer::_bind_main_socket(void)
 {
 	struct sockaddr_in				option_bind = {	.sin_family = AF_INET,
@@ -62,7 +65,6 @@ void					FtServer::_bind_main_socket(void)
 	int								res;
 	std::runtime_error				bind_error("bind()");
 	std::runtime_error				setsockopt_error("setsockopt()");
-	std::runtime_error				listen_error("listen()");
 
 	res = setsockopt(_main_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 	if (res == -1)
@@ -71,14 +73,10 @@ void					FtServer::_bind_main_socket(void)
 	if (res == -1)
 		throw bind_error;
 }
+
 void					FtServer::main_loop(void)
 {
-	struct sockaddr_storage their_addr;
-	bool					is_listen = false;
-	0
-
 	res = listen(_main_socket_fd, 128);
 	if (res == -1)
 		throw listen_error;
-	
 }
