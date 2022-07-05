@@ -41,7 +41,7 @@ const int			&FtServer::get_main_fd(void) const
 	return _main_socket_fd;
 }
 
-FtClient		&FtServer::get_last_client(void)
+Socket		&FtServer::get_last_client(void)
 {
 	return (_queue_fd.pop());
 }

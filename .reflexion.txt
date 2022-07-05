@@ -1,0 +1,12 @@
+donc moi ce que je veux c'est que les servers, je les setup pour avoir deja un fd en mode listen
+ensuite dans ces server, il faut avoir les fonctions qui font tourner le tout avec une boucle infinie qui accepte les nouvelles connexions, qui les lis puis leur repond et ensuite les close (?)
+decoupage :
+			-> class Server :
+								-> contient les fonctions qui initialisent le serv
+								-> une fonction qui boucle
+								-> une fonction qui select
+								-> une fonction qui recv
+								-> une fonction qui repond
+			-> class Socket :
+								-> contient le fd
+								-> contient le message a envoyer
