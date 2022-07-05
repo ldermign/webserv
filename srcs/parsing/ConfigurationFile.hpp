@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/06/29 14:06:12 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/05 14:50:51 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define CONFIGURATIONFILE_HPP
 
 #include "webserv.hpp"
+#include <vector>
+#include <map>
 
 class ConfigurationFile {
 	
@@ -48,6 +50,13 @@ public:
 		}	
 	};
 
+	class BadBracket : public std::exception {
+	public:
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mCheck brackets in file.\033[0m");
+		}
+	};
+
 //	CANONICAL FORM
 
 	ConfigurationFile( void );
@@ -57,11 +66,27 @@ public:
 
 private:
 
-	std::string	_rootFile;
-	int			_port;
-	std::string	_serverName;
-	// client_body_buffer_size
+	std::vector< std::string >	_listen;
+	std::vector< std::string >	_serverName;
+	// std::map< int >				_clientMaxBodySize; revoir caaa la
+	std::vector< std::string >	_methods;
+	std::vector< std::string >	_index;
+	std::string					_root;
+	std::string					_cgi;
+	bool						_autoIndex;
+
+	// int			_port;
+	
+	// la location qui doit avoir une classe dedans;
+	// voir comment faire le port
 	
 };
+
+typedef	struct s_getDirective {
+
+	const char	*directive;
+	int			(*f)(char const *str);
+
+}	t_dir;
 
 #endif
