@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/05 14:50:51 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/06 16:00:15 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,32 @@
 
 #include "webserv.hpp"
 #include <vector>
-#include <map>
+#include <fstream>
+#include <exception>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <sstream>
 
 class ConfigurationFile {
 	
 public:
 
+//	FUNCTIONS
+
+	void		checkFileName( void );
+	int			checkFileAllTogether( char const *str );
+/* check directives */
+	int			directiveServer( char const *str );
+
+//	MUTATORS
+
+	void		setNameFile( char const *name ) { this->_nameFile = name; }
+	void		setNbrServer( int nbr ) { this->_nbrServer = nbr; }
+
 //	ACCESSORS
 
-	std::string	getRootFile( void );
-	int			getPort( void );
-	std::string	getServerName( void );
+	char const *getNameFile( void ) const { return this->_nameFile; }
+	int			getNbrServer( void ) const { return this->_nbrServer; }
 
 //	EXCEPTION
 
@@ -33,21 +48,21 @@ public:
 	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mCouldn't open file.\033[0m");
-		}	
+		}
 	};
 
 	class EmptyFile : public std::exception {
 	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mFile is empty.\033[0m");
-		}	
+		}
 	};
 
 	class FileIsDir : public std::exception {
 	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mArgument is a directory.\033[0m");
-		}	
+		}
 	};
 
 	class BadBracket : public std::exception {
@@ -59,26 +74,16 @@ public:
 
 //	CANONICAL FORM
 
-	ConfigurationFile( void );
+	ConfigurationFile( void ) {}
 	ConfigurationFile	&operator=( const ConfigurationFile &rhs );
 	ConfigurationFile( const ConfigurationFile &src );
-	virtual	~ConfigurationFile( void );
+	virtual	~ConfigurationFile( void ) {}
 
 private:
 
-	std::vector< std::string >	_listen;
-	std::vector< std::string >	_serverName;
-	// std::map< int >				_clientMaxBodySize; revoir caaa la
-	std::vector< std::string >	_methods;
-	std::vector< std::string >	_index;
-	std::string					_root;
-	std::string					_cgi;
-	bool						_autoIndex;
-
-	// int			_port;
-	
-	// la location qui doit avoir une classe dedans;
-	// voir comment faire le port
+	int							_nbrServer;
+	char const					*_nameFile;
+	std::vector< std::string >	_file;
 	
 };
 

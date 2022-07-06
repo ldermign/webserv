@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:27:38 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/05 16:02:21 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/06 15:26:14 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,6 @@
 #include <cstdlib>
 #include <vector>
 #include <sstream>
-
-int	ft_server( char const *str ) {
-
-	int i = 6;
-	while (str[i] && (str[i] == ' ' || str[i] == '\t'))
-		i++;
-	if (str[i] == '\0')
-		return EXIT_SUCCESS;
-	if (str[i] && str[i] != '{' && str[i] != '\0')
-		return EXIT_FAILURE;
-	i++;
-	while (str[i] && (str[i] == ' ' || str[i]  == '\t'))
-		i++;
-	if (str[i] != '\0')
-		return EXIT_FAILURE;
-
-	return EXIT_SUCCESS;
-}
 
 int	ft_server_name( char const *str ) { (void)str;
 	
@@ -92,7 +74,7 @@ int	ft_return( char const *str ) { (void)str;
 	return EXIT_SUCCESS;
 }
 
-void	check_line_by_line( char const *str ) {
+void	check_server_by_server( char const *str ) {
 
 	static int line = 0;
 	
@@ -152,44 +134,11 @@ void	check_line_by_line( char const *str ) {
 	// }
 }
 
-static int	check_file_all_together( char const *str ) {
+void	check_parsing_file( char const *str ) {
 
 	std::string line;
 	std::ifstream tmp(str);
-	int bracket = 0;
-	int server = 0;
 
-	do {
-		std::getline(tmp, line);
-		if (line.find('{') != std::string::npos)
-			bracket++;
-		if (line.find('}') != std::string::npos)
-			bracket--;
-		{
-			int	j = 0;
-			while (line[j] && (line[j] == ' ' || line[j] == '\t'))
-				j++;
-			if (line.find("server") != std::string::npos) {
-				j += 6;
-				if (!line[j] || (line[j] && (line[j] == ' ' || line[j] == '\t')))
-					server++;
-			}
-		}
-	} while (!tmp.eof());
-	tmp.close();
-	if (bracket != 0)
-		return EXIT_FAILURE;
-	return server;
-}
-
-int	check_parsing_file( char const *str ) {
-
-	std::string line;
-	std::ifstream tmp(str);
-	
-	int ret = check_file_all_together(str);
-	if (ret == EXIT_FAILURE)
-		throw ConfigurationFile::BadBracket();
 	do {
 		std::getline(tmp, line);
 		int i = 0;
@@ -203,39 +152,21 @@ int	check_parsing_file( char const *str ) {
 		}
 	} while (!tmp.eof());
 	tmp.close();
-	return ret;
 }
 
-void	check_file( char const *str ) {
+void	recup_config_file( char const *str, std::vector< ConfigurationFile > config ) {
 
-	std::ifstream tmp;
-
-	tmp.open(str);
-	if (tmp.fail())
-		throw ConfigurationFile::BadFile();
-	{
-		bool empty = (tmp.get(), tmp.eof());
-		if (empty) {
-			tmp.close();
-			throw ConfigurationFile::EmptyFile();
-		}
-	}
-	{
-		struct stat path_stat;
-    	stat(str, &path_stat);
-    	if (!S_ISREG(path_stat.st_mode))
-			throw ConfigurationFile::FileIsDir();
-	}
-	tmp.close();
-}
-
-void	recup_config_file( char const *str ) { (void)str;
+	int	nbr_server = 0;
+	int	i = -1;
+	int ret = 0;
 
 	try {
-		int	nbr_server;
-		check_file(str);
-		nbr_server = check_parsing_file(str);
+		nbr_server = check_file_all_together(str);
 		ConfigurationFile	config[nbr_server];
+		while (i < nbr_server) {
+			ret += check_server_by_server(str, config[i]);
+			i++;
+		}
 	}
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
