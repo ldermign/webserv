@@ -228,9 +228,36 @@ class Response
 			return (date.str());
 		}
 
+		std::string		get_ext(void)
+		{
+			size_t			pos;
+
+			pos = this->index.rfind(".");
+			if (pos == std::string::npos)
+				return (".txt");
+			return (this->index.substr(pos));
+		}
+
 		std::string		find_content_type(void)
 		{
-			return ("TEXT/HTML");
+			std::string		ext;
+
+			ext = get_ext();
+			if (ext == ".html")
+				return ("text/html");
+			else if (ext == ".css")
+				return ("text/css");
+			else if (ext == ".js")
+				return ("text/javascript");
+			else if (ext == ".gif")
+				return ("image/gif");
+			else if (ext == ".jpeg")
+				return ("image/jpeg");
+			else if (ext == ".png")
+				return ("image/png");
+			else if (ext == ".svg")
+				return ("image/svg+xml");
+			return ("text/plain");
 		}
 
 		size_t			find_content_length(void)
@@ -243,12 +270,12 @@ class Response
 			std::stringstream		ss;
 			std::string				response;
 
-			ss << this->version << " " << this->status << std::endl;
-			ss << "Server: " << this->get_server() << std::endl;
-			ss << "Date: " << this->get_date() << std::endl;
-			ss << "Content-Type: " << this->get_content_type() << std::endl;
-			ss << "Content-Length: " << this->get_content_length() << std::endl;
-			ss << "Connection: " << "close" << std::endl;
+			ss << this->version << " " << this->status << "\r\n";
+			ss << "Server: " << this->get_server() << "\r\n";
+			ss << "Date: " << this->get_date() << "\r\n";
+			ss << "Content-Type: " << this->get_content_type() << "\r\n";
+			ss << "Content-Length: " << this->get_content_length() << "\r\n";
+			ss << "Connection: " << "close" << "\r\n";
 			response = ss.str();
 			return (response);
 		}
