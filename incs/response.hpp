@@ -5,6 +5,8 @@
 #include <string>
 #include <ctime>
 #include <map>
+#include <iterator>
+#include <fstream>
 
 class Response
 {
@@ -39,12 +41,13 @@ class Response
 
 		Response(int status, std::string index, std::string version)
 			: status(status), server("Webserv"), index(index), version(version)		{
-			this->set_date(get_request_date());
-			this->set_content_type(find_content_type());
-			this->set_content_length(find_content_length());
+			this->set_date(this->get_request_date());
+			this->set_content_type(this->find_content_type());
+			this->set_error_name(this->init_error_name());
+			this->set_body(this->create_body());
+			this->set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
 		}
-
 
 		void	print_response(void)
 		{
@@ -93,6 +96,16 @@ class Response
 			return (this->index);
 		}
 
+		std::string		get_body(void) const
+		{
+			return (this->body);
+		}
+
+		std::string		get_error_name(void) const
+		{
+			return (this->error_name);
+		}
+
 		// Setters
 		
 		void		set_response(std::string response)
@@ -130,6 +143,17 @@ class Response
 			this->version = version;
 		}
 
+		void		set_body(std::string body)
+		{
+			this->body = body;
+		}
+
+		void		set_error_name(std::string error_name)
+		{
+			this->error_name = error_name;
+		}
+
+
 	protected :
 
 		// header data
@@ -144,7 +168,8 @@ class Response
 //		std::string				age;
 //		std::string				x_cache_info;
 		size_t					content_length;
-//		std::string				body;
+		std::string				body;
+		std::string				error_name;
 
 		// request data
 		
@@ -262,7 +287,69 @@ class Response
 
 		size_t			find_content_length(void)
 		{
-			return (11022002);
+			return (this->body.length());
+		}
+		
+		std::string		init_error_name(void) const
+		{
+			switch (this->status)
+			{
+				case 200:
+					return ("200 OK");
+				case 301:
+					return ("301 Moved Permanently");
+				case 400:
+					return ("400 Bad Request");
+				case 401:
+					return ("401 Unauthorized");
+				case 403:
+					return ("403 Forbidden");
+				case 404:
+					return ("404 Not Found");
+				case 500:
+					return ("500 Internal Server Error");
+				case 502:
+					return ("502 Bad Gateway");
+				case 503:
+					return ("503 Service Unavailable");
+				case 504:
+					return ("504 Gateway Timeout");
+				default :
+					return ("Error: Unknown error code");
+			}
+		}
+
+		std::string		create_error_response_code(void) const
+		{
+			std::stringstream		ss;
+
+			ss << "<html>";
+			ss << "<head><title>" << this->get_error_name()
+				<< "</title></head>";
+			ss << "<body>";
+			ss << "<center><h1>" << this->get_error_name()
+				<< "</h1></center>";
+			ss << "<hr><center>webserv (42)</center>";
+			ss << "</body>";
+			ss << "</html>";
+			return (ss.str());
+		}
+
+		std::string		create_body(void) const
+		{
+			std::string			body;
+
+			if (this->status == 200)
+			{
+				std::ifstream		ifs("/var/www/html/index.php");
+				std::string			line;
+
+				while (std::getline(ifs, line))
+				{
+					body.append(line + '\n');
+				}
+			}
+			return (body);
 		}
 
 		std::string		create_response(void)
@@ -270,12 +357,14 @@ class Response
 			std::stringstream		ss;
 			std::string				response;
 
-			ss << this->version << " " << this->status << "\r\n";
+			ss << this->version << " " << this->get_error_name() << "\r\n";
 			ss << "Server: " << this->get_server() << "\r\n";
 			ss << "Date: " << this->get_date() << "\r\n";
 			ss << "Content-Type: " << this->get_content_type() << "\r\n";
 			ss << "Content-Length: " << this->get_content_length() << "\r\n";
 			ss << "Connection: " << "close" << "\r\n";
+			ss << "\r\n";
+			ss << this->get_body();
 			response = ss.str();
 			return (response);
 		}

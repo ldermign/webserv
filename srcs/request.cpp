@@ -33,7 +33,7 @@ void	execute_request(std::string request)
 	if (!request.compare(i, 3, "GET"))
 	{
 		req = new Get(request);
-		std::cout << req->get_request() << std::endl;
+		std::cout << req->get_request() << std::endl << std::endl;
 		if (index_exist(req->get_source()))
 		{
 			res = new Response(200, req->get_source(), req->get_version());
@@ -56,5 +56,4 @@ void	execute_request(std::string request)
 	}
 	else
 		std::cout << "unknown request type" << std::endl;
-	std::cout << "request  = " << request << std::endl;
 }
