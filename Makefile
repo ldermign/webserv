@@ -1,8 +1,13 @@
 NAME		= webserv
 
 SRCS		=	${SRCSDIR}webserv.cpp \
-				${SRCSDIR}loop_server.cpp \
-				${SRCSDIR}checkfds.cpp \
+#				${SRCSDIR}checkfds.cpp \
+#				${SRCSDIR}loop_server.cpp \
+
+#server
+SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
+				${SRCSDIR}set_server/FtServer.cpp \
+
 
 # parsing 
 SRCS		+=	${PARSDIR}ConfigurationFile.cpp \

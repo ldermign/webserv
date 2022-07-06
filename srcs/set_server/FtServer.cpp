@@ -1,11 +1,15 @@
 #include "FtServer.hpp"
-//To-Do::1 seul polltrouver un moyen de
+/*
+ * explication :
+ * 					-> initialise le server (avec un domain, port, et name) par des fonctions (socket(), bind(), listen())
+ * 					-> ensuite gere des sockets par des fonctions (select()) qui generent des objets de class Socket qui recv() et send() des requetes
+*/
 
 
-FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose")
+FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose"), _set({0})
 {}
 
-FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name)
+FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name) _set({0})
 {}
 
 ~FtServer(void)
@@ -17,22 +21,17 @@ const FtServer& FtServer::operator=(const FtServer& fs)
 	_port = fs._port;
 	_name = fs._name;
 	_main_socket_fd = fs._main_socket_fd;
+	_set[0] = fs._set[0];
+	_set[1] = fs._set[1];
+	_set[2] = fs._set[2];
 }
 
-int			FtServer::init_server(void) throw()
+
+int			FtServer::_init_server(void)
 {
 	
-	try 
-	{
-		::_create_main_fd();
-		::_bind_main_socket();
-		::_fill_queue();
-	}
-	catch (std::exception &e)
-	{
-		std::err << "ERROR : " << e.what() << std::endl;
-		return 1;
-	}
+	::_create_main_socket();
+	::_bind_main_socket();
 	return 0;
 }
 
@@ -65,6 +64,7 @@ void					FtServer::_bind_main_socket(void)
 	int								res;
 	std::runtime_error				bind_error("bind()");
 	std::runtime_error				setsockopt_error("setsockopt()");
+	std::runtime_error				listen_error("listen()");
 
 	res = setsockopt(_main_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 	if (res == -1)
@@ -72,11 +72,74 @@ void					FtServer::_bind_main_socket(void)
 	res = bind(_main_socket_fd, (const struct sockaddr*)&option_bind, sizeof(option_bind));
 	if (res == -1)
 		throw bind_error;
-}
-
-void					FtServer::main_loop(void)
-{
 	res = listen(_main_socket_fd, 128);
 	if (res == -1)
 		throw listen_error;
+	Socket		new_one(_main_socket_fd, option_bind, ACCEPT);
+	_fds.push_back(new_one);
+}
+
+void					FtServer::_select_socket(void)
+{
+	int					ret_select;
+	int					h_fd = 0;
+	struct timeval		tv = {.tv_sec = 0, .tv_usec = 5000};
+	std::runtime_error	select_fail("select()");
+
+	for (int i = 0; i < 3; i++)
+	{
+		FD_ZERO(_set[i]);
+		for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
+			FD_SET(it->get_fd());
+	}
+	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
+		h_fd = (it->get_fd() > h_fd) ? it->get_fd() : h_fd;
+	ret_select = select(h_fd + 1, _set, _set + 1, _set + 2, &tv);
+	if (ret_select == -1)
+		throw select_fail;
+}
+
+void					FtServer::_action_socket(void)
+{
+	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end; it++)
+	{
+		if (it->get_flag() == ACCEPT && FD_ISSET(it->get_fd(), &_set[0]))
+			_fds.push_back(it->accept_new_socket());
+		else if (it->get_flag == RECV && FD_ISSET(it->get_fd(), &_set[0]))
+		{
+			try
+				it->receive_message();
+			catch (std::exception &e)
+			{
+				std::cout << "Error -> " << e.what() << std:endl;
+				it->destroy();
+				_fds.erase(it--);
+			}
+		}
+		else if (it->get_flag == SEND && FD_ISSET(it->get_fd(), &_set[1]))
+		{
+			it->send_message();
+			it->destroy();
+			_fds.erase(it--);
+		}
+	}
+}
+
+int					FtServer::main_loop(void)
+{
+	try 
+	{
+		::_init_server();
+		std::cout << "server_initialize" << std::endl;
+		while (true)
+		{
+			::_select_socket();
+			::_action_socket();
+		}
+	}
+	catch (std::exception &e)
+	{
+		std::cout << "Error -> " << e.what() << std::endl;
+		return 1;
+	}
 }
