@@ -20,7 +20,7 @@ class Socket
 		int					get_flag(void) const;
 		void				set_flag(int flag);
 		void				set_message(std::string& new_message);
-		Socket&				accept_new_socket(void);
+		Socket				accept_new_socket(void);
 		void				send_message(void);
 		void				receive_message(void);
 		void				destroy(void);

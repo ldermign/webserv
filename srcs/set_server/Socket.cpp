@@ -56,7 +56,7 @@ void				Socket::set_flag(int flag)
 	_flag = flag;
 }
 
-Socket&				Socket::accept_new_socket(void)
+Socket				Socket::accept_new_socket(void)
 {
 	int					ret_func;
 	struct sockaddr		their_addr;

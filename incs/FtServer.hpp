@@ -1,9 +1,7 @@
 #pragma once
 #include "webserv.hpp"
 #include "Socket.hpp"
-#include <queue>
-#include <iostream>
-#include <arpa/inet.h>
+
 
 class FtServer
 {
@@ -26,7 +24,6 @@ class FtServer
 		FtServer(std::string &name, in_addr_t &domain, u_short &port);
 		~FtServer(void);
 		const FtServer& operator=(const FtServer& fs);
-		int				get_main_fd(void);
-		Socket			get_last_client(void);
-		void			main_loop(void);
+		const int		&get_main_fd(void) const;
+		int				main_loop(void);
 };

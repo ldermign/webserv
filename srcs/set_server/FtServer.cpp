@@ -6,13 +6,15 @@
 */
 
 
-FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose"), _set({0})
+FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose"), _set()
 {}
 
-FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name) _set({0})
-{}
+FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name), _set()
+{
+	std::cout << "the domain -> "<< _domain << std::endl;
+}
 
-~FtServer(void)
+FtServer::~FtServer(void)
 {}
 
 const FtServer& FtServer::operator=(const FtServer& fs)
@@ -24,25 +26,23 @@ const FtServer& FtServer::operator=(const FtServer& fs)
 	_set[0] = fs._set[0];
 	_set[1] = fs._set[1];
 	_set[2] = fs._set[2];
+	return *this;
 }
 
 
-int			FtServer::_init_server(void)
+void		FtServer::_init_server(void)
 {
 	
-	::_create_main_socket();
-	::_bind_main_socket();
-	return 0;
+	std::cout << RED << "main_fd in creation .." << RESET << "\r" << std::flush;
+	_create_main_socket();
+	std::cout << RED << "main_fd in creation ..." << RESET << "\r" << std::flush;
+	_bind_main_socket();
+	std::cout << RMLINE << GREEN << "main_fd created ! (" << _main_socket_fd << ")"<< RESET << std::endl << std::endl;
 }
 
 const int			&FtServer::get_main_fd(void) const
 {
 	return _main_socket_fd;
-}
-
-Socket		&FtServer::get_last_client(void)
-{
-	return (_queue_fd.pop());
 }
 
 void					FtServer::_create_main_socket(void)
@@ -52,7 +52,7 @@ void					FtServer::_create_main_socket(void)
 	_main_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_main_socket_fd == -1)
 		throw socket_error;
-	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+	fcntl(_main_socket_fd, F_SETFL, O_NONBLOCK);
 }
 
 void					FtServer::_bind_main_socket(void)
@@ -75,7 +75,7 @@ void					FtServer::_bind_main_socket(void)
 	res = listen(_main_socket_fd, 128);
 	if (res == -1)
 		throw listen_error;
-	Socket		new_one(_main_socket_fd, option_bind, ACCEPT);
+	Socket		new_one(_main_socket_fd, *((struct sockaddr*)&option_bind), ACCEPT);
 	_fds.push_back(new_one);
 }
 
@@ -88,9 +88,9 @@ void					FtServer::_select_socket(void)
 
 	for (int i = 0; i < 3; i++)
 	{
-		FD_ZERO(_set[i]);
+		FD_ZERO(_set + i);
 		for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
-			FD_SET(it->get_fd());
+			FD_SET(it->get_fd(), _set + i);
 	}
 	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
 		h_fd = (it->get_fd() > h_fd) ? it->get_fd() : h_fd;
@@ -101,24 +101,32 @@ void					FtServer::_select_socket(void)
 
 void					FtServer::_action_socket(void)
 {
-	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end; it++)
+	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
 	{
 		if (it->get_flag() == ACCEPT && FD_ISSET(it->get_fd(), &_set[0]))
-			_fds.push_back(it->accept_new_socket());
-		else if (it->get_flag == RECV && FD_ISSET(it->get_fd(), &_set[0]))
+		{
+			Socket	fd = it->accept_new_socket();
+			std::cout << "new ACCEPT : " << GREEN << fd.get_fd() << RESET << std::endl;
+			_fds.push_back(fd);
+		}
+		else if (it->get_flag() == RECV && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			try
+			{
 				it->receive_message();
+			}
 			catch (std::exception &e)
 			{
-				std::cout << "Error -> " << e.what() << std:endl;
+				std::cout << "Error -> " << e.what() << std::endl;
 				it->destroy();
 				_fds.erase(it--);
 			}
+			std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
 		}
-		else if (it->get_flag == SEND && FD_ISSET(it->get_fd(), &_set[1]))
+		else if (it->get_flag() == SEND && FD_ISSET(it->get_fd(), &_set[1]))
 		{
 			it->send_message();
+			std::cout << "SEND to "<< it->get_fd() <<" : \n" << BLUE << it->get_message() << RESET << std::endl;
 			it->destroy();
 			_fds.erase(it--);
 		}
@@ -129,12 +137,12 @@ int					FtServer::main_loop(void)
 {
 	try 
 	{
-		::_init_server();
+		_init_server();
 		std::cout << "server_initialize" << std::endl;
 		while (true)
 		{
-			::_select_socket();
-			::_action_socket();
+			_select_socket();
+			_action_socket();
 		}
 	}
 	catch (std::exception &e)
@@ -142,4 +150,5 @@ int					FtServer::main_loop(void)
 		std::cout << "Error -> " << e.what() << std::endl;
 		return 1;
 	}
+	return 0;
 }
