@@ -7,7 +7,7 @@ bool	index_exist(const std::string source)
 
 	// Need parsing section
 
-	return (true);
+	return (false);
 }
 
 void	execute_request(std::string request)
@@ -42,6 +42,7 @@ void	execute_request(std::string request)
 		else
 		{
 			res = new Response(404, req->get_source(), req->get_version());
+			res->print_response();
 		}
 	}
 	else if (!request.compare(i, 4, "POST"))

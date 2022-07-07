@@ -8,6 +8,8 @@
 #include <iterator>
 #include <fstream>
 
+#define	END_RES_LINE "\r\n"
+
 class Response
 {
 	public :
@@ -323,15 +325,15 @@ class Response
 		{
 			std::stringstream		ss;
 
-			ss << "<html>";
+			ss << "<html>" << END_RES_LINE;
 			ss << "<head><title>" << this->get_error_name()
-				<< "</title></head>";
-			ss << "<body>";
+				<< "</title></head>" << END_RES_LINE;
+			ss << "<body>" << END_RES_LINE;
 			ss << "<center><h1>" << this->get_error_name()
-				<< "</h1></center>";
-			ss << "<hr><center>webserv (42)</center>";
-			ss << "</body>";
-			ss << "</html>";
+				<< "</h1></center>" << END_RES_LINE;
+			ss << "<hr><center>Webserv/1.0 (42)</center>" << END_RES_LINE;
+			ss << "</body>" << END_RES_LINE;
+			ss << "</html>" << END_RES_LINE;
 			return (ss.str());
 		}
 
@@ -349,6 +351,10 @@ class Response
 					body.append(line + '\n');
 				}
 			}
+			else
+			{
+				body = this->create_error_response_code();
+			}
 			return (body);
 		}
 
@@ -357,9 +363,9 @@ class Response
 			std::stringstream		ss;
 			std::string				response;
 
-			ss << this->version << " " << this->get_error_name() << "\r\n";
-			ss << "Server: " << this->get_server() << "\r\n";
-			ss << "Date: " << this->get_date() << "\r\n";
+			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
+			ss << "Server: " << this->get_server() << END_RES_LINE;
+			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << "\r\n";
 			ss << "Content-Length: " << this->get_content_length() << "\r\n";
 			ss << "Connection: " << "close" << "\r\n";
