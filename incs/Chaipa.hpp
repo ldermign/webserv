@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 14:30:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/06 15:59:50 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/07 15:55:23 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ public:
 			this->getConfigurationFile().setNameFile(str);
 			this->getConfigurationFile().checkFileName();
 			this->getConfigurationFile().setFileVector();
+			this->getConfigurationFile().checkFileAllTogether();
+			this->getConfigurationFile().checkNothingOut();
 			
 		}
 		catch (const std::exception &e) {
@@ -33,10 +35,7 @@ public:
 		}
 	}
 
-	ConfigurationFile	getConfigurationFile( void ) { return this->_config; }
-//
-
-	// ConfigurationFile config;
+	ConfigurationFile	&getConfigurationFile( void ) { return this->_config; }
 
 //	CANONICAL FORM
 

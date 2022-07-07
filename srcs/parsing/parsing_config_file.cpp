@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 13:27:38 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/06 15:26:14 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/07 10:01:47 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	check_server_by_server( char const *str ) {
 
 	const t_dir whichDirective[] = {
 		{"server_name ", ft_server_name},
-		{"server", ft_server},
+		// {"server", ft_server},
 		{"listen ", ft_listen},
 		{"root ", ft_root},
 		{"index ", ft_index},
@@ -134,44 +134,44 @@ void	check_server_by_server( char const *str ) {
 	// }
 }
 
-void	check_parsing_file( char const *str ) {
+// void	check_parsing_file( char const *str ) {
 
-	std::string line;
-	std::ifstream tmp(str);
+// 	std::string line;
+// 	std::ifstream tmp(str);
 
-	do {
-		std::getline(tmp, line);
-		int i = 0;
-		while (line[i] == ' ' || line[i] == '\t')
-			i++;
-		try { check_line_by_line(&line[i]); }
-		catch (const std::string &e) {
-			tmp.close();
-			std::cout << e << std::endl;
-			exit (EXIT_FAILURE);
-		}
-	} while (!tmp.eof());
-	tmp.close();
-}
+// 	do {
+// 		std::getline(tmp, line);
+// 		int i = 0;
+// 		while (line[i] == ' ' || line[i] == '\t')
+// 			i++;
+// 		try { check_line_by_line(&line[i]); }
+// 		catch (const std::string &e) {
+// 			tmp.close();
+// 			std::cout << e << std::endl;
+// 			exit (EXIT_FAILURE);
+// 		}
+// 	} while (!tmp.eof());
+// 	tmp.close();
+// }
 
-void	recup_config_file( char const *str, std::vector< ConfigurationFile > config ) {
+// void	recup_config_file( char const *str, std::vector< ConfigurationFile > config ) {
 
-	int	nbr_server = 0;
-	int	i = -1;
-	int ret = 0;
+// 	int	nbr_server = 0;
+// 	int	i = -1;
+// 	int ret = 0;
 
-	try {
-		nbr_server = check_file_all_together(str);
-		ConfigurationFile	config[nbr_server];
-		while (i < nbr_server) {
-			ret += check_server_by_server(str, config[i]);
-			i++;
-		}
-	}
-	catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
-		exit (EXIT_FAILURE);
-	}
+// 	try {
+// 		nbr_server = check_file_all_together(str);
+// 		ConfigurationFile	config[nbr_server];
+// 		while (i < nbr_server) {
+// 			ret += check_server_by_server(str, config[i]);
+// 			i++;
+// 		}
+// 	}
+// 	catch (std::exception &e) {
+// 		std::cout << e.what() << std::endl;
+// 		exit (EXIT_FAILURE);
+// 	}
 
-	return ;
-}
+// 	return ;
+// }

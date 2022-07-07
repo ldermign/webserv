@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/06 16:00:15 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/07 15:55:20 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,12 @@ public:
 //	FUNCTIONS
 
 	void		checkFileName( void );
-	int			checkFileAllTogether( char const *str );
+	void		checkFileAllTogether( void );
+	void		setFileVector( void );
+	void		checkNothingOut( void );
 /* check directives */
 	int			directiveServer( char const *str );
+	int			noDirective( std::string str );
 
 //	MUTATORS
 
@@ -45,30 +48,38 @@ public:
 //	EXCEPTION
 
 	class BadFile : public std::exception {
-	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mCouldn't open file.\033[0m");
 		}
 	};
 
 	class EmptyFile : public std::exception {
-	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mFile is empty.\033[0m");
 		}
 	};
 
 	class FileIsDir : public std::exception {
-	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mArgument is a directory.\033[0m");
 		}
 	};
 
 	class BadBracket : public std::exception {
-	public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mCheck brackets in file.\033[0m");
+		}
+	};
+
+	class BlockServer : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mSomething's out of server block.\033[0m");
+		}
+	};
+
+	class WrongInfo : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in file.\033[0m");
 		}
 	};
 
