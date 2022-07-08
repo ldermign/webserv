@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/07 15:55:20 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/08 14:23:01 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,15 @@ public:
 	void		checkFileAllTogether( void );
 	void		setFileVector( void );
 	void		checkNothingOut( void );
+	void		checkAllDirectives( void );
+
 /* check directives */
-	int			directiveServer( char const *str );
+	void		dirServer( void );
+
+/* utils directiives */
+	int			isDirectiveServer( char const *str );
 	int			noDirective( std::string str );
+	std::string	whichDirective( std::string str );
 
 //	MUTATORS
 
@@ -83,6 +89,12 @@ public:
 		}
 	};
 
+	class NbrServer : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mMissing at least one server bloc.\033[0m");
+		}
+	};
+
 //	CANONICAL FORM
 
 	ConfigurationFile( void ) {}
@@ -101,7 +113,7 @@ private:
 typedef	struct s_getDirective {
 
 	const char	*directive;
-	int			(*f)(char const *str);
+	void		(ConfigurationFile::*f)( void );
 
 }	t_dir;
 

@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 14:30:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/07 15:55:23 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/08 11:19:44 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ public:
 			this->getConfigurationFile().setFileVector();
 			this->getConfigurationFile().checkFileAllTogether();
 			this->getConfigurationFile().checkNothingOut();
+			this->getConfigurationFile().checkAllDirectives();
 			
 		}
 		catch (const std::exception &e) {
