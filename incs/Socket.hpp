@@ -12,11 +12,12 @@ class Socket
 		int						_flag;
 	public :
 		Socket(void);
-		Socket(int &fd, struct sockaddr &data, int flag);
+		Socket(int fd, struct sockaddr data, int flag);
 		Socket& operator=(const Socket& fc);
 		~Socket(void);
 		const std::string	&get_message(void) const;
 		int					get_fd(void) const;
+		struct sockaddr		get_data(void) const;
 		int					get_flag(void) const;
 		void				set_flag(int flag);
 		void				set_message(std::string& new_message);

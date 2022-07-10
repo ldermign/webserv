@@ -7,7 +7,8 @@ int	initServ(void)
 	socklen_t						addrlen = sizeof(struct sockaddr_in);
 	struct sockaddr_in				option_bind = {	.sin_family = AF_INET,
 													.sin_port = htons(PORT),
-													.sin_addr = {.s_addr = INADDR_ANY}};
+													.sin_addr = {.s_addr = INADDR_ANY},
+													.sin_zero = {0}};
 	struct pollfd					fds[1] = {{0}};
 
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);

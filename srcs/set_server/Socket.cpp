@@ -9,7 +9,7 @@ Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE)
 {
 	std::cout << "empty socket was created" << std::endl;
 }
-Socket::Socket(int &fd, struct sockaddr &data, int flag) : _fd(fd), _data(data), _message(""), _flag(flag)
+Socket::Socket(int fd, struct sockaddr data, int flag) : _fd(fd), _data(data), _message(""), _flag(flag)
 {}
 Socket& Socket::operator=(const Socket& fc)
 {
@@ -82,15 +82,24 @@ void				Socket::receive_message(void)
 	{
 		_message.append(buff.begin(), buff.end());
 		first_time = false;
+		break ;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
+	//ici que tu taff matthieu, tu prends en parametre _message, tu le traite puis tu le remplace :
+	//ex :
+	//		_message = fonct_de_matthieu(_message);
+	//		et le tour est jouer ;)
 	_flag = SEND;
 }
 
+struct sockaddr		Socket::get_data(void) const
+{
+	return _data;
+}
 void				Socket::destroy(void)
 {
 	if (_fd > 2)
 		close (_fd);
-	delete this;
+	std::cout << "End of " << RED << _fd << RESET << std::endl;
 }

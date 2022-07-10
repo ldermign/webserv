@@ -11,7 +11,6 @@ FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INAD
 
 FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name), _set()
 {
-	std::cout << "the domain -> "<< _domain << std::endl;
 }
 
 FtServer::~FtServer(void)
@@ -59,7 +58,8 @@ void					FtServer::_bind_main_socket(void)
 {
 	struct sockaddr_in				option_bind = {	.sin_family = AF_INET,
 													.sin_port = _port,
-													.sin_addr = {.s_addr = _domain}};
+													.sin_addr = {.s_addr = _domain},
+													.sin_zero = {0}};
 	int								yes = 1;
 	int								res;
 	std::runtime_error				bind_error("bind()");
@@ -86,11 +86,14 @@ void					FtServer::_select_socket(void)
 	struct timeval		tv = {.tv_sec = 0, .tv_usec = 5000};
 	std::runtime_error	select_fail("select()");
 
+
 	for (int i = 0; i < 3; i++)
 	{
 		FD_ZERO(_set + i);
 		for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
+		{
 			FD_SET(it->get_fd(), _set + i);
+		}
 	}
 	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
 		h_fd = (it->get_fd() > h_fd) ? it->get_fd() : h_fd;
@@ -101,36 +104,53 @@ void					FtServer::_select_socket(void)
 
 void					FtServer::_action_socket(void)
 {
+	std::vector<Socket> buff_add;
+	std::vector<Socket> buff_rem;
+
 	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
 	{
 		if (it->get_flag() == ACCEPT && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			Socket	fd = it->accept_new_socket();
 			std::cout << "new ACCEPT : " << GREEN << fd.get_fd() << RESET << std::endl;
-			_fds.push_back(fd);
+			buff_add.push_back(fd);
 		}
 		else if (it->get_flag() == RECV && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			try
 			{
 				it->receive_message();
+				std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
 			}
 			catch (std::exception &e)
 			{
 				std::cout << "Error -> " << e.what() << std::endl;
+				Socket	fd = *it;
+				buff_rem.push_back(fd);
 				it->destroy();
-				_fds.erase(it--);
 			}
-			std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
 		}
-		else if (it->get_flag() == SEND && FD_ISSET(it->get_fd(), &_set[1]))
+		else if (it->get_flag() == SEND && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			it->send_message();
+			Socket	fd = *it;
+			buff_rem.push_back(fd);
 			std::cout << "SEND to "<< it->get_fd() <<" : \n" << BLUE << it->get_message() << RESET << std::endl;
 			it->destroy();
-			_fds.erase(it--);
 		}
 	}
+	for (std::vector<Socket>::iterator it2 = buff_rem.begin(); it2 != buff_rem.end(); it2++)
+	{		
+		for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
+		{
+			if (it2->get_fd() == it->get_fd())
+			{
+				_fds.erase(it);
+				break ;
+			}
+		}
+	}
+	_fds.insert(_fds.end(), buff_add.begin(), buff_add.end());
 }
 
 int					FtServer::main_loop(void)
@@ -138,7 +158,6 @@ int					FtServer::main_loop(void)
 	try 
 	{
 		_init_server();
-		std::cout << "server_initialize" << std::endl;
 		while (true)
 		{
 			_select_socket();

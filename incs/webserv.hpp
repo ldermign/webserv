@@ -8,6 +8,7 @@
 #define BUFFER_SIZE 10
 #include <sys/select.h>
 #include <vector>
+#include <algorithm>
 #define SEND 100
 #define ACCEPT 101
 #define RECV 102
