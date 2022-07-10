@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:22:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/08 14:47:34 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/10 17:33:13 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,8 @@ void	ConfigurationFile::checkNothingOut( void ) {
 			bracket++;
 		if ((*it).find('}') != std::string::npos)
 			bracket--;
-		if ((this->isDirectiveServer((*it).c_str()) == EXIT_FAILURE && (*it)[0] != '\0' && (*it).find('}') == std::string::npos && bracket == 0)
-			|| (server == 0 && this->isDirectiveServer((*it).c_str()) == EXIT_FAILURE && (*it)[0] != '\0')) {
-			std::cout << *it << " brackets = " << bracket << std::endl;
+		if ((this->isDirectiveServer((*it).c_str()) == EXIT_FAILURE && (*it)[0] != '\0' && (*it).find('}') == std::string::npos && bracket == 0 && (*it)[0] != '#')
+			|| (server == 0 && this->isDirectiveServer((*it).c_str()) == EXIT_FAILURE && (*it)[0] != '\0' && (*it)[0] != '#')) {
 			throw ConfigurationFile::BlockServer();
 		}
 
@@ -131,32 +130,127 @@ void	ConfigurationFile::checkNothingOut( void ) {
 	}
 }
 
-void	ConfigurationFile::dirServer( void ) {
+void	ConfigurationFile::dirServer( std::string::iterator str ) {(void)str;
+	std::cout << "directive Server" << std::endl;
+
+
+}
+
+void	ConfigurationFile::dirServerName( std::string::iterator str ) {(void)str;
+	std::cout << "directive ServerName" << std::endl;
 	
+
+}
+
+void	ConfigurationFile::dirListen( std::string::iterator str ) {(void)str;
+	std::cout << "directive Listen" << std::endl;
+
+
+}
+
+void	ConfigurationFile::dirRoot( std::string::iterator str ) {(void)str;
+	std::cout << "directive Root" << std::endl;
+
+
+}
+
+void	ConfigurationFile::dirIndex( std::string::iterator str ) {(void)str;
+	std::cout << "directive Index" << std::endl;
+}
+
+void	ConfigurationFile::lexerToken( std::string str ) {
+
+	int start = 0, end = 0;
+	int i = 0;
+	std::vector< std::string >	tmp;
+
+	while (str[i]) {
+		
+		end = i;
+		while (str[i] && (str[i] != ' ' && str[i] != '\t')) {
+			i++;
+			std::cout << str[i] << std::endl;
+			end++;
+		}
+		tmp.push_back(str.substr(start, end));
+		while (str[i] && (str[i] == ' ' || str[i] == '\t'))
+			i++;
+		
+		start = i - 1;
+	}
+
+	for (std::string j: tmp)
+	    std::cout << j << ' ';
+	
+	// std::cout << "TESTTTT\n" << std::endl;
+	
+}
+
+void	ConfigurationFile::dirGetMethods( std::string::iterator str ) {(void)str;
+	std::cout << "directive GetMethods" << std::endl;
+
+	// bool get = 0, post = 0, dlt = 0;
+
+	for (int i = 0 ; i < 11 ; i++)
+		*str++;
+	while (*str == ' ' || *str == ' ')
+		*str++;
+	
+	this->lexerToken(static_cast< std::string >(&(*str)));
+    
+
+}
+
+void	ConfigurationFile::dirClientMaxBodySize( std::string::iterator str ) {(void)str;
+	std::cout << "directive ClientMaxBodySize" << std::endl;
+}
+
+void	ConfigurationFile::dirAutoindex( std::string::iterator str ) {(void)str;
+	std::cout << "directive Autoindex" << std::endl;
+
+	for (int i = 0 ; i < 9 ; i++)
+		*str++;
+	while (*str == ' ' || *str == ' ')
+		*str++;
+	
+	std::string tmp = static_cast< std::string >(&(*str));
+	if (tmp.find("on") == std::string::npos && tmp.find("off") == std::string::npos && *str != ';')
+		throw ConfigurationFile::BadDirectiveAutoindex();
+
+}
+
+void	ConfigurationFile::dirLocation( std::string::iterator str ) {(void)str;
+	std::cout << "directive Location" << std::endl;
+}
+
+void	ConfigurationFile::dirCgi( std::string::iterator str ) {(void)str;
+	std::cout << "directive Cgi" << std::endl;
+}
+
+void	ConfigurationFile::dirAuth( std::string::iterator str ) {(void)str;
+	std::cout << "directive Auth" << std::endl;
+}
+
+void	ConfigurationFile::dirReturn( std::string::iterator str ) {(void)str;
+	std::cout << "directive Return" << std::endl;
 }
 
 void	ConfigurationFile::checkAllDirectives( void ) {
 
-	static int line = 0;
 	std::vector< std::string >::iterator	it;
 	
-	line++;
-	// if (*it[0] == '\0' || *str == '#' || *str == '{' || *str == '}')
-		// return ;
-
 	const t_dir whichDirective[] = {
-		{"server_name ", &ConfigurationFile::dirServer},
-		// {"server", ft_server},
-		// {"listen ", ft_listen},
-		// {"root ", ft_root},
-		// {"index ", ft_index},
-		// {"get_methods ", ft_get_methods},
-		// {"client_max_body_size ", ft_client_max_body_size},
-		// {"autoindex ", ft_autoindex},
-		// {"location ", ft_location},
-		// {"cgi ", ft_cgi},
-		// {"auth ", ft_auth},
-		// {"return ", ft_return}
+		{"server_name ", &ConfigurationFile::dirServerName},
+		{"listen ", &ConfigurationFile::dirListen},
+		{"root ", &ConfigurationFile::dirRoot},
+		{"index ", &ConfigurationFile::dirIndex},
+		{"get_methods ", &ConfigurationFile::dirGetMethods},
+		{"client_max_body_size ", &ConfigurationFile::dirClientMaxBodySize},
+		{"autoindex ", &ConfigurationFile::dirAutoindex},
+		{"location ", &ConfigurationFile::dirLocation},
+		{"cgi ", &ConfigurationFile::dirCgi},
+		{"auth ", &ConfigurationFile::dirAuth},
+		{"return ", &ConfigurationFile::dirReturn}, // pas sur
 		};(void)whichDirective;
 
 	it = this->_file.begin();
@@ -164,11 +258,18 @@ void	ConfigurationFile::checkAllDirectives( void ) {
 		std::string::iterator	i = (*it).begin();
 		while (*i == ' ' || *i == '\t')
 			*i++;
-		std::string ret = this->whichDirective(&(*i));
-		if (ret != "") {
-			(this->*(whichDirective[0].f))();
-			// std::cout << "ret = " << ret << std::endl;
-			// return ;
+		int j = 0;
+		while (j < 11) {
+			if (static_cast< std::string >(&(*i)).find(whichDirective[j].directive) != std::string::npos) {
+				(this->*(whichDirective[j].f))(i);
+				if (j != 7 && static_cast< std::string >(&(*i)).find(';') == std::string::npos)
+					throw ConfigurationFile::BadInstruction();
+				for ( ; *i != ';' ; *i++) {}
+				*i++;
+				if ((*i) != '\0')
+					throw ConfigurationFile::BadEnd();
+			}
+			j++;
 		}
 		*it++;
 	}

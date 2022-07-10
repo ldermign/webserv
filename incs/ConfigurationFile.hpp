@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/08 14:23:01 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/10 17:15:49 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,20 @@ public:
 	void		checkAllDirectives( void );
 
 /* check directives */
-	void		dirServer( void );
+	void		dirServer( std::string::iterator str );
+	void		dirServerName( std::string::iterator str );
+	void		dirListen( std::string::iterator str );
+	void		dirRoot( std::string::iterator str );
+	void		dirIndex( std::string::iterator str );
+	void		dirGetMethods( std::string::iterator str );
+	void		dirClientMaxBodySize( std::string::iterator str );
+	void		dirAutoindex( std::string::iterator str );
+	void		dirLocation( std::string::iterator str );
+	void		dirCgi( std::string::iterator str );
+	void		dirAuth( std::string::iterator str );
+	void		dirReturn( std::string::iterator str );	// voir si je le fais
+	// 10 11
+	
 
 /* utils directiives */
 	int			isDirectiveServer( char const *str );
@@ -50,6 +63,8 @@ public:
 
 	char const *getNameFile( void ) const { return this->_nameFile; }
 	int			getNbrServer( void ) const { return this->_nbrServer; }
+
+	void lexerToken( std::string );
 
 //	EXCEPTION
 
@@ -95,6 +110,24 @@ public:
 		}
 	};
 
+	class BadInstruction : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mMissing at least one ';'.\033[0m");
+		}
+	};
+	
+	class BadEnd : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mNo info after ';'.\033[0m");
+		}
+	};
+
+	class BadDirectiveAutoindex : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive Autoindex.\033[0m");
+		}
+	};
+
 //	CANONICAL FORM
 
 	ConfigurationFile( void ) {}
@@ -113,7 +146,7 @@ private:
 typedef	struct s_getDirective {
 
 	const char	*directive;
-	void		(ConfigurationFile::*f)( void );
+	void		(ConfigurationFile::*f)( std::string::iterator str );
 
 }	t_dir;
 
