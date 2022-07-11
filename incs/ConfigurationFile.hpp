@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/10 17:15:49 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/11 14:04:18 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ public:
 	void		dirAutoindex( std::string::iterator str );
 	void		dirLocation( std::string::iterator str );
 	void		dirCgi( std::string::iterator str );
-	void		dirAuth( std::string::iterator str );
 	void		dirReturn( std::string::iterator str );	// voir si je le fais
 	// 10 11
 	
@@ -64,7 +63,7 @@ public:
 	char const *getNameFile( void ) const { return this->_nameFile; }
 	int			getNbrServer( void ) const { return this->_nbrServer; }
 
-	void lexerToken( std::string );
+	// void lexerToken( std::string );
 
 //	EXCEPTION
 
@@ -124,7 +123,37 @@ public:
 
 	class BadDirectiveAutoindex : public std::exception {
 		virtual const char	*what( void ) const throw() {
-			return ("\033[38;5;124mWrong info in directive Autoindex.\033[0m");
+			return ("\033[38;5;124mWrong info in directive autoindex.\033[0m");
+		}
+	};
+
+	class BadDirectiveRoot : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive root.\033[0m");
+		}
+	};
+
+	class BadDirectiveServerName : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive server_name.\033[0m");
+		}
+	};
+
+	class BadDirectiveClient : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive client_max_body_size.\033[0m");
+		}
+	};
+
+	class BadDirectiveIndex : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive index.\033[0m");
+		}
+	};
+
+	class BadDirectiveMethods : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive get_methods.\033[0m");
 		}
 	};
 
