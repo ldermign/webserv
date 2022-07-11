@@ -1,8 +1,11 @@
 NAME		= webserv
 
 SRCS		=	${SRCSDIR}webserv.cpp \
-			 	${SRCSDIR}loop_server.cpp \
-			 	${SRCSDIR}request.cpp \
+
+#server
+SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
+				${SRCSDIR}set_server/FtServer.cpp \
+
 # parsing 
 SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
 				${PARSDIR}parsing_config_file.cpp \
@@ -22,7 +25,7 @@ DEPS		= ${SRCS:.cpp=.d}
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror --std=c++98 -I ${INCSDIR} -g3
+CFLAGS		= -Wall  -Wextra -Werror --std=c++98 -I ${INCSDIR} -g3 
 
 RM			= rm -rf
 
