@@ -1,5 +1,6 @@
 #include "webserv.hpp"
 #include "request.hpp"
+#include "Communication.hpp"
 
 int		recv_request(int fd)
 {
@@ -8,7 +9,8 @@ int		recv_request(int fd)
 	memset(buff, 0, BUFFER_SIZE);
 	if (recv(fd, buff, BUFFER_SIZE, 0) < 1)
 			return (0);
-	execute_request(buff);
+	Communication			communication(buff);
+
 	return (0);
 }
 
