@@ -18,8 +18,8 @@ class FtServer
 		void					_action_socket(void);
 		void					_init_server(void);
 
-
 	public :
+
 		FtServer(void);
 		FtServer(std::string &name, in_addr_t &domain, u_short &port);
 		~FtServer(void);
