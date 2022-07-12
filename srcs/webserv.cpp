@@ -1,32 +1,24 @@
-#include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <cstdlib>
 #include "request.hpp"
 #include "webserv.hpp"
 #include "ConfigurationFile.hpp"
 #include "Server.hpp"
+#include "FtServer.hpp"
 #include "Chaipa.hpp"
 
-#define QUEUE_SIZE 100
-#define BUFFER_SIZE 10
-
-
-int 	main (int argc, char **argv)
+int		main(int argc, char **argv)
 {
 	(void)argc;(void)argv;
 
-	Chaipa allConfig;
-	// if (argc != 2) {
-	// 	std::cout << "Wrong number of arguments." << std::endl;
-	// 	EXIT (EXIT_FAILURE);
-	// }
+	// Chaipa allConfig;
+
+	std::string	name("cali");
+	in_addr_t	domain = inet_addr("127.0.0.1");
+	u_short		port = htons(4321);
+	FtServer	serv(name, domain, port);
+	serv.main_loop();
+
 	
-	allConfig.checkAll(argv[1]);
-	
-	// recup_config_file(argv[1], allServ.config);
-	// initServ();
-	return (0);
+	// allConfig.checkAll(argv[1]);
+
+	return 0;
 }

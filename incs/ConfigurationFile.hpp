@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/11 14:04:18 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/12 14:33:04 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,12 @@ public:
 	class BadDirectiveMethods : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive get_methods.\033[0m");
+		}
+	};
+
+	class BadDirectiveListen : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive listen.\033[0m");
 		}
 	};
 

@@ -6,11 +6,12 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:22:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/11 15:30:26 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/12 16:02:15 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cstdio>
+#include <cstdlib>
 #include "ConfigurationFile.hpp"
 
 void	ConfigurationFile::checkFileAllTogether( void ) {
@@ -144,9 +145,75 @@ void	ConfigurationFile::dirServerName( std::string::iterator str ) {
 
 }
 
-void	ConfigurationFile::dirListen( std::string::iterator str ) {(void)str;
-	std::cout << "directive Listen" << std::endl;
+int	wrongIP( std::string str ) {
 
+	int i = 0, tmp = 0, ret1 = 0, ret2 = 0;
+	
+	if (str.find_first_not_of("0123456789.") != std::string::npos)
+		return EXIT_FAILURE;
+	while (str[i]) {
+		
+		if (str[i] == '.')
+			return EXIT_FAILURE;
+		tmp = atoi(&(str[i]));
+		if (tmp < 0 || tmp > 256)
+			return EXIT_FAILURE;
+		while (str[i] && str[i] != '.')
+			i++;
+		if (str[i] == '.') {
+			ret2++;
+			i++;
+		}
+		ret1++;
+	}
+	if (ret1 != 4 || ret2 != 3)
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
+}
+
+int	wrongPort( std::string str ) {
+
+	if (str.find_first_not_of("0123456789") != std::string::npos
+		|| atoi(str.c_str()) > 65535 || atoi(str.c_str()) <= 0)
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
+}
+
+void	ConfigurationFile::dirListen( std::string::iterator str ) {(void)str;
+
+	int i = 0, len = 0;
+	std::string tmp = &(*str);
+	std::vector< std::string >	args;
+
+	while (tmp[i]) {
+		if (tmp[i] == ';')
+			break ;
+		while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';' || tmp[i] == ':'))
+			i++;
+		if (tmp[i] == ';' || !tmp[i])
+			break ;
+		len = 0;
+		while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';' && tmp[i] != ':') {
+			i++;
+			len++;
+		}
+		args.push_back((tmp.substr(i - len, len)).c_str());
+	}
+
+	if (args.size() <= 0 || args.size() > 3 || (args.size() == 3 && args.back() != "default_server"))
+		throw ConfigurationFile::BadDirectiveListen();
+	else if (args.size() == 1 && args[0] != "default_server"
+		&& wrongIP(args[0]) == EXIT_FAILURE
+		&& wrongPort(args[0]) == EXIT_FAILURE)
+		throw ConfigurationFile::BadDirectiveListen();
+	else if (args.size() == 2
+		&& ((args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)
+			|| (args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)))
+		throw ConfigurationFile::BadDirectiveListen();
+	else if (args.size() == 3 && (wrongIP(args[0]) == EXIT_FAILURE || wrongPort(args[1]) == EXIT_FAILURE))
+		throw ConfigurationFile::BadDirectiveListen();
 
 }
 
@@ -159,9 +226,8 @@ void	ConfigurationFile::dirRoot( std::string::iterator str ) {
 	std::string	ok = &(*str);
 	int i = 0;
 	for ( ; ok[i] != ';' ; i++) {}
-	tmp.open(ok.substr(0, i));
+	tmp.open((ok.substr(0, i)).c_str());
 	
-
 	if (tmp.fail())
 		throw ConfigurationFile::BadDirectiveRoot();
 	
@@ -184,7 +250,7 @@ void	ConfigurationFile::dirIndex( std::string::iterator str ) {
 	std::string	ok = &(*str);
 	int i = 0;
 	for ( ; ok[i] != ';' ; i++) {}
-	tmp.open(ok.substr(0, i));
+	tmp.open((ok.substr(0, i)).c_str());
 	
 	if (tmp.fail())
 		throw ConfigurationFile::BadDirectiveIndex();
@@ -198,34 +264,44 @@ void	ConfigurationFile::dirIndex( std::string::iterator str ) {
 	}
 }
 
-
 void	ConfigurationFile::dirGetMethods( std::string::iterator str ) {(void)str;
 
-	std::string tmp = static_cast< std::string >(&(*str));
-	int i = 0;
-	while (tmp[i]) {
+	int i = 0, len = 0;
+	std::string tmp = &(*str);
+	std::vector< std::string >	args;
 
+	while (tmp[i]) {
 		if (tmp[i] == ';')
 			break ;
-		if (tmp.find("GET", i) != std::string::npos
-		|| tmp.find("POST", i) != std::string::npos
-		|| tmp.find("DELETE", i) != std::string::npos) {
-			if (tmp.find("GET", i) != std::string::npos)
-				i += 3;
-			else if (tmp.find("POST", i) != std::string::npos)
-				i += 4;
-			else if (tmp.find("DELETE", i) != std::string::npos)
-				i += 6;
-			
-		}
-		else {
-			std::cout << &(tmp[i]) << std::endl;
-			throw ConfigurationFile::BadDirectiveMethods();}
-
-		while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t'))
+		while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';' || tmp[i] == ':'))
 			i++;
+		if (tmp[i] == ';' || !tmp[i])
+			break ;
+		len = 0;
+		while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';' && tmp[i] != ':') {
+			i++;
+			len++;
+		}
+		args.push_back((tmp.substr(i - len, len)).c_str());
 	}
- 
+	for (unsigned long i = 0; i < args.size(); i++)
+		std::cout << "[" << args[i] << ']' << std::endl;
+
+	if (args.size() < 1 || args.size() > 3)
+		throw ConfigurationFile::BadDirectiveMethods();
+	
+	if ((args[0] != "GET" && args[0] != "POST" && args[0] != "DELETE")
+		|| (args.size() > 1 && args[1] != "GET" && args[1] != "POST" && args[1] != "DELETE")
+		|| (args.size() > 2 && args[2] != "GET" && args[2] != "POST" && args[2] != "DELETE"))
+		throw ConfigurationFile::BadDirectiveMethods();
+
+	if (args.size() > 1) {
+		if (args[0] == args[1])
+			throw ConfigurationFile::BadDirectiveMethods();
+		if (args.size() > 2 && (args[1] == args[2] || args[0] == args[2]))
+			throw ConfigurationFile::BadDirectiveMethods();
+	}
+	
 }
 
 void	ConfigurationFile::dirClientMaxBodySize( std::string::iterator str ) {

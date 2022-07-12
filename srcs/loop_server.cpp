@@ -14,15 +14,15 @@ int		recv_request(int fd)
 
 int	initServ(void)
 {
-	
 	int								socket_fd;
 	int								new_socket_fd = -2;
 	socklen_t						addrlen = sizeof(struct sockaddr_in);
 
 	struct sockaddr_in				serv_bind = {	.sin_family = AF_INET,
 													.sin_port = htons(PORT),
-													.sin_addr = {.s_addr = INADDR_ANY}};
-	struct sockaddr_in				cli_bind;
+													.sin_addr = {.s_addr = INADDR_ANY},
+													.sin_zero = {0}};
+	struct pollfd					fds[1] = {{0}};
 
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (bind(socket_fd, (const struct sockaddr*)&serv_bind, sizeof(serv_bind)) == -1)
