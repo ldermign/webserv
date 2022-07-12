@@ -25,30 +25,30 @@ class Communication
 			if (!request.compare(i, 3, "GET"))
 			{
 				this->req = new Get(request);
-				std::cout << this->req->get_request() << std::endl << std::endl;
 				if (this->index_exist(this->req->get_source()))
 				{
 					this->res = new Response(200, this->req->get_source(), this->req->get_version());
-					this->res->print_response();
 				}
 				else
 				{
 					this->res = new Response(404, this->req->get_source(), this->req->get_version());
-					this->res->print_response();
 				}
 			}
 			else if (!request.compare(i, 4, "POST"))
 			{
 				this->req = new Post(request);
-				std::cout << this->req->get_type() << " " << this->req->get_source() << std::endl;
 			}
 			else if (!request.compare(i, 6, "DELETE"))
 			{
 				this->req = new Delete(request);
-				std::cout << this->req->get_type() << " " << this->req->get_source() << std::endl;
 			}
 			else
 				std::cout << "unknown this->request type" << std::endl;
+		}
+
+		std::string		get_response(void) const
+		{
+			return (res->get_response());
 		}
 
 	private :

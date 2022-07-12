@@ -1,4 +1,5 @@
 #include "Socket.hpp"
+#include "Communication.hpp"
 
 /*
  * explication : 
@@ -31,7 +32,7 @@ const std::string&	Socket::get_message(void) const
 	return _message;
 }
 
-void				Socket::set_message(std::string& new_message)
+void				Socket::set_message(std::string new_message)
 {
 	_message = new_message;
 }
@@ -70,6 +71,13 @@ Socket				Socket::accept_new_socket(void)
 	return new_one;
 }
 
+void				Socket::create_response(std::string	& message)
+{
+	Communication		communication(message);
+
+	this->set_message(communication.get_response());
+}
+
 void				Socket::receive_message(void)
 {
 	int					ret_func;
@@ -86,10 +94,9 @@ void				Socket::receive_message(void)
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	//ici que tu taff matthieu, tu prends en parametre _message, tu le traite puis tu le remplace :
-	//ex :
-	//		_message = fonct_de_matthieu(_message);
-	//		et le tour est jouer ;)
+	std::cout << "Request:" << std::endl;
+	std::cout << this->_message << std::endl;
+	this->create_response(this->_message);
 	_flag = SEND;
 }
 

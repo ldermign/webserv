@@ -20,9 +20,10 @@ class Socket
 		struct sockaddr		get_data(void) const;
 		int					get_flag(void) const;
 		void				set_flag(int flag);
-		void				set_message(std::string& new_message);
+		void				set_message(std::string new_message);
 		Socket				accept_new_socket(void);
 		void				send_message(void);
+		void				create_response(std::string & message);
 		void				receive_message(void);
 		void				destroy(void);
 };

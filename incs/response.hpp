@@ -159,7 +159,6 @@ class Response
 	protected :
 
 		// header data
-
 		std::string				response;
 		int 					status;
 		const std::string		server;
