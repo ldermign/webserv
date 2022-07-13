@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/12 14:33:04 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/13 15:11:21 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,14 @@ public:
 	void		checkFileName( void );
 	void		checkFileAllTogether( void );
 	void		setFileVector( void );
-	void		checkNothingOut( void );
-	void		checkAllDirectives( void );
+	void		setArgsFile( void );
+	void		setPos( void ) { this->_pos++; }
+	
+	void		checkNothingOut( void );	// nein!
+	void		checkAllDirectives( void );	// nein!
+
+	int			dirBlockServer( std::string str );
+	int			dirBlockLocation( std::string str );
 
 /* check directives */
 	void		dirServer( std::string::iterator str );
@@ -62,6 +68,8 @@ public:
 
 	char const *getNameFile( void ) const { return this->_nameFile; }
 	int			getNbrServer( void ) const { return this->_nbrServer; }
+	int			getPos( void ) const { return this->_pos; }
+	std::vector< std::string >	&getFile( void ) { return this->_file; }
 
 	// void lexerToken( std::string );
 
@@ -163,9 +171,15 @@ public:
 		}
 	};
 
+	class BadDirectiveReturn : public std::exception {
+		virtual const char	*what( void ) const throw() {
+			return ("\033[38;5;124mWrong info in directive return.\033[0m");
+		}
+	};
+
 //	CANONICAL FORM
 
-	ConfigurationFile( void ) {}
+	ConfigurationFile( void ) : _pos(0) {}
 	ConfigurationFile	&operator=( const ConfigurationFile &rhs );
 	ConfigurationFile( const ConfigurationFile &src );
 	virtual	~ConfigurationFile( void ) {}
@@ -175,6 +189,8 @@ private:
 	int							_nbrServer;
 	char const					*_nameFile;
 	std::vector< std::string >	_file;
+	std::vector< std::string >	_args;
+	int							_pos;
 	
 };
 

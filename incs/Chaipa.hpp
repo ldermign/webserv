@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 14:30:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/08 11:19:44 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/13 15:05:11 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ public:
 			this->getConfigurationFile().setNameFile(str);
 			this->getConfigurationFile().checkFileName();
 			this->getConfigurationFile().setFileVector();
+			this->getConfigurationFile().setArgsFile();
 			this->getConfigurationFile().checkFileAllTogether();
-			this->getConfigurationFile().checkNothingOut();
+			// this->getConfigurationFile().checkNothingOut();
 			this->getConfigurationFile().checkAllDirectives();
 			
 		}
