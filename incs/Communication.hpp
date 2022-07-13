@@ -3,6 +3,8 @@
 #include "response.hpp"
 #include "request.hpp"
 
+#include <string>
+
 class Communication
 {
 	public :
@@ -16,18 +18,17 @@ class Communication
 			////////////////////////////////
 
 			std::string		root("html");
-			std::vector		indexes;
-			std::ve
+			std::vector<std::string>	indexes;
 
 
 			//////////////////////////////////
 
-			index.push_back("index.html");
-			index.push_back("index.php");
+			indexes.push_back("index.html");
+			indexes.push_back("index.php");
 			if (!request.compare(0, 3, "GET"))
 			{
 				this->req = new Get(request);
-				if (this->index_exist(this->req->get_source()))
+				if (this->index_exist(this->req->get_source(), indexes))
 				{
 					this->res = new Response(200, this->req->get_source(), this->req->get_version());
 				}
@@ -62,7 +63,7 @@ class Communication
 
 		bool	index_exist(const std::string source, std::vector<std::string> indexes)
 		{
-			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end; ++it)
+			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
 				if (source == *it)
 					return (true);
