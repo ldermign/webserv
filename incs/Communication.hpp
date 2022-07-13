@@ -9,20 +9,22 @@ class Communication
 
 		Communication(std::string request)
 		{
-			size_t			i;
-			std::string		root("html");
-			std::string		index("index.html index.php");
+			////////////////////////////////
+			//							  //
+			// waiting for liena's parsing//
+			//							  //
+			////////////////////////////////
 
-//			std::cout << request << std::endl;
-			i = 0;
-			while (i < request.size())
-			{
-				if (request.at(i) == ' ')
-					++i;
-				else
-					break ;
-			}
-			if (!request.compare(i, 3, "GET"))
+			std::string		root("html");
+			std::vector		indexes;
+			std::ve
+
+
+			//////////////////////////////////
+
+			index.push_back("index.html");
+			index.push_back("index.php");
+			if (!request.compare(0, 3, "GET"))
 			{
 				this->req = new Get(request);
 				if (this->index_exist(this->req->get_source()))
@@ -34,16 +36,18 @@ class Communication
 					this->res = new Response(404, this->req->get_source(), this->req->get_version());
 				}
 			}
-			else if (!request.compare(i, 4, "POST"))
+			else if (!request.compare(0, 4, "POST"))
 			{
 				this->req = new Post(request);
 			}
-			else if (!request.compare(i, 6, "DELETE"))
+			else if (!request.compare(0, 6, "DELETE"))
 			{
 				this->req = new Delete(request);
 			}
 			else
-				std::cout << "unknown this->request type" << std::endl;
+			{
+				this->res = new Response(400, this->req->get_source(), this->req->get_version());
+			}
 		}
 
 		std::string		get_response(void) const
@@ -56,12 +60,13 @@ class Communication
 		Request		*req;
 		Response	*res;
 
-		bool	index_exist(const std::string source)
+		bool	index_exist(const std::string source, std::vector<std::string> indexes)
 		{
-			(void)source;
-
-			// Need parsing section
-
+			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end; ++it)
+			{
+				if (source == *it)
+					return (true);
+			}
 			return (false);
 		}
 };
