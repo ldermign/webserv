@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/13 15:11:21 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/14 16:39:26 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@
 #include <sstream>
 
 class ConfigurationFile {
-	
+
+	// typedef typename std::vector< std::string >::iterator iterator;
+
 public:
 
 //	FUNCTIONS
@@ -40,17 +42,16 @@ public:
 	int			dirBlockLocation( std::string str );
 
 /* check directives */
-	void		dirServer( std::string::iterator str );
-	void		dirServerName( std::string::iterator str );
-	void		dirListen( std::string::iterator str );
+	int			dirServerName( std::vector< std::string >::iterator it );
+	int			dirListen( std::vector< std::string >::iterator it );
+	int			dirClientMaxBodySize( std::vector< std::string >::iterator it );
+	int			dirReturn( std::vector< std::string >::iterator it );
 	void		dirRoot( std::string::iterator str );
 	void		dirIndex( std::string::iterator str );
 	void		dirGetMethods( std::string::iterator str );
-	void		dirClientMaxBodySize( std::string::iterator str );
 	void		dirAutoindex( std::string::iterator str );
 	void		dirLocation( std::string::iterator str );
 	void		dirCgi( std::string::iterator str );
-	void		dirReturn( std::string::iterator str );	// voir si je le fais
 	// 10 11
 	
 
