@@ -71,11 +71,12 @@ Socket				Socket::accept_new_socket(void)
 	return new_one;
 }
 
-void				Socket::create_response(std::string	& message)
+Response*			Socket::create_response(std::string	& message)
 {
 	Communication		communication(message);
 
 	this->set_message(communication.get_response());
+	return (communication.get_res());
 }
 
 void				Socket::receive_message(void)
@@ -84,6 +85,7 @@ void				Socket::receive_message(void)
 	std::vector<char>	buff(BUFF_SIZE);
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
+	Response			*response;
 	
 	_message = "";
 	while ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
@@ -94,9 +96,12 @@ void				Socket::receive_message(void)
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	std::cout << "Request:" << std::endl;
-	std::cout << this->_message << std::endl;
-	this->create_response(this->_message);
+	response = this->create_response(this->_message);
+
+	// response->get_connection()
+	// 1) if true ==> keep-alive
+	// 2) if false ==> close
+
 	_flag = SEND;
 }
 
@@ -104,6 +109,7 @@ struct sockaddr		Socket::get_data(void) const
 {
 	return _data;
 }
+
 void				Socket::destroy(void)
 {
 	if (_fd > 2)

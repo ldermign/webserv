@@ -1,9 +1,10 @@
 #pragma once
 
-#include "response.hpp"
-#include "request.hpp"
+#include "Response.hpp"
+#include "Request.hpp"
 
 #include <string>
+#include <vector>
 
 class Communication
 {
@@ -28,7 +29,9 @@ class Communication
 			if (!request.compare(0, 3, "GET"))
 			{
 				this->req = new Get(request);
-				if (this->index_exist(this->req->get_source(), indexes))
+				if (!this->req->get_format())
+					this->res = new Response(400, this->req->get_source(), this->req->get_version());
+				else if (this->index_exist(this->req->get_source(), indexes))
 				{
 					this->res = new Response(200, this->req->get_source(), this->req->get_version());
 				}
@@ -54,6 +57,11 @@ class Communication
 		std::string		get_response(void) const
 		{
 			return (res->get_response());
+		}
+
+		Response*		get_res(void) const
+		{
+			return (this->res);
 		}
 
 	private :

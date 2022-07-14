@@ -42,7 +42,8 @@ class Response
 
 
 		Response(int status, std::string index, std::string version)
-			: status(status), server("Webserv"), index(index), version(version)		{
+			: status(status), server("Webserv"), connection(false), index(index), version(version)
+		{
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
 			this->set_error_name(this->init_error_name());
@@ -108,6 +109,11 @@ class Response
 			return (this->error_name);
 		}
 
+		bool			get_connection(void) const
+		{
+			return (this->connection);
+		}
+
 		// Setters
 		
 		void		set_response(std::string response)
@@ -165,7 +171,7 @@ class Response
 		std::string				date;
 		std::string				content_type;
 //		std::string				keep_alive;
-//		std::string				connection;
+		bool					connection;
 //		std::string				age;
 //		std::string				x_cache_info;
 		size_t					content_length;
@@ -357,6 +363,15 @@ class Response
 			return (body);
 		}
 
+		std::string		get_connection_value(void)
+		{
+			if (this->connection)
+				return ("keep-alive");
+			else
+				return ("close");
+		}
+
+
 		std::string		create_response(void)
 		{
 			std::stringstream		ss;
@@ -367,7 +382,7 @@ class Response
 			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << "\r\n";
 			ss << "Content-Length: " << this->get_content_length() << "\r\n";
-			ss << "Connection: " << "close" << "\r\n";
+			ss << "Connection: " << this->get_connection_value() << "\r\n";
 			ss << "\r\n";
 			ss << this->get_body();
 			response = ss.str();

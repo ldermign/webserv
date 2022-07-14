@@ -44,6 +44,16 @@ class Request
 			return (this->source);
 		}
 
+		bool						get_connection(void) const
+		{
+			return (this->connection);
+		}
+
+		bool						get_format(void) const
+		{
+			return (this->format);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -66,24 +76,35 @@ class Request
 			this->version = version;
 		}
 
+		void	set_connection(bool connection)
+		{
+			this->connection = connection;
+		}
+
+		void	set_format(bool format)
+		{
+			this->format = format;
+		}
+
+		class NoSpaceException : public std::exception
+		{
+			public :
+				NoSpaceException() {};
+				virtual const char* what() const throw()
+				{
+					return ("Error: missing space");
+				};
+		};
+
 	protected :
 		
 		std::string				request;
 		std::string				type;
 		std::string				source;
 		std::string				version;
+		bool					connection;
+		bool					format;
 
-		size_t			size_elem(std::string request)
-		{
-			size_t		pos;
-
-			if ((pos = request.find(' ')) != std::string::npos)
-			{
-				return (pos);
-			}
-			pos = request.find('\0');
-			return (pos);
-		}
 
 		std::string		get_elem_at(int n)
 		{
@@ -104,6 +125,22 @@ class Request
 			}
 			return (get_request().substr(it2 - get_request().begin(), it - it2));
 		}
+
+		std::string::iterator		parse_start_line(void)
+		{
+			std::string::iterator it = this->request.begin();
+			bool				space_separated = false;
+
+			it += this->type.length();
+			while (it != request.end() && (*it == ' ' || *it == '\t'))
+			{
+				++it;
+				space_separated = true;
+			}
+			if (!space_separated)
+				throw (NoSpaceException());
+			return (it);
+		}
 };
 
 class Get : public Request
@@ -112,7 +149,18 @@ class Get : public Request
 
 	Get(std::string request) : Request(request)
 	{
+		std::string::iterator		it;
+
 		this->set_type("GET");
+		try
+		{
+			it = this->parse_start_line();
+			this->format = true;
+		}
+		catch (std::exception const & e)
+		{
+			this->format = false;
+		}
 		this->set_source(this->get_elem_at(2));
 		this->set_version(this->get_elem_at(3));
 	}
