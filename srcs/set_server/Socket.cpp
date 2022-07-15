@@ -72,11 +72,12 @@ Socket				Socket::accept_new_socket(void)
 	return new_one;
 }
 
-void				Socket::create_response(std::string	& message)
+Response*			Socket::create_response(std::string	& message)
 {
 	Communication		communication(message);
 
 	this->set_message(communication.get_response());
+	return (communication.get_res());
 }
 
 void				Socket::receive_message(void)
@@ -86,6 +87,8 @@ void				Socket::receive_message(void)
 	std::string			s1 = "";
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
+	Response			*response;
+//	std::string			request("GET index.html HTTP/1.0\r\n");
 	
 	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{
@@ -104,12 +107,21 @@ void				Socket::receive_message(void)
 		return ;
 	}
 	_message.append(buff.begin(), buff.end());
+	response = this->create_response(this->_message);
+
+	// usage: 
+	// response->get_connection()
+	// 1) if true ==> keep-alive 
+	// 2) if false ==> close
+
+	_flag = SEND;
 }
 
 struct sockaddr		Socket::get_data(void) const
 {
 	return _data;
 }
+
 void				Socket::destroy(void)
 {
 	if (_fd > 2)
