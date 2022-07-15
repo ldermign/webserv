@@ -7,6 +7,7 @@
 #include <map>
 #include <iterator>
 #include <fstream>
+#include <vector>
 
 #define	END_RES_LINE "\r\n"
 
@@ -46,6 +47,7 @@ class Response
 		Response(Request *request)
 			: server("Webserv"), connection(false), index(request->get_index()), version(request->get_version())
 		{
+			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
 			this->set_error_name(this->init_error_name());
@@ -373,6 +375,29 @@ class Response
 				return ("close");
 		}
 
+		int		create_status(Request * request)
+		{
+			std::vector<std::string>		indexes;
+			std::string						root;
+
+			indexes.push_back("index.html");
+			indexes.push_back("index.php");
+			if (!request->get_format())
+				return (400);
+			if (!index_exist(request->get_index(), indexes))
+				return (404);
+			return (200);
+		}
+
+		bool	index_exist(const std::string source, std::vector<std::string> indexes)
+		{
+			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
+			{
+				if (source == *it)
+					return (true);
+			}
+			return (false);
+		}
 
 		std::string		create_response(void)
 		{

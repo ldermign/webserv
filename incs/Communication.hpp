@@ -31,13 +31,4 @@ class Communication
 		Request		*req;
 		Response	*res;
 
-		bool	index_exist(const std::string source, std::vector<std::string> indexes)
-		{
-			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
-			{
-				if (source == *it)
-					return (true);
-			}
-			return (false);
-		}
 };

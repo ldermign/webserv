@@ -21,8 +21,6 @@ class Request
 			{
 				this->format = false;
 			}
-			this->set_index(this->get_elem_at(2));
-			this->set_version(this->get_elem_at(3));
 		}
 
 		virtual ~Request() {}
