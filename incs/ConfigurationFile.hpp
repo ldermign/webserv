@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 15:35:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/15 14:29:49 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/15 15:21:54 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,6 @@
 # define CONFIGURATIONFILE_HPP
 
 #include "webserv.hpp"
-#include <vector>
-#include <fstream>
-#include <exception>
-#include <sys/stat.h>
-#include <cstdlib>
-#include <sstream>
 
 class ConfigurationFile {
 
@@ -33,7 +27,6 @@ public:
 	void		checkFileAllTogether( void );
 	void		setFileVector( void );
 	void		setArgsFile( void );
-	void		setPos( void ) { this->_pos++; }
 	
 	void		checkNothingOut( void );	// nein!
 	void		checkAllDirectives( void );	// nein!
@@ -70,7 +63,6 @@ public:
 
 	char const *getNameFile( void ) const { return this->_nameFile; }
 	int			getNbrServer( void ) const { return this->_nbrServer; }
-	int			getPos( void ) const { return this->_pos; }
 	std::vector< std::string >	&getFile( void ) { return this->_file; }
 
 	// void lexerToken( std::string );
@@ -205,7 +197,7 @@ public:
 
 //	CANONICAL FORM
 
-	ConfigurationFile( void ) : _pos(0) {}
+	ConfigurationFile( void ) {}
 	ConfigurationFile	&operator=( const ConfigurationFile &rhs );
 	ConfigurationFile( const ConfigurationFile &src );
 	virtual	~ConfigurationFile( void ) {}
@@ -217,7 +209,6 @@ private:
 	std::vector< std::string >	_file;
 	std::vector< std::string >	_args;
 	std::string					_locationTmp;
-	int							_pos;
 	
 };
 

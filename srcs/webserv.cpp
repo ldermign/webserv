@@ -3,13 +3,12 @@
 #include "ConfigurationFile.hpp"
 #include "Server.hpp"
 #include "FtServer.hpp"
-#include "Chaipa.hpp"
 
 int		main(int argc, char **argv)
 {
 	(void)argc;(void)argv;
 
-	Chaipa allConfig;
+	Server allConfig;
 
 	// std::string	name("cali");
 	// in_addr_t	domain = inet_addr("127.0.0.1");
