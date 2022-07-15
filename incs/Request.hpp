@@ -8,17 +8,32 @@ class Request
 
 		Request() {}
 
-		Request(std::string const & request) : request(request) {}
+		Request(std::string const & request) : request(request)
+		{
+			std::string::iterator		it;
+
+			try
+			{
+				it = this->parse_start_line();
+				this->format = true;
+			}
+			catch (std::exception const & e)
+			{
+				this->format = false;
+			}
+			this->set_index(this->get_elem_at(2));
+			this->set_version(this->get_elem_at(3));
+		}
 
 		virtual ~Request() {}
 
-		Request(Request const & src) : source(src.source)
+		Request(Request const & src) : index(src.index)
 		{
 		}
 
 		Request&		operator=(Request const & rhs)
 		{
-			this->source = rhs.source;
+			this->index = rhs.index;
 			return (*this);
 		}
 
@@ -39,9 +54,9 @@ class Request
 			return (this->request);
 		}
 
-		const std::string			&get_source(void) const
+		const std::string			&get_index(void) const
 		{
-			return (this->source);
+			return (this->index);
 		}
 
 		bool						get_connection(void) const
@@ -66,9 +81,9 @@ class Request
 			this->type = type;
 		}
 
-		void	set_source(std::string const & source)
+		void	set_index(std::string const & index)
 		{
-			this->source = source;
+			this->index = index;
 		}
 
 		void	set_version(std::string const & version)
@@ -86,10 +101,10 @@ class Request
 			this->format = format;
 		}
 
-		class NoSpaceException : public std::exception
+		class FormatException : public std::exception
 		{
 			public :
-				NoSpaceException() {};
+				FormatException() {};
 				virtual const char* what() const throw()
 				{
 					return ("Error: missing space");
@@ -100,7 +115,7 @@ class Request
 		
 		std::string				request;
 		std::string				type;
-		std::string				source;
+		std::string				index;
 		std::string				version;
 		bool					connection;
 		bool					format;
@@ -126,68 +141,56 @@ class Request
 			return (get_request().substr(it2 - get_request().begin(), it - it2));
 		}
 
-		std::string::iterator		parse_start_line(void)
+		std::string::iterator		skip_space(std::string::iterator it)
 		{
-			std::string::iterator it = this->request.begin();
-			bool				space_separated = false;
-
-			it += this->type.length();
 			while (it != request.end() && (*it == ' ' || *it == '\t'))
 			{
 				++it;
-				space_separated = true;
 			}
-			if (!space_separated)
-				throw (NoSpaceException());
+			return (it);
+		}
+
+		std::string		read_string_in_request(std::string::iterator it)
+		{
+			std::string		str;
+			bool			format = false;
+
+			while (it != this->request.end() && *it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+			{
+				str.append(1, *it);
+				format = true;
+				++it;
+			}
+			if (!format)
+				throw (FormatException());
+			return (str);
+		}
+
+		std::string::iterator		skip_end_line(std::string::iterator it)
+		{
+			it = this->skip_space(it);
+			return (it);
+		}
+
+		std::string::iterator		parse_start_line(void)
+		{
+			std::string::iterator it = this->request.begin();
+
+			for (int i = 0; i < 3; i++)
+			{
+				it = this->skip_space(it);
+				switch (i)
+				{
+					case 0 :
+						it += (this->type = this->read_string_in_request(it)).length();
+						break;
+					case 1:
+						it += (this->index = this->read_string_in_request(it)).length();
+						break;
+					case 2:
+						it += (this->version = this->read_string_in_request(it)).length();
+				}
+			}
 			return (it);
 		}
 };
-
-class Get : public Request
-{
-	public :
-
-	Get(std::string request) : Request(request)
-	{
-		std::string::iterator		it;
-
-		this->set_type("GET");
-		try
-		{
-			it = this->parse_start_line();
-			this->format = true;
-		}
-		catch (std::exception const & e)
-		{
-			this->format = false;
-		}
-		this->set_source(this->get_elem_at(2));
-		this->set_version(this->get_elem_at(3));
-	}
-};
-
-class Post : public Request
-{
-	public :
-
-	Post(std::string request) : Request(request)
-	{
-		this->set_type("Post");
-		this->set_source(this->get_elem_at(2));
-		this->set_version(this->get_elem_at(3));
-	}
-};
-
-class Delete : public Request
-{
-	public :
-
-	Delete(std::string request) : Request(request)
-	{
-		this->set_type("Delete");
-		this->set_source(this->get_elem_at(2));
-		this->set_version(this->get_elem_at(3));
-	}
-};
-
-void	execute_request(std::string request);

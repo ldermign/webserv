@@ -10,6 +10,8 @@
 
 #define	END_RES_LINE "\r\n"
 
+#include "Request.hpp"
+
 class Response
 {
 	public :
@@ -41,8 +43,8 @@ class Response
 		}
 
 
-		Response(int status, std::string index, std::string version)
-			: status(status), server("Webserv"), connection(false), index(index), version(version)
+		Response(Request *request)
+			: server("Webserv"), connection(false), index(request->get_index()), version(request->get_version())
 		{
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());

@@ -12,46 +12,8 @@ class Communication
 
 		Communication(std::string request)
 		{
-			////////////////////////////////
-			//							  //
-			// waiting for liena's parsing//
-			//							  //
-			////////////////////////////////
-
-			std::string		root("html");
-			std::vector<std::string>	indexes;
-
-
-			//////////////////////////////////
-
-			indexes.push_back("index.html");
-			indexes.push_back("index.php");
-			if (!request.compare(0, 3, "GET"))
-			{
-				this->req = new Get(request);
-				if (!this->req->get_format())
-					this->res = new Response(400, this->req->get_source(), this->req->get_version());
-				else if (this->index_exist(this->req->get_source(), indexes))
-				{
-					this->res = new Response(200, this->req->get_source(), this->req->get_version());
-				}
-				else
-				{
-					this->res = new Response(404, this->req->get_source(), this->req->get_version());
-				}
-			}
-			else if (!request.compare(0, 4, "POST"))
-			{
-				this->req = new Post(request);
-			}
-			else if (!request.compare(0, 6, "DELETE"))
-			{
-				this->req = new Delete(request);
-			}
-			else
-			{
-				this->res = new Response(400, this->req->get_source(), this->req->get_version());
-			}
+			this->req = new Request(request);
+			this->res = new Response(this->req);
 		}
 
 		std::string		get_response(void) const
