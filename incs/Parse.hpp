@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigurationFile.hpp                              :+:      :+:    :+:   */
+/*   Parse.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,12 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONFIGURATIONFILE_HPP
-# define CONFIGURATIONFILE_HPP
+#ifndef Parse_HPP
+# define Parse_HPP
 
 #include "webserv.hpp"
 
-class ConfigurationFile {
+class Parse {
 
 	// typedef typename std::vector< std::string >::iterator iterator;
 
@@ -197,10 +197,10 @@ public:
 
 //	CANONICAL FORM
 
-	ConfigurationFile( void ) {}
-	ConfigurationFile	&operator=( const ConfigurationFile &rhs );
-	ConfigurationFile( const ConfigurationFile &src );
-	virtual	~ConfigurationFile( void ) {}
+	Parse( void ) {}
+	Parse	&operator=( const Parse &rhs );
+	Parse( const Parse &src );
+	virtual	~Parse( void ) {}
 
 private:
 
@@ -215,7 +215,7 @@ private:
 typedef	struct s_getDirective {
 
 	const char	*directive;
-	void		(ConfigurationFile::*f)( std::string::iterator str );
+	void		(Parse::*f)( std::string::iterator str );
 
 }	t_dir;
 

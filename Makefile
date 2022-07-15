@@ -6,9 +6,10 @@ SRCS		=	${SRCSDIR}webserv.cpp \
 SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
 				${SRCSDIR}set_server/FtServer.cpp \
 
-# parsing 
-SRCS		+=	${PARSDIR}ConfigurationFile.cpp \
-				${PARSDIR}Location.cpp
+# Parse 
+SRCS		+=	${PARSDIR}Parse.cpp \
+				${PARSDIR}Location.cpp \
+				${PARSDIR}Config.cpp
 
 INCSDIR		= incs/
 

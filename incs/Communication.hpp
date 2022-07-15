@@ -60,7 +60,7 @@ class Communication
 		{
 			(void)source;
 
-			// Need parsing section
+			// Need Parse section
 
 			return (false);
 		}

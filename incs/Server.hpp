@@ -6,43 +6,30 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/15 15:14:02 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/15 16:15:55 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include "ConfigurationFile.hpp"
-#include "Server.hpp"
+// #include "Parse.hpp"
+// #include "Server.hpp"
+#include "webserv.hpp"
 
 class Server {
 	
 public:
 
-	void	checkAll( const char *str ) {
-		try {
-			this->getConfigurationFile().setNameFile(str);
-			this->getConfigurationFile().checkFileName();
-			this->getConfigurationFile().setFileVector();
-			this->getConfigurationFile().setArgsFile();
-			this->getConfigurationFile().checkFileAllTogether();
-			this->getConfigurationFile().checkAllDirectives();
-			
-		}
-		catch (const std::exception &e) {
-			std::cout << e.what() << std::endl;
-			exit (EXIT_FAILURE);
-		}
-	}
-
-	ConfigurationFile	&getConfigurationFile( void ) { return this->_config; }
-
 //	ACCESSORS
 
-	std::string	getRootFile( void );
-	int			getPort( void );
-	std::string	getServerName( void );
+	std::string					getHost( void ) { return this->_host; }
+	int							getPort( void ) { return this->_port; }
+	std::vector< std::string >	&getServerName( void ) { return this->_serverName; }
+	bool						getDefaultServer( void ) { return this->_defaultServer; }
+	std::vector< int >			&getErrorCode( void ) { return this->_errorCode; }
+	size_t						getClient( void ) { return this->_clientMaxBodySize; }
+	std::vector< Location * >	&getHost( void ) { return this->_location; }
 
 //	CANONICAL FORM
 
@@ -59,24 +46,13 @@ public:
 
 private:
 
-	
-
-	std::vector< std::string >	_listen;
+	std::string					_host;
+	int							_port;
 	std::vector< std::string >	_serverName;
-	// std::map< int >				_clientMaxBodySize; revoir caaa la
-	std::vector< std::string >	_methods;
-	std::vector< std::string >	_index;
-	std::string					_root;
-	std::string					_cgi;
-	bool						_autoIndex;
-
-	// int			_port;
-	
-	// la location qui doit avoir une classe dedans;
-	// voir comment faire le port
-	
-
-	ConfigurationFile _config;
+	bool						_defaultServer;
+	std::vector< int >			_errorCode;
+	size_t						_clientMaxBodySize;
+	std::vector< Location * >	_location;
 	
 };
 

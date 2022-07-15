@@ -1,6 +1,8 @@
 #include "request.hpp"
 #include "webserv.hpp"
-#include "ConfigurationFile.hpp"
+#include "Parse.hpp"
+#include "Location.hpp"
+#include "Config.hpp"
 #include "Server.hpp"
 #include "FtServer.hpp"
 
@@ -8,7 +10,7 @@ int		main(int argc, char **argv)
 {
 	(void)argc;(void)argv;
 
-	Server allConfig;
+	Config allConfig;
 
 	// std::string	name("cali");
 	// in_addr_t	domain = inet_addr("127.0.0.1");
