@@ -86,6 +86,7 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	Response			*response;
+//	std::string			request("GET index.html HTTP/1.0\r\n");
 	
 	_message = "";
 	while ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
@@ -98,8 +99,9 @@ void				Socket::receive_message(void)
 		throw exp;
 	response = this->create_response(this->_message);
 
+	// usage: 
 	// response->get_connection()
-	// 1) if true ==> keep-alive
+	// 1) if true ==> keep-alive 
 	// 2) if false ==> close
 
 	_flag = SEND;

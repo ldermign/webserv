@@ -11,7 +11,8 @@ class Request
 		Request(std::string const & request) : request(request)
 		{
 			std::string::iterator		it;
-
+			
+			std::cout << "request = " << request << std::endl;
 			try
 			{
 				it = this->parse_start_line();
@@ -166,13 +167,27 @@ class Request
 
 		std::string::iterator		skip_end_line(std::string::iterator it)
 		{
+			std::pair<std::string::iterator, bool>		ret;
+
+			ret.first = it;
 			it = this->skip_space(it);
-			return (it);
+			if (*it == '\r')
+			{
+				++it;
+				if (*it == '\n')
+				{
+					++it;
+					ret.second = true;
+					return (it);
+				}
+			}
+			throw (FormatException());
 		}
 
 		std::string::iterator		parse_start_line(void)
 		{
 			std::string::iterator it = this->request.begin();
+			std::pair<std::string::iterator, bool>		ret;
 
 			for (int i = 0; i < 3; i++)
 			{
@@ -189,6 +204,7 @@ class Request
 						it += (this->version = this->read_string_in_request(it)).length();
 				}
 			}
+			it = skip_end_line(it);
 			return (it);
 		}
 };
