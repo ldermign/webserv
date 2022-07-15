@@ -42,6 +42,7 @@ void				Socket::send_message(void)
 	std::runtime_error	exp("send()");
 
 	ret_func = send(_fd, _message.c_str(), _message.size(), 0);
+	_message = "";
 	if (ret_func == -1)
 		throw exp;
 	_flag = RECV;
@@ -82,22 +83,27 @@ void				Socket::receive_message(void)
 {
 	int					ret_func;
 	std::vector<char>	buff(BUFF_SIZE);
+	std::string			s1 = "";
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	
-	_message = "";
-	while ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
+	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{
-		_message.append(buff.begin(), buff.end());
+		s1.append(buff.begin(), buff.end());
 		first_time = false;
-		break ;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	std::cout << "Request:" << std::endl;
-	std::cout << this->_message << std::endl;
-	this->create_response(this->_message);
-	_flag = SEND;
+	if (!std::strcmp(s1.c_str(), "\r\n\0") || !std::strcmp(s1.c_str(), "\n") || !std::strcmp(s1.c_str(), ""))
+	{
+		first_time = true;
+		std::cout << "Request:" << std::endl;
+		std::cout << this->_message << std::endl;
+		this->create_response(this->_message);
+		_flag = SEND;
+		return ;
+	}
+	_message.append(buff.begin(), buff.end());
 }
 
 struct sockaddr		Socket::get_data(void) const

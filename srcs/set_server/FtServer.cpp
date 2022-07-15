@@ -120,7 +120,8 @@ void					FtServer::_action_socket(void)
 			try
 			{
 				it->receive_message();
-				std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
+				if (it->get_flag() != RECV)
+					std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
 			}
 			catch (std::exception &e)
 			{
