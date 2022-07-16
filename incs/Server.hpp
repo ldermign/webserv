@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/15 16:15:55 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/16 13:03:55 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ public:
 	bool						getDefaultServer( void ) { return this->_defaultServer; }
 	std::vector< int >			&getErrorCode( void ) { return this->_errorCode; }
 	size_t						getClient( void ) { return this->_clientMaxBodySize; }
-	std::vector< Location * >	&getHost( void ) { return this->_location; }
+	std::vector< Location * >	&getLocation( void ) { return this->_location; }
 
 //	CANONICAL FORM
 

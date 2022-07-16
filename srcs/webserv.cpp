@@ -2,8 +2,8 @@
 #include "webserv.hpp"
 #include "Parse.hpp"
 #include "Location.hpp"
-#include "Config.hpp"
 #include "Server.hpp"
+#include "Config.hpp"
 #include "FtServer.hpp"
 
 int		main(int argc, char **argv)

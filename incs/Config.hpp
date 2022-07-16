@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:00:24 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/15 16:11:42 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/16 13:06:57 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,14 @@ public:
 			exit (EXIT_FAILURE);
 		}
 	}
+	void	getInfo( void ) {
+		
+		int i = 0;
+		while (i < this->getParse().getNbrServer()) {
+			this->_servers = new *Server();
+			i++;
+		}
+	}
 
 	//	ACCESSORS
 
@@ -56,7 +64,7 @@ public:
 private:
 
 	Parse						_config;
-	std::vector< Server * >		_servers;
+	std::vector< Server >		*_servers; // reference ?
 
 
 };
