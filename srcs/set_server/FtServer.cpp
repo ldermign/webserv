@@ -7,14 +7,18 @@
 
 
 FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose"), _set()
-{}
+{
+		_init_server();
+}
 
 FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name), _set()
 {
+		_init_server();
 }
 
 FtServer::~FtServer(void)
-{}
+{
+}
 
 const FtServer& FtServer::operator=(const FtServer& fs)
 {
@@ -162,12 +166,8 @@ int					FtServer::main_loop(void)
 {
 	try 
 	{
-		_init_server();
-		while (true)
-		{
-			_select_socket();
-			_action_socket();
-		}
+		_select_socket();
+		_action_socket();
 	}
 	catch (std::exception &e)
 	{
