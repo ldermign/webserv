@@ -115,13 +115,11 @@ void					FtServer::_action_socket(void)
 			std::cout << "new ACCEPT : " << GREEN << fd.get_fd() << RESET << std::endl;
 			buff_add.push_back(fd);
 		}
-		else if (it->get_flag() == RECV && FD_ISSET(it->get_fd(), &_set[0]))
+		if (it->get_flag() == RECV && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			try
 			{
 				it->receive_message();
-				if (it->get_flag() != RECV)
-					std::cout << "RECV from "<< it->get_fd() <<" : \n" << YELLOW << it->get_message()<< RESET << std::endl;
 			}
 			catch (std::exception &e)
 			{
@@ -131,13 +129,19 @@ void					FtServer::_action_socket(void)
 				it->destroy();
 			}
 		}
-		else if (it->get_flag() == SEND && FD_ISSET(it->get_fd(), &_set[0]))
+		else if (it->get_flag() == SEND && FD_ISSET(it->get_fd(), &_set[1]))
 		{
 			it->send_message();
 			Socket	fd = *it;
-			buff_rem.push_back(fd);
-			std::cout << "SEND to "<< it->get_fd() <<" : \n" << BLUE << it->get_message() << RESET << std::endl;
-			it->destroy();
+			if (!fd.still_connected())
+			{
+				buff_rem.push_back(fd);
+				it->destroy();
+			}
+		}
+		if (it->get_flag() == SEND && !FD_ISSET(it->get_fd(), &_set[1]))
+		{
+			std::cout << it->get_fd() << " cant SEND..." << std::endl;
 		}
 	}
 	for (std::vector<Socket>::iterator it2 = buff_rem.begin(); it2 != buff_rem.end(); it2++)

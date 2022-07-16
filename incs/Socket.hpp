@@ -11,11 +11,13 @@ class Socket
 		struct sockaddr			_data;
 		std::string				_message;
 		int						_flag;
+		bool					_still_connected;
 	public :
 		Socket(void);
 		Socket(int fd, struct sockaddr data, int flag);
 		Socket& operator=(const Socket& fc);
 		~Socket(void);
+		bool				still_connected(void) const;
 		const std::string	&get_message(void) const;
 		int					get_fd(void) const;
 		struct sockaddr		get_data(void) const;
