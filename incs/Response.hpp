@@ -7,8 +7,11 @@
 #include <map>
 #include <iterator>
 #include <fstream>
+#include <vector>
 
 #define	END_RES_LINE "\r\n"
+
+#include "Request.hpp"
 
 class Response
 {
@@ -41,8 +44,10 @@ class Response
 		}
 
 
-		Response(int status, std::string index, std::string version)
-			: status(status), server("Webserv"), index(index), version(version)		{
+		Response(Request *request)
+			: server("Webserv"), connection(false), index(request->get_index()), version(request->get_version())
+		{
+			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
 			this->set_error_name(this->init_error_name());
@@ -108,6 +113,11 @@ class Response
 			return (this->error_name);
 		}
 
+		bool			get_connection(void) const
+		{
+			return (this->connection);
+		}
+
 		// Setters
 		
 		void		set_response(std::string response)
@@ -165,7 +175,7 @@ class Response
 		std::string				date;
 		std::string				content_type;
 //		std::string				keep_alive;
-//		std::string				connection;
+		bool					connection;
 //		std::string				age;
 //		std::string				x_cache_info;
 		size_t					content_length;
@@ -357,6 +367,38 @@ class Response
 			return (body);
 		}
 
+		std::string		get_connection_value(void)
+		{
+			if (this->connection)
+				return ("keep-alive");
+			else
+				return ("close");
+		}
+
+		int		create_status(Request * request)
+		{
+			std::vector<std::string>		indexes;
+			std::string						root;
+
+			indexes.push_back("index.html");
+			indexes.push_back("index.php");
+			if (!request->get_format())
+				return (400);
+			if (!index_exist(request->get_index(), indexes))
+				return (404);
+			return (200);
+		}
+
+		bool	index_exist(const std::string source, std::vector<std::string> indexes)
+		{
+			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
+			{
+				if (source == *it)
+					return (true);
+			}
+			return (false);
+		}
+
 		std::string		create_response(void)
 		{
 			std::stringstream		ss;
@@ -367,7 +409,7 @@ class Response
 			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << "\r\n";
 			ss << "Content-Length: " << this->get_content_length() << "\r\n";
-			ss << "Connection: " << "close" << "\r\n";
+			ss << "Connection: " << this->get_connection_value() << "\r\n";
 			ss << "\r\n";
 			ss << this->get_body();
 			response = ss.str();

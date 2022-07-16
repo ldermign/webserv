@@ -1,7 +1,10 @@
 #pragma once
 
-#include "response.hpp"
-#include "request.hpp"
+#include "Response.hpp"
+#include "Request.hpp"
+
+#include <string>
+#include <vector>
 
 class Communication
 {
@@ -9,41 +12,8 @@ class Communication
 
 		Communication(std::string request)
 		{
-			size_t			i;
-			std::string		root("html");
-			std::string		index("index.html index.php");
-
-//			std::cout << request << std::endl;
-			i = 0;
-			while (i < request.size())
-			{
-				if (request.at(i) == ' ')
-					++i;
-				else
-					break ;
-			}
-			if (!request.compare(i, 3, "GET"))
-			{
-				this->req = new Get(request);
-				if (this->index_exist(this->req->get_source()))
-				{
-					this->res = new Response(200, this->req->get_source(), this->req->get_version());
-				}
-				else
-				{
-					this->res = new Response(404, this->req->get_source(), this->req->get_version());
-				}
-			}
-			else if (!request.compare(i, 4, "POST"))
-			{
-				this->req = new Post(request);
-			}
-			else if (!request.compare(i, 6, "DELETE"))
-			{
-				this->req = new Delete(request);
-			}
-			else
-				std::cout << "unknown this->request type" << std::endl;
+			this->req = new Request(request);
+			this->res = new Response(this->req);
 		}
 
 		std::string		get_response(void) const
@@ -51,17 +21,14 @@ class Communication
 			return (res->get_response());
 		}
 
+		Response*		get_res(void) const
+		{
+			return (this->res);
+		}
+
 	private :
 
 		Request		*req;
 		Response	*res;
 
-		bool	index_exist(const std::string source)
-		{
-			(void)source;
-
-			// Need Parse section
-
-			return (false);
-		}
 };

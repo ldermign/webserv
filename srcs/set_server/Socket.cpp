@@ -42,6 +42,7 @@ void				Socket::send_message(void)
 	std::runtime_error	exp("send()");
 
 	ret_func = send(_fd, _message.c_str(), _message.size(), 0);
+	_message = "";
 	if (ret_func == -1)
 		throw exp;
 	_flag = RECV;
@@ -71,32 +72,48 @@ Socket				Socket::accept_new_socket(void)
 	return new_one;
 }
 
-void				Socket::create_response(std::string	& message)
+Response*			Socket::create_response(std::string	& message)
 {
 	Communication		communication(message);
 
 	this->set_message(communication.get_response());
+	return (communication.get_res());
 }
 
 void				Socket::receive_message(void)
 {
 	int					ret_func;
 	std::vector<char>	buff(BUFF_SIZE);
+	std::string			s1 = "";
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
+	Response			*response;
+//	std::string			request("GET index.html HTTP/1.0\r\n");
 	
-	_message = "";
-	while ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
+	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{
-		_message.append(buff.begin(), buff.end());
+		s1.append(buff.begin(), buff.end());
 		first_time = false;
-		break ;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	std::cout << "Request:" << std::endl;
-	std::cout << this->_message << std::endl;
-	this->create_response(this->_message);
+	if (!std::strcmp(s1.c_str(), "\r\n\0") || !std::strcmp(s1.c_str(), "\n") || !std::strcmp(s1.c_str(), ""))
+	{
+		first_time = true;
+		std::cout << "Request:" << std::endl;
+		std::cout << this->_message << std::endl;
+		this->create_response(this->_message);
+		_flag = SEND;
+		return ;
+	}
+	_message.append(buff.begin(), buff.end());
+	response = this->create_response(this->_message);
+
+	// usage: 
+	// response->get_connection()
+	// 1) if true ==> keep-alive 
+	// 2) if false ==> close
+
 	_flag = SEND;
 }
 
@@ -104,6 +121,7 @@ struct sockaddr		Socket::get_data(void) const
 {
 	return _data;
 }
+
 void				Socket::destroy(void)
 {
 	if (_fd > 2)
