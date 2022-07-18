@@ -325,6 +325,8 @@ class Response
 					return ("503 Service Unavailable");
 				case 504:
 					return ("504 Gateway Timeout");
+				case 505:
+					return ("505 HTTP Version Not Supported");
 				default :
 					return ("Error: Unknown error code");
 			}
@@ -375,6 +377,13 @@ class Response
 				return ("close");
 		}
 
+		bool	check_version(void) const
+		{
+			if (!this->get_version().compare("HTTP/1.1"))
+				return (true);
+			return (false);
+		}
+
 		int		create_status(Request * request)
 		{
 			std::vector<std::string>		indexes;
@@ -386,6 +395,8 @@ class Response
 				return (400);
 			if (!index_exist(request->get_index(), indexes))
 				return (404);
+			if (!check_version())
+				return (505);
 			return (200);
 		}
 
