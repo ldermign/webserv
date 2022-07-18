@@ -109,11 +109,6 @@ void				Socket::receive_message(void)
 	_message.append(buff.begin(), buff.end());
 	response = this->create_response(this->_message);
 
-	// usage: 
-	// response->get_connection()
-	// 1) if true ==> keep-alive 
-	// 2) if false ==> close
-
 	_flag = SEND;
 }
 
