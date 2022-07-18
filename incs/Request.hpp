@@ -1,6 +1,7 @@
 #pragma once 
 #include <string>
 #include <iostream>
+#include <map>
 
 class Request
 {
@@ -221,5 +222,6 @@ class Request
 				++it;
 			}
 			*/
+			return (it);
 		}
 };
