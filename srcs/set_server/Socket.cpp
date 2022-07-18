@@ -112,7 +112,7 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	Response			*response;
-	std::string			request("GET index.html HTTP/1.0\r\nconnection: keep-alive\r\n");
+	std::string			request("GET index.html HTTP/1.0\r\ncoNnection: keep-alive\r\nContenT-type: plain/text\r\n\r\n");
 	
 	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{
@@ -128,20 +128,20 @@ void				Socket::receive_message(void)
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		std::cout << "Request:" << std::endl;
-		std::cout << this->_message << std::endl;
-		this->create_response(this->_message);
+		std::cout << request << std::endl;
+		this->create_response(request);
 		_flag = SEND;
 		return ;
 	}
 	_message.append(buff.begin(), buff.end());
-	response = this->create_response(this->_message);
+	response = this->create_response(request);
 	_still_connected = (_still_connected) ? true : response->get_connection();
 	_flag = SEND;
 	return ;
 }
 
 struct sockaddr		Socket::get_data(void) const
-{
+{ 
 	return _data;
 }
 

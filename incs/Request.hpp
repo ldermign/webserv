@@ -2,6 +2,15 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <algorithm>
+
+struct Lower
+{
+	void		operator()(char & c)
+	{
+		c = std::tolower(c);
+	}
+};
 
 class Request
 {
@@ -71,6 +80,11 @@ class Request
 			return (this->format);
 		}
 
+		std::string			get_content_type(void) const
+		{
+			return (this->content_type);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -103,6 +117,11 @@ class Request
 			this->format = format;
 		}
 
+		void	set_content_type(std::string const & content_type)
+		{
+			this->content_type = content_type;
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -114,14 +133,25 @@ class Request
 		};
 
 	protected :
-		
-		std::string				request;
-		std::string				type;
-		std::string				index;
-		std::string				version;
-		bool					connection;
-		bool					format;
 
+		// general
+	
+		std::string				request;
+
+		// first request line
+
+		std::string				index;
+		std::string				type;
+		std::string				version;
+
+		// request header
+
+		bool					connection;
+		std::string				content_type;
+
+		// error
+
+		bool					format;
 
 		std::string		get_elem_at(int n)
 		{
@@ -190,7 +220,6 @@ class Request
 		std::string::iterator		parse_start_line(void)
 		{
 			std::string::iterator it = this->request.begin();
-			std::pair<std::string::iterator, bool>		ret;
 
 			for (int i = 0; i < 3; i++)
 			{
@@ -211,15 +240,71 @@ class Request
 			return (it);
 		}
 
+		bool						end_of_request_line(std::string::iterator it)
+		{
+			if (*it == '\r')
+			{
+				++it;
+				if (*it == '\n')
+				{
+					++it;
+					return (true);
+				}
+			}
+			return (false);
+		}
+
+		void	assign_valid_fields(std::map<std::string, std::string> & fields)
+		{
+			if (!fields["connection"].compare("keep-alive"))
+				this->set_connection(1);
+			else
+				this->set_connection(0);
+			this->set_content_type(fields["content-type"]);
+		}
+
+		void	print_header(void) const
+		{
+			std::cout << "Connection: " << this->get_connection() << std::endl;
+			std::cout << "Content-Type: " << this->get_content_type() << std::endl;
+		}
+
 		std::string::iterator		parse_header(std::string::iterator it)
 		{
 			std::map<std::string, std::string>		fields;
+			std::pair<std::string, std::string>		header_line;
 
 			it = skip_space(it);
-			/*
-			while (*it != ':')
+			while (!end_of_request_line(it))
 			{
-				++it;
+
+				while (*it != ':' && *it != '\r' && *it != '\n')
+				{
+					header_line.first.append(1, *it);
+					++it;
+				}
+				if (*it == ':')
+					++it;
+				it = skip_space(it);
+				while (!end_of_request_line(it))
+				{
+					header_line.second.append(1, *it);
+					++it;
+				}
+				std::for_each(header_line.first.begin(), header_line.first.end(), Lower());
+				std::for_each(header_line.second.begin(), header_line.second.end(), Lower());
+				fields.insert(header_line);
+				header_line.first.clear();
+				header_line.second.clear();
+				it = skip_end_line(it);
+			}
+			this->assign_valid_fields(fields);
+			/*
+			std::cout << "HEADER = " << std::endl;
+			for (std::map<std::string, std::string>::iterator it = fields.begin();
+				it != fields.end(); ++it)
+			{
+				std::cout << "first = " << it->first << " second = " << it->second << std::endl;
 			}
 			*/
 			return (it);
