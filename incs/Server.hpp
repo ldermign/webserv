@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/16 13:03:55 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/18 17:56:48 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,21 @@
 // #include "Parse.hpp"
 // #include "Server.hpp"
 #include "webserv.hpp"
+#include "Location.hpp"
 
 class Server {
 	
 public:
 
+//
+	int							setServer( std::vector< std::string >::iterator it );
+	int							setName( std::vector< std::string >::iterator it );
+	int							setListen( std::vector< std::string >::iterator it );
+	int							setClient( std::vector< std::string >::iterator it );
+
 //	ACCESSORS
+
+	Server						&getServer( void ) { return *this; }
 
 	std::string					getHost( void ) { return this->_host; }
 	int							getPort( void ) { return this->_port; }
@@ -29,7 +38,7 @@ public:
 	bool						getDefaultServer( void ) { return this->_defaultServer; }
 	std::vector< int >			&getErrorCode( void ) { return this->_errorCode; }
 	size_t						getClient( void ) { return this->_clientMaxBodySize; }
-	std::vector< Location * >	&getLocation( void ) { return this->_location; }
+	std::vector< Location >		&getLocation( void ) { return this->_location; }
 
 //	CANONICAL FORM
 
@@ -52,7 +61,7 @@ private:
 	bool						_defaultServer;
 	std::vector< int >			_errorCode;
 	size_t						_clientMaxBodySize;
-	std::vector< Location * >	_location;
+	std::vector< Location >		_location;
 	
 };
 

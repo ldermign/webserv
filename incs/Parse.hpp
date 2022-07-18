@@ -64,6 +64,7 @@ public:
 	char const *getNameFile( void ) const { return this->_nameFile; }
 	int			getNbrServer( void ) const { return this->_nbrServer; }
 	std::vector< std::string >	&getFile( void ) { return this->_file; }
+	std::vector< std::string >	&getArgs( void ) { return this->_args; }
 
 	// void lexerToken( std::string );
 
@@ -74,121 +75,101 @@ public:
 			return ("\033[38;5;124mCouldn't open file.\033[0m");
 		}
 	};
-
 	class EmptyFile : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mFile is empty.\033[0m");
 		}
 	};
-
 	class FileIsDir : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mArgument is a directory.\033[0m");
 		}
 	};
-
 	class BadBracket : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mCheck brackets in file.\033[0m");
 		}
 	};
-
 	class BlockServer : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mSomething's out of server block.\033[0m");
 		}
 	};
-
 	class WrongInfo : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in file.\033[0m");
 		}
 	};
-
 	class NbrServer : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mMissing at least one server bloc.\033[0m");
 		}
 	};
-
 	class BadInstruction : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mMissing at least one ';'.\033[0m");
 		}
 	};
-	
 	class BadEnd : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mNo info after ';'.\033[0m");
 		}
 	};
-
 	class BadDirectiveAutoindex : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive autoindex.\033[0m");
 		}
 	};
-
 	class BadDirectiveRoot : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive root.\033[0m");
 		}
 	};
-
 	class BadDirectiveServerName : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive server_name.\033[0m");
 		}
 	};
-
 	class BadDirectiveClient : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive client_max_body_size.\033[0m");
 		}
 	};
-
 	class BadDirectiveIndex : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive index.\033[0m");
 		}
 	};
-
 	class BadDirectiveMethods : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive get_methods.\033[0m");
 		}
 	};
-
 	class BadDirectiveListen : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive listen.\033[0m");
 		}
 	};
-
 	class BadDirectiveReturn : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive return.\033[0m");
 		}
 	};
-
 	class BadDirectiveErrorPage : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive error_page.\033[0m");
 		}
 	};
-
 	class BadDirectiveLocation : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive location.\033[0m");
 		}
 	};
-
 	class BadDirectiveCgi : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive cgi.\033[0m");
 		}
 	};
-
 	class BadDirectiveDownload : public std::exception {
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mWrong info in directive download.\033[0m");

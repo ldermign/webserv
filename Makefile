@@ -9,6 +9,7 @@ SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
 # Parse 
 SRCS		+=	${PARSDIR}Parse.cpp \
 				${PARSDIR}Location.cpp \
+				${PARSDIR}Server.cpp \
 				${PARSDIR}Config.cpp
 
 INCSDIR		= incs/

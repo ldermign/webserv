@@ -38,9 +38,8 @@ void	Parse::checkFileAllTogether( void ) {
 			if (*it == "}")
 				bracket--;
 			if (this->dirBlockServer(*it) == EXIT_FAILURE && this->dirBlockLocation(*it) == EXIT_FAILURE
-				&& *it != "}") { std::cout << *it << std::endl;
+				&& *it != "}")
 				throw Parse::WrongInfo();}
-		}
 
 		// if (*it == "location") {
 		// 	if (*it == "{") { std::string error_msg = "\033[38;5;124mMissing path for location : [ ~ " + static_cast< std::string >(*it) + " ~ ]\033[0m";
@@ -151,8 +150,8 @@ void	Parse::setArgsFile( void ) {
 		}
 		*it++;
 	}
-	for (unsigned long i = 0 ; i < this->_args.size() ; i++)
-		std::cout << "[" << this->_args[i] << "]" << std::endl;
+	// for (unsigned long i = 0 ; i < this->_args.size() ; i++)
+	// 	std::cout << "[" << this->_args[i] << "]" << std::endl;
 
 }
 
@@ -597,7 +596,6 @@ void	Parse::checkAllDirectives( void ) {
 			*it++;
 			while (it < this->_args.end() && *it != "server") {
 
-				// std::cout << *it << std::endl;
 				if (*it == "server_name")
 					ret = this->dirServerName(it);
 				else if (*it == "listen")
