@@ -17,6 +17,7 @@ class Request
 			try
 			{
 				it = this->parse_start_line();
+				it = this->parse_header(it);
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -207,5 +208,18 @@ class Request
 			}
 			it = skip_end_line(it);
 			return (it);
+		}
+
+		std::string::iterator		parse_header(std::string::iterator it)
+		{
+			std::map<std::string, std::string>		fields;
+
+			it = skip_space(it);
+			/*
+			while (*it != ':')
+			{
+				++it;
+			}
+			*/
 		}
 };

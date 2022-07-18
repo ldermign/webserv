@@ -352,7 +352,7 @@ class Response
 
 			if (this->status == 200)
 			{
-				std::ifstream		ifs("/var/www/html/index.php");
+				std::ifstream		ifs("/var/www/html/index.html");
 				std::string			line;
 
 				while (std::getline(ifs, line))
