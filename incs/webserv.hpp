@@ -24,6 +24,7 @@
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <sys/socket.h>
+#include <sys/stat.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <fcntl.h>
@@ -38,6 +39,10 @@
 # define WHITE   	"\033[37m"
 # define BOLDBLACK  "\033[1m\033[30m"
 # define RMLINE		"\033[2K"
+#include <fstream>
+#include <exception>
+#include <cstdlib>
+#include <sstream>
 
 int	initServ(void);
 int	recv_request(int fd);
