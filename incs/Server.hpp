@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/18 17:56:48 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 16:50:21 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,21 @@ public:
 
 //	CANONICAL FORM
 
-	Server( void ) {};
+	Server( void )
+		: _host("0.0.0.0"), _port(80), _serverName(), _defaultServer(0),
+		_errorCode(0), _clientMaxBodySize(50), _location() {};
 	Server	&operator=( const Server &rhs ) {
-		if (this != &rhs) {
-		}
+		if (this == &rhs) 
+			return *this;
+		
+		this->_host = rhs._host;
+		this->_port = rhs._port;
+		this->_serverName = rhs._serverName;
+		this->_defaultServer = rhs._defaultServer;
+		this->_errorCode = rhs._errorCode;
+		this->_clientMaxBodySize = rhs._clientMaxBodySize;
+		this->_location = rhs._location;
+		
 		return *this;
 	}
 	Server( const Server &src ) {

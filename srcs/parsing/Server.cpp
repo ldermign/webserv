@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/18 16:57:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/18 18:05:48 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 17:54:35 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,18 @@
 
 int	Server::setName( std::vector< std::string >::iterator it ) {
 	
-	int ret = 0, i = 0;
+	int ret = 0;
 	while (it[ret] != ";")
 		ret++;
 
 	*it++;
-	while (i < ret) {
+	while (*it != ";") {
 		
 		this->_serverName.push_back(it->c_str());
 		*it++;
-		i++;
 	}
 
-	return ret;
+	return ret + 1;
 }
 
 int	Server::setListen( std::vector< std::string >::iterator it ) {
@@ -38,10 +37,6 @@ int	Server::setListen( std::vector< std::string >::iterator it ) {
 	*it++;
 	while (it[ret] != ";")
 		ret++;
-
-	this->_host = "0.0.0.0";
-	this->_port = 80;
-	this->_defaultServer = 0;
 
 	{
 		std::string tmp = it[0].c_str();
@@ -67,7 +62,7 @@ int	Server::setListen( std::vector< std::string >::iterator it ) {
 	if (ret == 3)
 		this->_defaultServer = 1;
 
-	return ret + 1;
+	return ret + 2;
 }
 
 int	Server::setClient( std::vector< std::string >::iterator it ) {
@@ -76,6 +71,7 @@ int	Server::setClient( std::vector< std::string >::iterator it ) {
 
 	std::string tmp = it->c_str();
 	this->_clientMaxBodySize = atoi(tmp.c_str());
+	// std::cout << "C'est cense etre ca = " << this->getClient() << " mais c'est cense etre ca = " << atoi(tmp.c_str()) << std::endl;
 
 	return 3;
 }
@@ -86,7 +82,10 @@ int	Server::setServer( std::vector< std::string >::iterator it) {
 
 	*it++;
 	*it++;
+
 	while (*it != "}") {
+
+		// std::cout << *it << std::endl;
 		if (*it == "server_name")
 			ret = setName(it);
 		else if (*it == "listen")
@@ -95,12 +94,13 @@ int	Server::setServer( std::vector< std::string >::iterator it) {
 			ret = setClient(it);
 		else if (*it == "location") {
 			Location instance;
-			_location.push_back(instance);
 			ret = instance.setLocation(it);
+			_location.push_back(instance);
+			// std::cout << "laaaa = " << instance.getRoot() << std::endl;
 		}
 		for (int i = 0 ; i < ret ; i++)
 			*it++;
-		*it++;
 	}
+	std::cout << "laaaa = " << this->getHost() << std::endl;
 	return ret + 2;
 }
