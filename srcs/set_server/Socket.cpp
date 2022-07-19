@@ -112,7 +112,7 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	Response			*response;
-	std::string			request("GET index.html HTTP/1.0\r\ncoNnection: keep-alive\r\nContenT-type: plain/text\r\n\r\n");
+	std::string			request("GET index.html HTTP/1.1\r\ncoNnection: keep-alive\r\nContenT-type: plain/text\r\n\r\n");
 	
 	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{

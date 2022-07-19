@@ -354,9 +354,11 @@ class Response
 
 			if (this->status == 200)
 			{
-				std::ifstream		ifs("/var/www/html/index.html");
+				std::ifstream		ifs("./files_config/www/index.html");
 				std::string			line;
 
+				if (!ifs.is_open())
+					std::cout << "file not opened" << std::endl;
 				while (std::getline(ifs, line))
 				{
 					body.append(line + '\n');
