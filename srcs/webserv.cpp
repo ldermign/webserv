@@ -14,7 +14,7 @@ void	printAllServer( std::vector< Server > all ) {
 	it = all.begin();
 	while (it < all.end()) {
 
-		std::cout << "\t~~~~~~~~~~\tServer num " << ret << "\t~~~~~~~~~~" << std::endl;
+		std::cout << "\n\t~~~~~~~~~~\tServer num " << ret << "\t~~~~~~~~~~" << std::endl;
 		std::cout << "host = [" << it->getHost() << "]" << std::endl;
 		std::cout << "port = [" << it->getPort() << "]" << std::endl;
 		std::cout << "server name =" << std::endl;
@@ -50,7 +50,7 @@ void	printAllServer( std::vector< Server > all ) {
 			}
 		}
 		it++;
-
+		ret++;
 	}
 }
 

@@ -1,0 +1,50 @@
+server {
+	server_name exemple.fr etpuipouet;
+	listen 8080;
+	# error_page 404 index.html;
+	client_max_body_size 50;
+	
+	location ./html/
+	{
+		get_methods GET POST DELETE;
+		root html;
+		index index.html;
+		
+		return 401 error_page;
+		autoindex on;
+		cgi .php index.html;
+		download html;
+	}
+}
+
+#test
+
+server {
+	server_name exemple.fr oueshouesh.com;
+	listen 123.23.1.67:5678;
+	error_page 404 index.html;
+	client_max_body_size 200;
+	
+	location html/
+	{
+		get_methods GET POST DELETE;
+		root html;
+		index index.html;
+		
+		return 301 error_page;
+		autoindex on;
+		cgi .php index.html;
+		download html;
+	}
+
+	location ./html/ {
+		get_methods GET POST DELETE;
+		root html;
+		index index.html;
+		
+		return 301 error_page;
+		autoindex on;
+		cgi .php index.html;
+		download html;
+	}
+}

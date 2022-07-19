@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 15:21:36 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 16:53:59 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 23:29:34 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 int	Location::setMethods( std::vector< std::string >::iterator it ) {
 	
-	int ret = 0;
+	int ret = 1;
 	
 	*it++;
 	while (*it != ";") {
@@ -23,7 +23,6 @@ int	Location::setMethods( std::vector< std::string >::iterator it ) {
 		*it++;
 		ret++;
 	}
-
 	return ret + 1;
 }
 
@@ -51,7 +50,7 @@ int	Location::setRoot( std::vector< std::string >::iterator it ) {
 
 int	Location::setIndex( std::vector< std::string >::iterator it ) {
 	
-	int ret = 0;
+	int ret = 1;
 	
 	*it++;
 	while (*it != ";") {
@@ -63,7 +62,7 @@ int	Location::setIndex( std::vector< std::string >::iterator it ) {
 	return ret + 1;
 }
 
-int	Location::setAutoindex( std::vector< std::string >::iterator it ) {
+int	Location::setCgi( std::vector< std::string >::iterator it ) {
 	
 	*it++;
 	this->_cgiExtension = it->c_str();
@@ -74,7 +73,7 @@ int	Location::setAutoindex( std::vector< std::string >::iterator it ) {
 	return 4;
 }
 
-int	Location::setCgi( std::vector< std::string >::iterator it ) {
+int	Location::setAutoindex( std::vector< std::string >::iterator it ) {
 	
 	*it++;
 
@@ -104,6 +103,7 @@ int	Location::setLocation( std::vector< std::string >::iterator it ) {
 	
 	while (*it != "}") {
 
+		// std::cout << *it << std::endl;
 		if (*it == "get_methods")
 			len = this->setMethods(it);
 		else if (*it == "return")

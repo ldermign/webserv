@@ -39,7 +39,7 @@ public:
 	int			dirListen( std::vector< std::string >::iterator it );
 	int			dirClientMaxBodySize( std::vector< std::string >::iterator it );
 	int			dirErrorPage( std::vector< std::string >::iterator it );
-	int			dirLocation( std::vector< std::string >::iterator it );
+	int			dirLocation( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last );
 	int			dirGetMethods( std::vector< std::string >::iterator it );
 	int			dirReturn( std::vector< std::string >::iterator it );
 	int			dirRoot( std::vector< std::string >::iterator it );
@@ -65,6 +65,7 @@ public:
 	int			getNbrServer( void ) const { return this->_nbrServer; }
 	std::vector< std::string >	&getFile( void ) { return this->_file; }
 	std::vector< std::string >	&getArgs( void ) { return this->_args; }
+	std::string					getLocationTmp( void ) { return this->_locationTmp; }
 
 	// void lexerToken( std::string );
 

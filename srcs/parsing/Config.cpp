@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:01:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 18:38:40 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 22:31:10 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,9 @@ void	Config::recupInfoServer( std::vector< std::string > args ) {
 		
 		if (*it == "server") {
 			Server instance;
-			instance.setServer(it);
+			instance.setServer(it, args.end());
 			_servers.push_back(instance);
 		}
 		*it++;
 	}
-
 }

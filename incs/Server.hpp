@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 16:50:21 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 22:24:34 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class Server {
 public:
 
 //
-	int							setServer( std::vector< std::string >::iterator it );
+	int							setServer( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last );
 	int							setName( std::vector< std::string >::iterator it );
 	int							setListen( std::vector< std::string >::iterator it );
 	int							setClient( std::vector< std::string >::iterator it );

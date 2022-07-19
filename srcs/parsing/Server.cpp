@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/18 16:57:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 17:54:35 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/19 22:36:51 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,21 +71,19 @@ int	Server::setClient( std::vector< std::string >::iterator it ) {
 
 	std::string tmp = it->c_str();
 	this->_clientMaxBodySize = atoi(tmp.c_str());
-	// std::cout << "C'est cense etre ca = " << this->getClient() << " mais c'est cense etre ca = " << atoi(tmp.c_str()) << std::endl;
 
 	return 3;
 }
 
-int	Server::setServer( std::vector< std::string >::iterator it) {
+int	Server::setServer( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last ) {
 
 	int ret = 2;
 
 	*it++;
 	*it++;
 
-	while (*it != "}") {
+	while (it != last && *it != "}") {
 
-		// std::cout << *it << std::endl;
 		if (*it == "server_name")
 			ret = setName(it);
 		else if (*it == "listen")
@@ -96,11 +94,9 @@ int	Server::setServer( std::vector< std::string >::iterator it) {
 			Location instance;
 			ret = instance.setLocation(it);
 			_location.push_back(instance);
-			// std::cout << "laaaa = " << instance.getRoot() << std::endl;
 		}
-		for (int i = 0 ; i < ret ; i++)
+		for (int i = 0 ; it != last && i < ret ; i++)
 			*it++;
 	}
-	std::cout << "laaaa = " << this->getHost() << std::endl;
 	return ret + 2;
 }
