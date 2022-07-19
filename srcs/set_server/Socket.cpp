@@ -109,7 +109,6 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	Response			*response;
-	std::string			request("GET index.html HTTP/1.0\r\nconnection: keep-alive\r\n");
 	
 	std::cout << "I got to receive " << std::endl;
 	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
