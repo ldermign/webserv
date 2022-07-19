@@ -404,10 +404,17 @@ class Response
 
 		bool	index_exist(const std::string source, std::vector<std::string> indexes)
 		{
+			std::ifstream		ifs;
+
 			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
 				if (source == *it)
+				{
+					ifs.open("./files_config/www/index.html");
+					if (!ifs.is_open())
+						return (false);
 					return (true);
+				}
 			}
 			return (false);
 		}
