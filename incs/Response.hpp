@@ -45,7 +45,7 @@ class Response
 
 
 		Response(Request *request)
-			: server("Webserv"), connection(false), index(request->get_index()), version(request->get_version())
+			: server("Webserv"), connection(request->get_connection()), index(request->get_index()), version(request->get_version())
 		{
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
