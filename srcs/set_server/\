@@ -92,10 +92,20 @@ bool				is_the_end(std::string s1)
 	if (!std::strcmp(s1.c_str(), "\r\n") || !std::strcmp(s1.c_str(), "\n"))
 		return true;
 	const char	*str = s1.c_str();
-	size_t		var_i = s1.size() - 1;
+	std::cout << "s1 " << std::endl;
+	for (long unsigned int i = 0; i < s1.size(); i++)
+	{
+		std::cout << (int)str[i] << " ";
+	}
+	std::cout << std::endl;
+	size_t		var_i = s1.size();
 	while ((str[var_i] == '\n' || str[var_i] == '\r') && var_i > 0)
 		var_i --;
-	var_i++;
+	for (long unsigned int i = var_i; i < s1.size(); i++)
+	{
+		std::cout << (int)str[i] << " ";
+	}
+	std::cout << std::endl;
 	if (!std::strncmp(str + var_i, "\n\r\n", 3) || !std::strcmp(str + var_i, "\n\n") || !std::strncmp(str + var_i, "\r\n\n", 3) || !std::strncmp(str + var_i, "\r\n\r\n", 4))
 		return true;
 	return false;
@@ -125,11 +135,17 @@ void				Socket::receive_message(void)
 	{
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
-		response = this->create_response(this->_message);
-		_still_connected = (_still_connected) ? true : response->get_connection();
+		std::cout << "Request:" << std::endl;
+		std::cout << this->_message << std::endl;
+		this->create_response(this->_message);
 		_flag = SEND;
 		return ;
 	}
+	_message.append(buff.begin(), buff.end());
+	response = this->create_response(this->_message);
+	_still_connected = (_still_connected) ? true : response->get_connection();
+	_flag = SEND;
+	return ;
 }
 
 struct sockaddr		Socket::get_data(void) const
