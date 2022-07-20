@@ -14,6 +14,7 @@ server {
 		autoindex on;
 		cgi .php index.html;
 		download html;
+
 	}
 }
 

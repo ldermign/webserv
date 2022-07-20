@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:01:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 22:31:10 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/20 14:51:03 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,22 @@
 #include "Server.hpp"
 #include "Config.hpp"
 #include <vector>
+
+void	Config::checkAll( const char *str ) {
+	try {
+		this->getParse().setNameFile(str);
+		this->getParse().checkFileName();
+		this->getParse().setFileVector();
+		this->getParse().setArgsFile();
+		this->getParse().checkFileAllTogether();
+		this->getParse().checkAllDirectives();
+	}
+	catch (const std::exception &e) {
+		std::cout << e.what() << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	this->recupInfoServer(this->getParse().getArgs());
+}
 
 void	Config::recupInfoServer( std::vector< std::string > args ) {
 	

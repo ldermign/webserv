@@ -438,7 +438,7 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	tmp.open(str.c_str());
 	if (tmp.fail())
 	{
-		std::cout << str << std::endl;
+		// std::cout << str << std::endl;
 		throw Parse::BadDirectiveReturn();
 	}
 
@@ -609,6 +609,8 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 			len = this->dirCgi(it);
 		else if (*it == "download")
 			len = this->dirDownload(it);
+		else
+			throw Parse::BadDirectiveLocation();
 		ret += len;
 		for (int i = 0 ; it != last && i < len ; i++)
 			*it++;
