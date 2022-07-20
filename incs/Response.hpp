@@ -23,29 +23,57 @@ class Response
 
 		Response&	operator=(Response const & rhs)
 		{
-			this->set_version(rhs.get_version());
+			this->set_response(rhs.get_response());
+
+			// first line response
+
 			this->set_status(rhs.get_status());
+			this->set_version(rhs.get_version());
+
+			// header reponse
+
 			this->set_date(rhs.get_date());
 			this->set_content_type(rhs.get_content_type());
 			this->set_content_length(rhs.get_content_length());
+			this->set_connection(rhs.get_connection());
+
+			// body response
+
+			this->set_body(rhs.get_body());
+			this->set_error_name(rhs.get_error_name());
+
 			this->set_index(rhs.get_index());
-			
+	
 			return (*this);
 		}
 
 		Response(Response const & src) : server("Webserv")
 		{
-			this->set_version(src.get_version());
+			this->set_response(src.get_response());
+
+			// first line response
 			this->set_status(src.get_status());
+			this->set_version(src.get_version());
+
+			// header reponse
+
 			this->set_date(src.get_date());
 			this->set_content_type(src.get_content_type());
 			this->set_content_length(src.get_content_length());
+			this->set_connection(src.get_connection());
+
+			// body response
+
+			this->set_body(src.get_body());
+
 			this->set_index(src.get_index());
 		}
 
 
 		Response(Request *request)
-			: server("Webserv"), connection(false), index(request->get_index()), version(request->get_version())
+			: version(request->get_version()), server("Webserv"), 
+			connection(request->get_connection()),
+			index(request->get_index())
 		{
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
@@ -165,27 +193,37 @@ class Response
 			this->error_name = error_name;
 		}
 
+		void		set_connection(bool connection)
+		{
+			this->connection = connection;
+		}
+
 
 	protected :
 
-		// header data
 		std::string				response;
+
+		// first line response
+
 		int 					status;
+		std::string				version;
+
+		// header data
+
 		const std::string		server;
 		std::string				date;
 		std::string				content_type;
-//		std::string				keep_alive;
-		bool					connection;
-//		std::string				age;
-//		std::string				x_cache_info;
 		size_t					content_length;
+		bool					connection;
+
+		// body response
+
 		std::string				body;
 		std::string				error_name;
 
 		// request data
 		
 		std::string		index;
-		std::string		version;
 
 	private : 
 
