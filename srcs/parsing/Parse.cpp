@@ -354,8 +354,8 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	}
 
 	std::ifstream tmp;
-	std::string str = this->_locationTmp + it->c_str();
-	tmp.open(str);
+	std::string str = this->getLocationTmp() + it->c_str();
+	tmp.open(str.c_str());
 	if (tmp.fail()) {
 		// std::cout << str << std::endl;
 		throw Parse::BadDirectiveErrorPage();}
@@ -431,7 +431,7 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 
 	std::ifstream tmp;
 	str = this->_locationTmp + it->c_str();
-	tmp.open(str);
+	tmp.open(str.c_str());
 	if (tmp.fail())
 		throw Parse::BadDirectiveReturn();
 	
@@ -526,7 +526,7 @@ int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 	*it++;
 	std::ifstream tmp;
 	std::string str = this->_locationTmp + it->c_str();
-	tmp.open(str);
+	tmp.open(str.c_str());
 	if (tmp.fail())
 		throw Parse::BadDirectiveCgi();
 	
