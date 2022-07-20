@@ -2,6 +2,7 @@
 
 #include "Response.hpp"
 #include "Request.hpp"
+#include "Server.hpp"
 
 #include <string>
 #include <vector>
@@ -10,10 +11,10 @@ class Communication
 {
 	public :
 
-		Communication(std::string request)
+		Communication(std::string request, Server server)
 		{
 			this->req = new Request(request);
-			this->res = new Response(this->req);
+			this->res = new Response(this->req, server);
 		}
 
 		std::string		get_response(void) const

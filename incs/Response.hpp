@@ -12,12 +12,13 @@
 #define	END_RES_LINE "\r\n"
 
 #include "Request.hpp"
+#include "Server.hpp"
 
 class Response
 {
 	public :
 
-		Response() : server("Webserv") {}
+		Response() : server_name("Webserv") {}
 
 		virtual ~Response() {}
 
@@ -47,8 +48,9 @@ class Response
 			return (*this);
 		}
 
-		Response(Response const & src) : server("Webserv")
+		Response(Response const & src)
 		{
+			this->set_server(src.get_server());
 			this->set_response(src.get_response());
 
 			// first line response
@@ -61,6 +63,7 @@ class Response
 			this->set_content_type(src.get_content_type());
 			this->set_content_length(src.get_content_length());
 			this->set_connection(src.get_connection());
+			this->set_server_name(src.get_server_name());
 
 			// body response
 
@@ -70,8 +73,8 @@ class Response
 		}
 
 
-		Response(Request *request)
-			: version(request->get_version()), server("Webserv"), 
+		Response(Request *request, Server server)
+			: server(server), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection()),
 			index(request->get_index())
 		{
@@ -91,14 +94,19 @@ class Response
 
 		// Getters
 		
+		Server		get_server(void) const
+		{
+			return (this->server);
+		}
+		
 		std::string get_response(void) const
 		{
 			return (this->response);
 		}
 
-		std::string get_server(void) const
+		std::string get_server_name(void) const
 		{
-			return (this->server);
+			return (this->server_name);
 		}
 
 		std::string get_content_type(void) const
@@ -198,10 +206,21 @@ class Response
 			this->connection = connection;
 		}
 
+		void		set_server(Server server)
+		{
+			this->server = server;
+		}
+
+		void		set_server_name(std::string server_name)
+		{
+			this->server_name = server_name;
+		}
+
 
 	protected :
 
 		std::string				response;
+		Server					server;
 
 		// first line response
 
@@ -210,7 +229,7 @@ class Response
 
 		// header data
 
-		const std::string		server;
+		std::string				server_name;
 		std::string				date;
 		std::string				content_type;
 		size_t					content_length;
@@ -463,7 +482,7 @@ class Response
 			std::string				response;
 
 			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
-			ss << "Server: " << this->get_server() << END_RES_LINE;
+			ss << "Server: " << this->get_server_name() << END_RES_LINE;
 			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << "\r\n";
 			ss << "Content-Length: " << this->get_content_length() << "\r\n";
