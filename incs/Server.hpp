@@ -6,15 +6,13 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 22:24:34 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/20 14:01:00 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-// #include "Parse.hpp"
-// #include "Server.hpp"
 #include "webserv.hpp"
 #include "Location.hpp"
 
@@ -27,6 +25,7 @@ public:
 	int							setName( std::vector< std::string >::iterator it );
 	int							setListen( std::vector< std::string >::iterator it );
 	int							setClient( std::vector< std::string >::iterator it );
+	int							setError( std::vector< std::string >::iterator it );
 
 //	ACCESSORS
 
@@ -37,6 +36,7 @@ public:
 	std::vector< std::string >	&getServerName( void ) { return this->_serverName; }
 	bool						getDefaultServer( void ) { return this->_defaultServer; }
 	std::vector< int >			&getErrorCode( void ) { return this->_errorCode; }
+	std::string					getErrorPath( void ) { return this->_errorPath; }
 	size_t						getClient( void ) { return this->_clientMaxBodySize; }
 	std::vector< Location >		&getLocation( void ) { return this->_location; }
 
@@ -44,7 +44,7 @@ public:
 
 	Server( void )
 		: _host("0.0.0.0"), _port(80), _serverName(), _defaultServer(0),
-		_errorCode(0), _clientMaxBodySize(50), _location() {};
+		_errorCode(0), _errorPath(""), _clientMaxBodySize(50), _location() {};
 	Server	&operator=( const Server &rhs ) {
 		if (this == &rhs) 
 			return *this;
@@ -54,6 +54,7 @@ public:
 		this->_serverName = rhs._serverName;
 		this->_defaultServer = rhs._defaultServer;
 		this->_errorCode = rhs._errorCode;
+		this->_errorPath = rhs._errorPath;
 		this->_clientMaxBodySize = rhs._clientMaxBodySize;
 		this->_location = rhs._location;
 		
@@ -71,6 +72,7 @@ private:
 	std::vector< std::string >	_serverName;
 	bool						_defaultServer;
 	std::vector< int >			_errorCode;
+	std::string					_errorPath;
 	size_t						_clientMaxBodySize;
 	std::vector< Location >		_location;
 	

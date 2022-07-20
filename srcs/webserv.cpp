@@ -31,6 +31,20 @@ void	printAllServer( std::vector< Server > all ) {
 					std::cout << std::endl;
 			}
 		}
+		std::cout << "error code for path [" << it->getErrorPath() << "] =" << std::endl;
+		{
+			std::vector< int >::iterator	i;
+			i = it->getErrorCode().begin();
+			std::cout << "\t";
+			while (i < it->getErrorCode().end()) {
+				std::cout << *i;
+				i++;
+				if (i != it->getErrorCode().end())
+					std::cout << " - ";
+				else
+					std::cout << std::endl;
+			}
+		}
 		{
 			int ret2 = 1;
 			std::vector< Location >::iterator	i;
@@ -38,8 +52,36 @@ void	printAllServer( std::vector< Server > all ) {
 			while (i < it->getLocation().end()) {
 				std::cout << std::endl << "Location " << ret2 << " ~~~~~" << std::endl;
 				std::cout << "path = [" << i->getPath() << "]" << std::endl;
+				std::cout << "index =" << std::endl;
+				{
+					std::vector< std::string >::iterator	j;
+					j = i->getIndex().begin();
+					std::cout << "\t";
+					while (j < i->getIndex().end()) {
+						std::cout << *j;
+						j++;
+						if (j != i->getIndex().end())
+							std::cout << " - ";
+						else
+							std::cout << std::endl;
+					}
+				}
 				std::cout << "root = [" << i->getRoot() << "]" << std::endl;
 				std::cout << "autoindex = [" << i->getAutoindex() << "]" << std::endl;
+				std::cout << "methods =" << std::endl;
+				{
+					std::vector< std::string >::iterator	j;
+					j = i->getMethods().begin();
+					std::cout << "\t";
+					while (j < i->getMethods().end()) {
+						std::cout << *j;
+						j++;
+						if (j != i->getMethods().end())
+							std::cout << " - ";
+						else
+							std::cout << std::endl;
+					}
+				}
 				std::cout << "return code = [" << i->getReturnCode() << "]" << std::endl;
 				std::cout << "return path = [" << i->getReturnPath() << "]" << std::endl;
 				std::cout << "cgi extension = [" << i->getCgiExtension() << "]" << std::endl;
@@ -57,11 +99,15 @@ void	printAllServer( std::vector< Server > all ) {
 
 int		main(int argc, char **argv)
 {
-	(void)argc;(void)argv;
+	if (argc != 2) {
+		std::cout << "Wrong number of arguments." << std::endl;
+		exit (EXIT_FAILURE);
+	}
 
 	Config allConfig;
 	allConfig.checkAll(argv[1]);
-	printAllServer(allConfig.getVectorServers());
+	std::vector< Server >	allServ = allConfig.getVectorServers();
+	printAllServer(allServ);
 
 	std::string	name("cali");
 	in_addr_t	domain = inet_addr("127.0.0.1");

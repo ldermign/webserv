@@ -45,14 +45,6 @@ void	Parse::checkFileAllTogether( void ) {
 				}
 		}
 
-		// if (*it == "location") {
-		// 	if (*it == "{") { std::string error_msg = "\033[38;5;124mMissing path for location : [ ~ " + static_cast< std::string >(*it) + " ~ ]\033[0m";
-		// 		throw std::runtime_error("\033[38;5;124mMissing path for location\033[0m");}
-		// 	if (this->dirBlockLocation() == EXIT_FAILURE)
-		// 		throw std::runtime_error("\033[38;5;124mCheck info in bloc Location")
-		// }
-		// if (this->dirBlockServer() == EXIT_FAILURE)
-		// 	throw Parse::WrongInfo();
 	}
 
 	this->setNbrServer(server);
@@ -135,6 +127,7 @@ void	Parse::setArgsFile( void ) {
 		i = 0;
 		std::string	tmp = (*it);
 		while (tmp[i] != '\0') {
+
 			if (tmp[i] == ':')
 				i++;
 			while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t'))
@@ -142,15 +135,20 @@ void	Parse::setArgsFile( void ) {
 			if (!tmp[i] || tmp[i] == '#')
 				break ;
 			len = 0;
-			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '#' && tmp[i] != ';' && tmp[i] != ':') {
+			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '#' && tmp[i] != ';' && tmp[i] != ':' && tmp[i] != '{' && tmp[i] != '}') { // && tmp[i] != '{' && tmp[i] != '}'
 				i++;
 				len++;
 			}
 			tmp2 = tmp.substr(i - len, len);
-			if (tmp2 != "" || tmp2 != ":")
+			if (tmp2 != "" && tmp2 != ":")
 				this->_args.push_back(tmp2.c_str());
-			if (tmp[i] == ';') {
-				this->_args.push_back(";");
+			if (tmp[i] == ';' || tmp[i] == '}' || tmp[i] == '{') {
+				if (tmp[i] == ';')
+					this->_args.push_back(";");
+				else if (tmp[i] == '}')
+					this->_args.push_back("}");
+				else
+					this->_args.push_back("{");
 				i++;
 			}
 		}
@@ -354,10 +352,10 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	}
 
 	std::ifstream tmp;
-	std::string str = this->getLocationTmp() + it->c_str();
+	std::string str = it->c_str();
 	tmp.open(str.c_str());
 	if (tmp.fail()) {
-		// std::cout << str << std::endl;
+		std::cout << str << std::endl;
 		throw Parse::BadDirectiveErrorPage();}
 	
 	{
@@ -386,21 +384,27 @@ int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
 	one = *it;
 	*it++;
 	ret++;
-	if (*it != "}") {
+	if (*it != "}" && *it != ";") {
 		two = *it;
 		*it++;
 		ret++;
 	}
-	if (*it != "}") {
+	if (*it != "}" && *it != ";") {
 		three = *it;
 		*it++;
 		ret++;
 	}
+
+	
+	// std::cout << len << "\t\t\t\tone = " << one << " two = [" << two << "] three = " << three << std::endl;
 	
 	if ((one != "GET" && one != "POST" && one != "DELETE")
 		|| (len > 1 && two != "GET" && two != "POST" && two != "DELETE")
 		|| (len > 2 && three != "GET" && three != "POST" && three != "DELETE"))
+	{
+		std::cout << "1\n";
 		throw Parse::BadDirectiveMethods();
+	}
 
 	if (len > 1) {
 		if (one == two)
@@ -433,8 +437,11 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	str = this->_locationTmp + it->c_str();
 	tmp.open(str.c_str());
 	if (tmp.fail())
+	{
+		std::cout << str << std::endl;
 		throw Parse::BadDirectiveReturn();
-	
+	}
+
 	{
 		bool empty = (tmp.get(), tmp.eof());
 		if (empty) {

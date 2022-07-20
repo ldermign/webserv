@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:00:24 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/18 17:56:58 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/07/20 11:18:50 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,6 @@ public:
 			exit (EXIT_FAILURE);
 		}
 	}
-	void	getInfo( void ) {
-		
-		// Server instance;
-		// _servers.push_back(instance);
-	}
 
 	//	ACCESSORS
 
@@ -53,7 +48,7 @@ public:
 
 	//	CANONICAL FORM
 
-	Config( void ){
+	Config( void ) : _config(), _servers() {
 		// Server instance;
 		// _servers.push_back(instance);
 	}
