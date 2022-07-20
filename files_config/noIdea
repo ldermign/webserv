@@ -24,7 +24,7 @@ server {
 	
 	
 	server_name exemple.fr oueshouesh.com;
-				listen 							123.23.1.67:5678;
+				listen 							123.23.1.67:123;
 	error_page 404 850 654 ./html/index.html;
 			
 			client_max_body_size 200			;

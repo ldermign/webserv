@@ -222,6 +222,8 @@ int	wrongIP( std::string str ) {
 
 int	wrongPort( std::string str ) {
 
+	// std::cout << atoi(str.c_str()) << std::endl;
+
 	if (str.find_first_not_of("0123456789") != std::string::npos
 		|| atoi(str.c_str()) > 65535 || atoi(str.c_str()) <= 0)
 		return EXIT_FAILURE;
@@ -250,6 +252,9 @@ int	Parse::dirServerName( std::vector< std::string >::iterator it ) {
 
 int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 
+	// std::cout << "listen" << std::endl;
+
+
 	int i = 0, len = 0;
 	std::vector< std::string >	args;
 	
@@ -258,25 +263,34 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 		ret++;
 
 	*it++;
-	std::string tmp = it->c_str(), tmp2;
+	std::string tmp, tmp2;
 	while (*it != ";") {
 	
-		while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';' || tmp[i] == ':'))
-			i++;
-		if (tmp[i] == ';' || !tmp[i])
-			break ;
-		len = 0;
-		while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';' && tmp[i] != ':') {
-			i++;
-			len++;
+		tmp = it->c_str();
+		i = 0;
+		while (tmp[i]) {
+	
+			i = 0;
+			while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';'))
+				i++;
+			if (tmp[i] == ';' || !tmp[i])
+				break ;
+			len = 0;
+			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';') {
+				i++;
+				len++;
+			}
+			tmp2 = tmp.substr(i - len, len);
+			if (tmp2 != ":" && tmp2 != "")
+				args.push_back(tmp2.c_str());
 		}
-		tmp2 = tmp.substr(i - len, len);
-		if (tmp2 != ":" && tmp2 != ":")
-			args.push_back(tmp2.c_str());
+		*it++;
 	}
 
 	// for (unsigned int i = 0 ; i < args.size() ; i++)
-	// 	std::cout << args[i] << std::endl;
+	// 	std::cout << "[" << args[i] << "]" << std::endl;
+
+	// std::cout << args.size() << std::endl;
 
 	if (args.size() <= 0 || args.size() > 3 || (args.size() == 3 && args.back() != "default_server"))
 	{
@@ -287,12 +301,12 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 		&& wrongIP(args[0]) == EXIT_FAILURE
 		&& wrongPort(args[0]) == EXIT_FAILURE)
 	{
-		std::cout << "1\n";	
+		// std::cout << "1\n";
 		throw Parse::BadDirectiveListen();
 	}
 	else if (args.size() == 2
 		&& ((args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)
-			|| (args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)))
+			|| (args[1] != "default_server" && wrongIP(args[1]) == EXIT_FAILURE && wrongPort(args[1]) == EXIT_FAILURE)))
 	{
 		std::cout << "2\n";
 		throw Parse::BadDirectiveListen();
@@ -476,7 +490,6 @@ int	Parse::dirRoot( std::vector< std::string >::iterator it ) {
 	return 3;
 }
 
-
 int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 	
 	int ret = 1;
@@ -498,7 +511,6 @@ int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 	return ret + 1;
 }
 
-
 int	Parse::dirAutoindex( std::vector< std::string >::iterator it ) {
 
 	*it++;
@@ -509,7 +521,6 @@ int	Parse::dirAutoindex( std::vector< std::string >::iterator it ) {
 	return 3;
 
 }
-
 
 int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 
@@ -645,6 +656,11 @@ void	Parse::checkAllDirectives( void ) {
 					ret = this->dirErrorPage(it);
 				else if (*it == "location")
 					ret = this->dirLocation(it, this->_args.end());
+				else if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
+				{
+					std::cout << "rola " << *it << std::endl;
+					throw Parse::WrongInfo();
+				}
 				for (int i = 0 ; it < this->_args.end() && i < ret ; i++)
 					*it++;
 				if (it < this->_args.end() && (*it == "{" || *it == "}")) {
@@ -652,16 +668,7 @@ void	Parse::checkAllDirectives( void ) {
 						*it++;
 				}
 			}
-			if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
-			{
-				// std::cout << "rola " << *it << std::endl;
-				throw Parse::WrongInfo();
-			}
 		}
-		// if (it < this->_args.end() && (*it == "{" || *it == "}")) {
-		// 	while (it < this->_args.end() && (*it == "{" || *it == "}"))
-		// 		*it++;
-		// }
 	}
 
 }
@@ -686,7 +693,6 @@ int	Parse::noDirective( std::string str ) {
 	return EXIT_SUCCESS;
 		
 }
-
 
 int	Parse::dirBlockServer( std::string str ) {
 
