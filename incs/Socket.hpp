@@ -1,6 +1,7 @@
 #pragma once
 #include "webserv.hpp"
 #include "Response.hpp"
+#include "Server.hpp"
 #include <iostream>
 #include <arpa/inet.h>
 
@@ -12,9 +13,10 @@ class Socket
 		std::string				_message;
 		int						_flag;
 		bool					_still_connected;
+		const Server			&_data_server;
 	public :
 		Socket(void);
-		Socket(int fd, struct sockaddr data, int flag);
+		Socket(int fd, struct sockaddr data, int flag, const Server &data_server);
 		Socket& operator=(const Socket& fc);
 		~Socket(void);
 		bool				still_connected(void) const;

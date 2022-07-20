@@ -6,12 +6,21 @@
 */
 
 
-FtServer::FtServer(void) : _main_socket_fd(-1), _port(htons(1234)), _domain(INADDR_ANY), _name ("Jose"), _set()
+FtServer::FtServer(void) :	_main_socket_fd(-1),
+							_port(htons(1234)),
+							_domain(INADDR_ANY),
+							_name ("Jose"),
+							_set(),
+							_data()
 {
 		_init_server();
 }
 
-FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port) : _main_socket_fd(-1), _port(port), _domain(domain), _name (name), _set()
+FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port, Server data) :	_main_socket_fd(-1),
+   																						_port(port), _domain(domain),
+																		   				_name (name),
+																				   		_set(),
+																						_data(data)
 {
 		_init_server();
 }
@@ -79,7 +88,7 @@ void					FtServer::_bind_main_socket(void)
 	res = listen(_main_socket_fd, 128);
 	if (res == -1)
 		throw listen_error;
-	Socket		new_one(_main_socket_fd, *((struct sockaddr*)&option_bind), ACCEPT);
+	Socket		new_one(_main_socket_fd, *((struct sockaddr*)&option_bind), ACCEPT, _data);
 	_fds.push_back(new_one);
 }
 
