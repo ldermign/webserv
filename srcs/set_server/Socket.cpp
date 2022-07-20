@@ -46,7 +46,6 @@ void				Socket::send_message(void)
 	int					ret_func;
 	std::runtime_error	exp("send()");
 
-	_message = _message.substr(0, _message.size() - 1);
 	ret_func = send(_fd, _message.c_str(), _message.size(), 0);
 	std::cout << "SEND to "<< get_fd() <<" : \n" << BLUE << get_message() << RESET << std::endl;
 	_message = "";
