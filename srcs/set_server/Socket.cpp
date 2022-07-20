@@ -128,7 +128,7 @@ void				Socket::receive_message(void)
 	{
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
-//		response = this->create_response(this->_message);
+		response = this->create_response(this->_message);
 		_still_connected = (_still_connected) ? true : response->get_connection();
 		_flag = SEND;
 		return ;
