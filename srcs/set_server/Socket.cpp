@@ -81,7 +81,7 @@ Socket				Socket::accept_new_socket(void)
 
 Response*			Socket::create_response(std::string	& message)
 {
-	Communication		communication(message);
+	Communication		communication(message, this->get_server());
 
 	this->set_message(communication.get_response());
 	return (communication.get_res());
