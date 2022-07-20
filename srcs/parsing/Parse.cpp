@@ -45,14 +45,6 @@ void	Parse::checkFileAllTogether( void ) {
 				}
 		}
 
-		// if (*it == "location") {
-		// 	if (*it == "{") { std::string error_msg = "\033[38;5;124mMissing path for location : [ ~ " + static_cast< std::string >(*it) + " ~ ]\033[0m";
-		// 		throw std::runtime_error("\033[38;5;124mMissing path for location\033[0m");}
-		// 	if (this->dirBlockLocation() == EXIT_FAILURE)
-		// 		throw std::runtime_error("\033[38;5;124mCheck info in bloc Location")
-		// }
-		// if (this->dirBlockServer() == EXIT_FAILURE)
-		// 	throw Parse::WrongInfo();
 	}
 
 	this->setNbrServer(server);
@@ -135,6 +127,7 @@ void	Parse::setArgsFile( void ) {
 		i = 0;
 		std::string	tmp = (*it);
 		while (tmp[i] != '\0') {
+
 			if (tmp[i] == ':')
 				i++;
 			while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t'))
@@ -142,15 +135,20 @@ void	Parse::setArgsFile( void ) {
 			if (!tmp[i] || tmp[i] == '#')
 				break ;
 			len = 0;
-			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '#' && tmp[i] != ';' && tmp[i] != ':') {
+			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '#' && tmp[i] != ';' && tmp[i] != ':' && tmp[i] != '{' && tmp[i] != '}') { // && tmp[i] != '{' && tmp[i] != '}'
 				i++;
 				len++;
 			}
 			tmp2 = tmp.substr(i - len, len);
-			if (tmp2 != "" || tmp2 != ":")
+			if (tmp2 != "" && tmp2 != ":")
 				this->_args.push_back(tmp2.c_str());
-			if (tmp[i] == ';') {
-				this->_args.push_back(";");
+			if (tmp[i] == ';' || tmp[i] == '}' || tmp[i] == '{') {
+				if (tmp[i] == ';')
+					this->_args.push_back(";");
+				else if (tmp[i] == '}')
+					this->_args.push_back("}");
+				else
+					this->_args.push_back("{");
 				i++;
 			}
 		}
@@ -224,6 +222,8 @@ int	wrongIP( std::string str ) {
 
 int	wrongPort( std::string str ) {
 
+	// std::cout << atoi(str.c_str()) << std::endl;
+
 	if (str.find_first_not_of("0123456789") != std::string::npos
 		|| atoi(str.c_str()) > 65535 || atoi(str.c_str()) <= 0)
 		return EXIT_FAILURE;
@@ -252,6 +252,9 @@ int	Parse::dirServerName( std::vector< std::string >::iterator it ) {
 
 int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 
+	// std::cout << "listen" << std::endl;
+
+
 	int i = 0, len = 0;
 	std::vector< std::string >	args;
 	
@@ -260,25 +263,34 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 		ret++;
 
 	*it++;
-	std::string tmp = it->c_str(), tmp2;
+	std::string tmp, tmp2;
 	while (*it != ";") {
 	
-		while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';' || tmp[i] == ':'))
-			i++;
-		if (tmp[i] == ';' || !tmp[i])
-			break ;
-		len = 0;
-		while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';' && tmp[i] != ':') {
-			i++;
-			len++;
+		tmp = it->c_str();
+		i = 0;
+		while (tmp[i]) {
+	
+			i = 0;
+			while (tmp[i] && (tmp[i] == ' ' || tmp[i] == '\t' || tmp[i] == ';'))
+				i++;
+			if (tmp[i] == ';' || !tmp[i])
+				break ;
+			len = 0;
+			while (tmp[i] && tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != ';') {
+				i++;
+				len++;
+			}
+			tmp2 = tmp.substr(i - len, len);
+			if (tmp2 != ":" && tmp2 != "")
+				args.push_back(tmp2.c_str());
 		}
-		tmp2 = tmp.substr(i - len, len);
-		if (tmp2 != ":" && tmp2 != ":")
-			args.push_back(tmp2.c_str());
+		*it++;
 	}
 
 	// for (unsigned int i = 0 ; i < args.size() ; i++)
-	// 	std::cout << args[i] << std::endl;
+	// 	std::cout << "[" << args[i] << "]" << std::endl;
+
+	// std::cout << args.size() << std::endl;
 
 	if (args.size() <= 0 || args.size() > 3 || (args.size() == 3 && args.back() != "default_server"))
 	{
@@ -289,12 +301,12 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 		&& wrongIP(args[0]) == EXIT_FAILURE
 		&& wrongPort(args[0]) == EXIT_FAILURE)
 	{
-		std::cout << "1\n";	
+		// std::cout << "1\n";
 		throw Parse::BadDirectiveListen();
 	}
 	else if (args.size() == 2
 		&& ((args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)
-			|| (args[0] != "default_server" && wrongIP(args[0]) == EXIT_FAILURE && wrongPort(args[0]) == EXIT_FAILURE)))
+			|| (args[1] != "default_server" && wrongIP(args[1]) == EXIT_FAILURE && wrongPort(args[1]) == EXIT_FAILURE)))
 	{
 		std::cout << "2\n";
 		throw Parse::BadDirectiveListen();
@@ -354,10 +366,10 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	}
 
 	std::ifstream tmp;
-	std::string str = this->getLocationTmp() + it->c_str();
+	std::string str = it->c_str();
 	tmp.open(str.c_str());
 	if (tmp.fail()) {
-		// std::cout << str << std::endl;
+		std::cout << str << std::endl;
 		throw Parse::BadDirectiveErrorPage();}
 	
 	{
@@ -386,21 +398,27 @@ int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
 	one = *it;
 	*it++;
 	ret++;
-	if (*it != "}") {
+	if (*it != "}" && *it != ";") {
 		two = *it;
 		*it++;
 		ret++;
 	}
-	if (*it != "}") {
+	if (*it != "}" && *it != ";") {
 		three = *it;
 		*it++;
 		ret++;
 	}
+
+	
+	// std::cout << len << "\t\t\t\tone = " << one << " two = [" << two << "] three = " << three << std::endl;
 	
 	if ((one != "GET" && one != "POST" && one != "DELETE")
 		|| (len > 1 && two != "GET" && two != "POST" && two != "DELETE")
 		|| (len > 2 && three != "GET" && three != "POST" && three != "DELETE"))
+	{
+		std::cout << "1\n";
 		throw Parse::BadDirectiveMethods();
+	}
 
 	if (len > 1) {
 		if (one == two)
@@ -433,8 +451,11 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	str = this->_locationTmp + it->c_str();
 	tmp.open(str.c_str());
 	if (tmp.fail())
+	{
+		// std::cout << str << std::endl;
 		throw Parse::BadDirectiveReturn();
-	
+	}
+
 	{
 		bool empty = (tmp.get(), tmp.eof());
 		if (empty) {
@@ -469,7 +490,6 @@ int	Parse::dirRoot( std::vector< std::string >::iterator it ) {
 	return 3;
 }
 
-
 int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 	
 	int ret = 1;
@@ -491,7 +511,6 @@ int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 	return ret + 1;
 }
 
-
 int	Parse::dirAutoindex( std::vector< std::string >::iterator it ) {
 
 	*it++;
@@ -502,7 +521,6 @@ int	Parse::dirAutoindex( std::vector< std::string >::iterator it ) {
 	return 3;
 
 }
-
 
 int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 
@@ -602,6 +620,8 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 			len = this->dirCgi(it);
 		else if (*it == "download")
 			len = this->dirDownload(it);
+		else
+			throw Parse::BadDirectiveLocation();
 		ret += len;
 		for (int i = 0 ; it != last && i < len ; i++)
 			*it++;
@@ -636,6 +656,11 @@ void	Parse::checkAllDirectives( void ) {
 					ret = this->dirErrorPage(it);
 				else if (*it == "location")
 					ret = this->dirLocation(it, this->_args.end());
+				else if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
+				{
+					std::cout << "rola " << *it << std::endl;
+					throw Parse::WrongInfo();
+				}
 				for (int i = 0 ; it < this->_args.end() && i < ret ; i++)
 					*it++;
 				if (it < this->_args.end() && (*it == "{" || *it == "}")) {
@@ -643,16 +668,7 @@ void	Parse::checkAllDirectives( void ) {
 						*it++;
 				}
 			}
-			if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
-			{
-				// std::cout << "rola " << *it << std::endl;
-				throw Parse::WrongInfo();
-			}
 		}
-		// if (it < this->_args.end() && (*it == "{" || *it == "}")) {
-		// 	while (it < this->_args.end() && (*it == "{" || *it == "}"))
-		// 		*it++;
-		// }
 	}
 
 }
@@ -677,7 +693,6 @@ int	Parse::noDirective( std::string str ) {
 	return EXIT_SUCCESS;
 		
 }
-
 
 int	Parse::dirBlockServer( std::string str ) {
 

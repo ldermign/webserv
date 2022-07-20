@@ -6,11 +6,16 @@
  * 				-> cette class recoit et envoie des requetes
  * 				-> permet de faire le lien entre le server et les fonctions de traitemetn de requetes
 */
-Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false)
+Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server()
 {
 	std::cout << "empty socket was created" << std::endl;
 }
-Socket::Socket(int fd, struct sockaddr data, int flag) : _fd(fd), _data(data), _message(""), _flag(flag), _still_connected(false)
+Socket::Socket(int fd, struct sockaddr data, int flag, const Server &data_server) :	_fd(fd),
+																					_data(data),
+																					_message(""),
+																					_flag(flag),
+																					_still_connected(false),
+																					_data_server(data_server)
 {}
 Socket& Socket::operator=(const Socket& fc)
 {
@@ -74,13 +79,13 @@ Socket				Socket::accept_new_socket(void)
 	ret_func = accept(_fd, &their_addr, &s_addr);
 	if (ret_func == -1)
 		throw accept_error;
-	Socket				new_one(ret_func, their_addr, RECV);
+	Socket				new_one(ret_func, their_addr, RECV, _data_server);
 	return new_one;
 }
 
 Response*			Socket::create_response(std::string	& message)
 {
-	Communication		communication(message, this->get_server());
+	Communication		communication(message, _data_server);
 
 	this->set_message(communication.get_response());
 	return (communication.get_res());
@@ -123,7 +128,7 @@ void				Socket::receive_message(void)
 	{
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
-		response = this->create_response(this->_message);
+//		response = this->create_response(this->_message);
 		_still_connected = (_still_connected) ? true : response->get_connection();
 		_flag = SEND;
 		return ;
