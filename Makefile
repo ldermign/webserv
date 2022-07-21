@@ -22,7 +22,7 @@ OBJSDIR		= objs
 
 OBJS 		= ${SRCS:%.cpp=${OBJSDIR}/%.o}
 
-DEPS		= ${SRCS:.cpp=.d}
+DEPS		= ${OBJS:.o=.d}
 
 CC			= c++
 
@@ -32,7 +32,7 @@ RM			= rm -rf
 
 all:		${NAME}
 
-${NAME}: 	${OBJS}
+${NAME}: 	${OBJS} ${DEPS}
 			${CC} ${CFLAGS} -o ${NAME} ${OBJS}
 
 -include	${DEPS}
