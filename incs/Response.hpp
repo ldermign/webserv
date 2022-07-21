@@ -389,10 +389,11 @@ class Response
 			}
 		}
 
-		std::string		create_error_response_code(void) const
+		std::string		create_error_response_code(void)
 		{
 			std::stringstream		ss;
 
+			this->set_content_type("text/html");
 			ss << "<html>" << END_RES_LINE;
 			ss << "<head><title>" << this->get_error_name()
 				<< "</title></head>" << END_RES_LINE;
@@ -405,7 +406,7 @@ class Response
 			return (ss.str());
 		}
 
-		std::string		create_body(void) const
+		std::string		create_body(void)
 		{
 			std::string			body;
 
@@ -467,7 +468,7 @@ class Response
 			{
 				if (source == *it)
 				{
-					ifs.open("./files_config/www/index.html");
+					ifs.open("/var/www/html/index.php");
 					if (!ifs.is_open())
 						return (false);
 					return (true);
