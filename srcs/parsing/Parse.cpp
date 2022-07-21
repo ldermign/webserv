@@ -222,7 +222,6 @@ int	wrongIP( std::string str ) {
 
 int	wrongPort( std::string str ) {
 
-	// std::cout << atoi(str.c_str()) << std::endl;
 
 	if (str.find_first_not_of("0123456789") != std::string::npos
 		|| atoi(str.c_str()) > 65535 || atoi(str.c_str()) <= 0)

@@ -4,7 +4,7 @@ SRCS		=	${SRCSDIR}webserv.cpp \
 
 #server
 SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
-				${SRCSDIR}set_server/FtServer.cpp \
+				${SRCSDIR}set_server/FtServer.cpp 
 
 # Parse 
 SRCS		+=	${PARSDIR}Parse.cpp \

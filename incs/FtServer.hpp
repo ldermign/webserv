@@ -13,7 +13,7 @@ class FtServer
 		in_addr_t				_domain;
 		std::string				_name;
 		fd_set					_set[3];
-		const Server			&_data;
+		const Server				_data;
 		void					_create_main_socket(void);
 		void					_bind_main_socket(void);
 		void					_select_socket(void);

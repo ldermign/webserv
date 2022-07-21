@@ -13,7 +13,8 @@ class Socket
 		std::string				_message;
 		int						_flag;
 		bool					_still_connected;
-		const Server			&_data_server;
+		const Server			_data_server;
+
 	public :
 		Socket(void);
 		Socket(int fd, struct sockaddr data, int flag, const Server &data_server);

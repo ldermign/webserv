@@ -16,7 +16,7 @@ FtServer::FtServer(void) :	_main_socket_fd(-1),
 		_init_server();
 }
 
-FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port, Server data) :	_main_socket_fd(-1),
+FtServer::FtServer(std::string &name, in_addr_t &domain, u_short &port, Server &data) :	_main_socket_fd(-1),
    																						_port(port), _domain(domain),
 																		   				_name (name),
 																				   		_set(),

@@ -1,3 +1,4 @@
+#include "Server.hpp"
 #include "Socket.hpp"
 #include "Communication.hpp"
 
@@ -6,7 +7,7 @@
  * 				-> cette class recoit et envoie des requetes
  * 				-> permet de faire le lien entre le server et les fonctions de traitemetn de requetes
 */
-Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server()
+Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server(Server())
 {
 	std::cout << "empty socket was created" << std::endl;
 }
