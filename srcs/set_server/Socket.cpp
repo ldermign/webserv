@@ -88,7 +88,10 @@ Response*			Socket::create_response(std::string	& message)
 {
 	Communication		communication(message, _data_server);
 
+	std::cout << "AVANT" << std::endl;
 	this->set_message(communication.get_response());
+	std::cout << "APRES = " << communication.get_res()->get_response() << std::endl;
+
 	return (communication.get_res());
 }
 

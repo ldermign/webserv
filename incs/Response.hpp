@@ -47,6 +47,7 @@ class Response
 			this->set_error_name(rhs.get_error_name());
 
 			this->set_index(rhs.get_index());
+			this->set_method(rhs.get_method());
 	
 			return (*this);
 		}
@@ -74,13 +75,14 @@ class Response
 			this->set_body(src.get_body());
 
 			this->set_index(src.get_index());
+			this->set_method(src.get_method());
 		}
 
 
 		Response(Request *request, Server server)
 			: server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection()),
-			index(request->get_index())
+			index(request->get_index()), method(request->get_type())
 		{
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
@@ -143,6 +145,11 @@ class Response
 			return (this->index);
 		}
 
+		std::string		get_method(void) const
+		{
+			return (this->method);
+		}
+
 		std::string		get_body(void) const
 		{
 			return (this->body);
@@ -198,6 +205,11 @@ class Response
 		void		set_index(std::string index)
 		{
 			this->index = index;
+		}
+
+		void		set_method(std::string method)
+		{
+			this->method = method;
 		}
 
 		void		set_version(std::string version)
@@ -270,6 +282,7 @@ class Response
 		// request data
 		
 		std::string		index;
+		std::string		method;
 
 	private : 
 
@@ -463,7 +476,7 @@ class Response
 
 			if (this->status == 200)
 			{
-				std::ifstream		ifs(this->get_path_source());
+				std::ifstream		ifs(this->get_path_source().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))
 				{
@@ -513,13 +526,22 @@ class Response
 			return (location);
 		}
 
+		bool	is_method_allowed(void)
+		{
+			std::vector<std::string>		&methods = this->location.second.getMethods();
+			for (std::vector<std::string>::const_iterator it = methods.begin(); 
+					it != methods.end(); ++it)
+			{
+				if (!this->get_method().compare(*it))
+					return (true);
+			}
+			return (false);
+		}
+
 		int		create_status(Request * request)
 		{
-			std::vector<std::string>		indexes;
-			std::string						root;
+			if (this->is_method_allowed())
 
-			indexes.push_back("index.html");
-			indexes.push_back("index.php");
 			if (!request->get_format() || this->location.first == false)
 				return (400);
 			if (!index_exist())
@@ -537,7 +559,7 @@ class Response
 			path_to_check.append(this->location.second.getRoot());
 			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
 			path_to_check.append(this->index);
-			ifs.open(path_to_check);
+			ifs.open(path_to_check.c_str());
 			if (ifs.is_open())
 			{
 				this->set_path_source(path_to_check);
