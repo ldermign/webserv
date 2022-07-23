@@ -8,6 +8,7 @@
 #include <iterator>
 #include <fstream>
 #include <vector>
+#include <sys/stat.h>
 
 #define	END_RES_LINE "\r\n"
 
@@ -25,7 +26,7 @@ class Response
 		Response&	operator=(Response const & rhs)
 		{
 			this->set_server(rhs.get_server());
-			this->set_locations(rhs.get_locations());
+			this->set_location(rhs.get_location());
 			this->set_response(rhs.get_response());
 
 			// first line response
@@ -53,7 +54,7 @@ class Response
 		Response(Response const & src)
 		{
 			this->set_server(src.get_server());
-			this->set_locations(src.get_locations());
+			this->set_location(src.get_location());
 			this->set_response(src.get_response());
 
 			// first line response
@@ -77,7 +78,7 @@ class Response
 
 
 		Response(Request *request, Server server)
-			: server(server), locations(this->server.getLocation()), version(request->get_version()), server_name("Webserv"), 
+			: server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection()),
 			index(request->get_index())
 		{
@@ -157,9 +158,14 @@ class Response
 			return (this->connection);
 		}
 
-		std::vector<Location>		get_locations(void) const
+		std::pair<bool, Location>	get_location(void) const
 		{
-			return (this->locations);
+			return (this->location);
+		}
+
+		std::string		get_path_source(void) const
+		{
+			return (this->path_source);
 		}
 
 		// Setters
@@ -219,9 +225,9 @@ class Response
 			this->server = server;
 		}
 
-		void		set_locations(std::vector<Location> locations)
+		void		set_location(std::pair<bool, Location> location)
 		{
-			this->locations = locations;
+			this->location = location;
 		}
 
 		void		set_server_name(std::string server_name)
@@ -229,12 +235,19 @@ class Response
 			this->server_name = server_name;
 		}
 
+		void		set_path_source(std::string path_source)
+		{
+			this->path_source = path_source;
+		}
+
 
 	protected :
 
 		std::string						response;
 		Server							server;
-		std::vector<Location>			locations;
+		std::pair<bool, Location>		location;
+		std::string						path_source;
+
 
 		// first line response
 
@@ -420,22 +433,45 @@ class Response
 			return (ss.str());
 		}
 
+		std::string		create_autoindex(void)
+		{
+				std::stringstream		ss;
+
+				this->set_content_type("text/html");
+
+				ss << "<html>" << END_RES_LINE;
+				ss << "<head><title>" << "Index of" << this->get_index()
+					<< "</title></head>" << END_RES_LINE;
+				ss << "<body>" << END_RES_LINE;
+				ss << "<center><h1>" << this->get_index()
+					<< "</h1></center>" << END_RES_LINE;
+				ss << "</body>" << END_RES_LINE;
+				ss << "</html>" << END_RES_LINE;
+				return (ss.str());
+		}
+
+		bool			root_exist(void) const
+		{
+			struct stat buffer;
+
+			return (stat(this->location.second.getRoot().c_str(), &buffer) == 0);
+		}
+
 		std::string		create_body(void)
 		{
 			std::string			body;
 
 			if (this->status == 200)
 			{
-				std::ifstream		ifs("./files_config/www/index.html");
+				std::ifstream		ifs(this->get_path_source());
 				std::string			line;
-
-				if (!ifs.is_open())
-					std::cout << "file not opened" << std::endl;
 				while (std::getline(ifs, line))
 				{
 					body.append(line + '\n');
 				}
 			}
+			else if (this->status == 404 && this->root_exist())
+				body = create_autoindex();
 			else
 			{
 				body = this->create_error_response_code();
@@ -458,15 +494,23 @@ class Response
 			return (false);
 		}
 
-		bool	match_location(void) const
+		std::pair<bool, Location>		match_location(void)
 		{
-			for (std::vector<Location>::const_iterator it = this->locations.begin();
-					it != this->locations.end(); ++it)
+			std::vector<Location>		locations;
+			std::pair<bool, Location>	location;
+			
+			locations = this->server.getLocation();
+			for (std::vector<Location>::const_iterator it = locations.begin();
+					it != locations.end(); ++it)
 			{
-				if (!this->get_index().compare(it->getPath()))
-					return (true);
+				if (!this->get_index().compare(0, it->getPath().length(), it->getPath()))
+				{
+					location.first = true;
+					location.second = *it;
+				}
 			}
-			return (false);
+			location.first = false;
+			return (location);
 		}
 
 		int		create_status(Request * request)
@@ -476,24 +520,30 @@ class Response
 
 			indexes.push_back("index.html");
 			indexes.push_back("index.php");
-			if (!request->get_format() || !match_location())
+			if (!request->get_format() || this->location.first == false)
 				return (400);
-			if (!index_exist(request->get_index()))
+			if (!index_exist())
 				return (404);
 			if (!check_version())
 				return (505);
 			return (200);
 		}
 
-		bool	index_exist(const std::string source)
+		bool	index_exist(void)
 		{
-			for (std::vector<Location>::const_iterator it = this->locations.begin();
-					it != this->locations.end(); ++it)
+			std::string		path_to_check;
+			std::ifstream	ifs;
+
+			path_to_check.append(this->location.second.getRoot());
+			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
+			path_to_check.append(this->index);
+			ifs.open(path_to_check);
+			if (ifs.is_open())
 			{
-				if (!this->get_index().compare(it->getPath()))
-					break ;
+				this->set_path_source(path_to_check);
+				return (true);
 			}
-			if (it->)
+			return (false);
 		}
 
 		std::string		create_response(void)
