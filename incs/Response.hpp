@@ -24,6 +24,8 @@ class Response
 
 		Response&	operator=(Response const & rhs)
 		{
+			this->set_server(rhs.get_server());
+			this->set_locations(rhs.get_locations());
 			this->set_response(rhs.get_response());
 
 			// first line response
@@ -51,6 +53,7 @@ class Response
 		Response(Response const & src)
 		{
 			this->set_server(src.get_server());
+			this->set_locations(src.get_locations());
 			this->set_response(src.get_response());
 
 			// first line response
@@ -74,7 +77,7 @@ class Response
 
 
 		Response(Request *request, Server server)
-			: server(server), version(request->get_version()), server_name("Webserv"), 
+			: server(server), locations(this->server.getLocation()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection()),
 			index(request->get_index())
 		{
@@ -154,6 +157,11 @@ class Response
 			return (this->connection);
 		}
 
+		std::vector<Location>		get_locations(void) const
+		{
+			return (this->locations);
+		}
+
 		// Setters
 		
 		void		set_response(std::string response)
@@ -211,6 +219,11 @@ class Response
 			this->server = server;
 		}
 
+		void		set_locations(std::vector<Location> locations)
+		{
+			this->locations = locations;
+		}
+
 		void		set_server_name(std::string server_name)
 		{
 			this->server_name = server_name;
@@ -219,8 +232,9 @@ class Response
 
 	protected :
 
-		std::string				response;
-		Server					server;
+		std::string						response;
+		Server							server;
+		std::vector<Location>			locations;
 
 		// first line response
 
@@ -444,6 +458,17 @@ class Response
 			return (false);
 		}
 
+		bool	match_location(void) const
+		{
+			for (std::vector<Location>::const_iterator it = this->locations.begin();
+					it != this->locations.end(); ++it)
+			{
+				if (!this->get_index().compare(it->getPath()))
+					return (true);
+			}
+			return (false);
+		}
+
 		int		create_status(Request * request)
 		{
 			std::vector<std::string>		indexes;
@@ -451,30 +476,24 @@ class Response
 
 			indexes.push_back("index.html");
 			indexes.push_back("index.php");
-			if (!request->get_format())
+			if (!request->get_format() || !match_location())
 				return (400);
-			if (!index_exist(request->get_index(), indexes))
+			if (!index_exist(request->get_index()))
 				return (404);
 			if (!check_version())
 				return (505);
 			return (200);
 		}
 
-		bool	index_exist(const std::string source, std::vector<std::string> indexes)
+		bool	index_exist(const std::string source)
 		{
-			std::ifstream		ifs;
-
-			for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
+			for (std::vector<Location>::const_iterator it = this->locations.begin();
+					it != this->locations.end(); ++it)
 			{
-				if (source == *it)
-				{
-					ifs.open("/var/www/html/index.php");
-					if (!ifs.is_open())
-						return (false);
-					return (true);
-				}
+				if (!this->get_index().compare(it->getPath()))
+					break ;
 			}
-			return (false);
+			if (it->)
 		}
 
 		std::string		create_response(void)
