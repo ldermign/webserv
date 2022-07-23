@@ -49,7 +49,7 @@ void		FtServer::_init_server(void)
 	_create_main_socket();
 	std::cout << RED << "main_fd in creation ..." << RESET << "\r" << std::flush;
 	_bind_main_socket();
-	std::cout << RMLINE << GREEN << "main_fd created ! (" << _main_socket_fd << ")"<< RESET << std::endl << std::endl;
+	std::cout << RMLINE << GREEN << "main_fd created in the \"" << _name << "\" server" << RESET << std::endl << std::endl;
 }
 
 const int			&FtServer::get_main_fd(void) const
