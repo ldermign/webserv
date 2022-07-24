@@ -86,6 +86,7 @@ Socket				Socket::accept_new_socket(void)
 
 Response*			Socket::create_response(std::string	& message)
 {
+	std::cout << "BEFORE" << std::endl;
 	Communication		communication(message, _data_server);
 
 	std::cout << "AVANT" << std::endl;
@@ -133,6 +134,7 @@ void				Socket::receive_message(void)
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		response = this->create_response(this->_message);
+		std::cout << "AFTER" << std::endl;
 		_still_connected = (_still_connected) ? true : response->get_connection();
 		_flag = SEND;
 		return ;

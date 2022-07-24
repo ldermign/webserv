@@ -80,9 +80,8 @@ class Response
 
 
 		Response(Request *request, Server server)
-			: server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
-			connection(request->get_connection()),
-			index(request->get_index()), method(request->get_type())
+			: index(request->get_index()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
+			connection(request->get_connection())
 		{
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
@@ -254,6 +253,12 @@ class Response
 
 
 	protected :
+		// request data
+		
+		std::string		index;
+		std::string		method;
+
+		// response data
 
 		std::string						response;
 		Server							server;
@@ -279,10 +284,6 @@ class Response
 		std::string				body;
 		std::string				error_name;
 
-		// request data
-		
-		std::string		index;
-		std::string		method;
 
 	private : 
 
@@ -516,11 +517,13 @@ class Response
 			for (std::vector<Location>::const_iterator it = locations.begin();
 					it != locations.end(); ++it)
 			{
+				std::cout << "PATH = " << it->getPath() << std::endl;
 				if (!this->get_index().compare(0, it->getPath().length(), it->getPath()))
 				{
 					location.first = true;
 					location.second = *it;
 				}
+				std::cout << "PATHHH = " << it->getPath() << std::endl;
 			}
 			location.first = false;
 			return (location);
