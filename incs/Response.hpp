@@ -291,13 +291,13 @@ class Response
 		{
 			std::map<int, std::string>		week_days;
 
+			week_days[0] = "Sun";
 			week_days[1] = "Mon";
 			week_days[2] = "Tue";
 			week_days[3] = "Wed";
 			week_days[4] = "Thu";
 			week_days[5] = "Fri";
 			week_days[6] = "Sat";
-			week_days[7] = "Sun";
 			return (week_days[week_day]);
 		}
 
@@ -359,6 +359,7 @@ class Response
 			date << gmt->tm_sec;
 			date << " ";
 			date << "GMT";
+			std::cout << "DAAAAAAAAAAATE = " << date.str() << std::endl;
 			return (date.str());
 		}
 
@@ -517,13 +518,11 @@ class Response
 			for (std::vector<Location>::const_iterator it = locations.begin();
 					it != locations.end(); ++it)
 			{
-				std::cout << "PATH = " << it->getPath() << std::endl;
 				if (!this->get_index().compare(0, it->getPath().length(), it->getPath()))
 				{
 					location.first = true;
 					location.second = *it;
 				}
-				std::cout << "PATHHH = " << it->getPath() << std::endl;
 			}
 			location.first = false;
 			return (location);
@@ -558,16 +557,29 @@ class Response
 		{
 			std::string		path_to_check;
 			std::ifstream	ifs;
+			std::vector<std::string>		&indexes = this->location.second.getIndex();
+		//	struct stat buffer;
 
 			path_to_check.append(this->location.second.getRoot());
 			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
-			path_to_check.append(this->index);
-			ifs.open(path_to_check.c_str());
-			if (ifs.is_open())
+			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
-				this->set_path_source(path_to_check);
-				return (true);
+				path_to_check.append(*it);
+				std::cout << "NEW path_to_check = " << path_to_check << std::endl;
+				ifs.open(path_to_check.c_str());
+				if (ifs.is_open())
+				{
+					//if (stat(this->location.second.getRoot().c_str(), &buffer) == 0)
+				//	{
+						this->set_path_source(path_to_check);
+						std::cout << "PATH_TO_CHECK = " << path_to_check << std::endl;
+						return (true);
+				//	}
+				}
+				path_to_check.erase(path_to_check.length() - it->length(), it->length());
+				std::cout << "ERASED path_to_check = " << path_to_check << std::endl;
 			}
+			std::cout << "PATH TO CHECK = " << path_to_check << std::endl;
 			return (false);
 		}
 
