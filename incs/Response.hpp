@@ -269,7 +269,7 @@ class Response
 		static std::vector<std::string>		week_days;
 		static std::vector<std::string>		months;
 		static std::vector<std::string>		default_methods;
-		static std::vector<int>				redirection_codes;
+		static std::vector<int>				redirection_status;
 		static std::map<int, std::string>	status_messages;
 
 	protected :
@@ -356,7 +356,6 @@ class Response
 		{
 			std::vector<int>		redirection_status;
 
-			redirection_status.push_back(300);
 			redirection_status.push_back(301);
 			redirection_status.push_back(302);
 			redirection_status.push_back(303);
@@ -470,17 +469,17 @@ class Response
 			std::string		ext;
 
 			ext = get_ext();
-			if (ext == ".html")
+			if (this->location.second.getReturnCode()
+					&& !this->is_redirection(this->location.second.getReturnCode()))
+				return ("application/octet-stream");
+			else if (ext == ".html")
 				return ("text/html");
 			else if (ext == ".css")
 				return ("text/css");
 			else if (ext == ".js")
 				return ("text/javascript");
 			else if (ext == ".txt")
-			{
-				std::cout << "TEXT PLAIN" << std::endl;
 				return ("text/plain");
-			}
 			else if (ext == ".gif")
 				return ("image/gif");
 			else if (ext == ".jpeg")
@@ -499,6 +498,17 @@ class Response
 		
 		std::string		find_status_message(void) const
 		{
+			std::stringstream		ss;
+			std::string				status_message;
+
+			if (this->status_messages[this->get_status()].empty())
+			{
+				ss << this->get_status();
+				status_message = ss.str();
+				while (status_message.length() < 3)
+					status_message.insert(status_message.begin(), '0');
+				return (status_message);
+			}
 			return (this->status_messages[this->get_status()]);
 		}
 
@@ -547,7 +557,12 @@ class Response
 		{
 			std::string			body;
 
-			if (this->status == 200)
+			if (this->location.second.getReturnCode()
+					&& !this->is_redirection(this->location.second.getReturnCode()))
+			{
+				body = this->location.second.getReturnPath();
+			}
+			else if (this->status == 200)
 			{
 				std::ifstream		ifs(this->get_path_source().c_str());
 				std::string			line;
@@ -687,11 +702,11 @@ class Response
 			return (index);
 		}
 
-		bool			is_redirection(void)
+		bool			is_redirection(unsigned int status)
 		{
-			return (std::find(this->redirection_codes.begin(),
-						this->redirection_codes.end(),
-						this->status) != this->redirection_codes.end());
+			return (std::find(this->redirection_status.begin(),
+						this->redirection_status.end(),
+						status) != this->redirection_status.end());
 		}
 
 		std::string		create_response(void)
@@ -704,7 +719,7 @@ class Response
 			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << END_RES_LINE;
 			ss << "Content-Length: " << this->get_content_length() << END_RES_LINE;
-			if (this->is_redirection())
+			if (this->is_redirection(this->status) || this->get_status() == 300)
 				ss << "Location: http://" << this->server.getHost() \
 					<< ":" << this->server.getPort() << this->location.second.getReturnPath() << END_RES_LINE;
 			ss << "Connection: " << this->get_connection_value() << END_RES_LINE;
