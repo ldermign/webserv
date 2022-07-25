@@ -544,10 +544,16 @@ class Response
 				return ("close");
 		}
 
-		bool	check_version(void) const
+		bool	check_version(void)
 		{
-			if (!this->get_version().compare("HTTP/1.1"))
+			if (this->get_version().empty())
+			{
+				this->set_version("HTTP/1.1");
 				return (true);
+			}
+			else if (!this->get_version().compare("HTTP/1.1"))
+				return (true);
+			this->set_version("HTTP/1.1");
 			return (false);
 		}
 
@@ -595,7 +601,10 @@ class Response
 			else if (!this->is_method_allowed())
 				return (405);
 			else if (!request->get_format() || this->location.first == false)
+			{
+				std::cout << "FORMAT = " << request->get_format() << std::endl;
 				return (400);
+			}
 			else if (!index_exist())
 				return (404);
 			return (200);

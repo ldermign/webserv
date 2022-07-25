@@ -180,7 +180,7 @@ class Request
 			return (it);
 		}
 
-		std::string		read_string_in_request(std::string::iterator it)
+		std::string		read_string_in_request(std::string::iterator it, unsigned int i)
 		{
 			std::string		str;
 			bool			format = false;
@@ -191,7 +191,7 @@ class Request
 				format = true;
 				++it;
 			}
-			if (!format)
+			if (!format && i != 2)
 				throw (FormatException());
 			return (str);
 		}
@@ -219,20 +219,19 @@ class Request
 		{
 			std::string::iterator it = this->request.begin();
 
-			for (int i = 0; i < 3; i++)
+			for (unsigned int i = 0; i < 3; i++)
 			{
-				std::cout << "i = " << i << std::endl;
 				it = this->skip_space(it);
 				switch (i)
 				{
 					case 0 :
-						it += (this->type = this->read_string_in_request(it)).length();
+						it += (this->type = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
-						it += (this->index = this->read_string_in_request(it)).length();
+						it += (this->index = this->read_string_in_request(it, i)).length();
 						break;
 					case 2:
-						it += (this->version = this->read_string_in_request(it)).length();
+						it += (this->version = this->read_string_in_request(it, i)).length();
 				}
 			}
 			it = skip_end_line(it);
