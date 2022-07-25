@@ -252,6 +252,12 @@ class Response
 		}
 
 
+		// statics
+
+		static std::vector<std::string>		week_days;
+		static std::vector<std::string>		months;
+		static std::vector<std::string>		default_methods;
+
 	protected :
 		// request data
 		
@@ -260,10 +266,10 @@ class Response
 
 		// response data
 
-		std::string						response;
-		Server							server;
-		std::pair<bool, Location>		location;
-		std::string						path_source;
+		std::string								response;
+		Server									server;
+		std::pair<bool, Location>				location;
+		std::string								path_source;
 
 
 		// first line response
@@ -287,18 +293,52 @@ class Response
 
 	private : 
 
+		static std::vector<std::string>		init_week_days(void)
+		{
+			std::vector<std::string>		days;
+
+			days.push_back("Sun");
+			days.push_back("Mon");
+			days.push_back("Tue");
+			days.push_back("Wed");
+			days.push_back("Thu");
+			days.push_back("Fri");
+			days.push_back("Sat");
+			return (days);
+		}
+
+		static std::vector<std::string>		init_months(void)
+		{
+			std::vector<std::string>		months;
+
+			months.push_back("Jan");
+			months.push_back("Feb");
+			months.push_back("Mar");
+			months.push_back("Apr");
+			months.push_back("May");
+			months.push_back("Jun");
+			months.push_back("Jul");
+			months.push_back("Aug");
+			months.push_back("Sep");
+			months.push_back("Oct");
+			months.push_back("Nov");
+			months.push_back("Dec");
+			return (months);
+		}
+
+		static std::vector<std::string>		init_default_methods(void)
+		{
+			std::vector<std::string>		default_methods;
+
+			default_methods.push_back("GET");
+			default_methods.push_back("POST");
+			default_methods.push_back("DELETE");
+			return (default_methods);
+		}
+
 		std::string	get_week_day(int week_day) const
 		{
-			std::map<int, std::string>		week_days;
-
-			week_days[0] = "Sun";
-			week_days[1] = "Mon";
-			week_days[2] = "Tue";
-			week_days[3] = "Wed";
-			week_days[4] = "Thu";
-			week_days[5] = "Fri";
-			week_days[6] = "Sat";
-			return (week_days[week_day]);
+			return (this->week_days[week_day]);
 		}
 
 		std::string	get_day(int day) const
@@ -415,6 +455,8 @@ class Response
 					return ("403 Forbidden");
 				case 404:
 					return ("404 Not Found");
+				case 405:
+					return ("405 Method Not Allowed");
 				case 500:
 					return ("500 Internal Server Error");
 				case 502:
@@ -522,15 +564,26 @@ class Response
 				{
 					location.first = true;
 					location.second = *it;
+					return (location);
 				}
 			}
 			location.first = false;
 			return (location);
 		}
+		bool	is_default_method(void) const
+		{
+			return (std::find(this->default_methods.begin(), this->default_methods.end(),
+						this->method) != this->default_methods.end());
+		}
 
 		bool	is_method_allowed(void)
 		{
 			std::vector<std::string>		&methods = this->location.second.getMethods();
+
+			if (!methods.size())
+			{
+				return (this->is_default_method());
+			}
 			for (std::vector<std::string>::const_iterator it = methods.begin(); 
 					it != methods.end(); ++it)
 			{
@@ -542,14 +595,14 @@ class Response
 
 		int		create_status(Request * request)
 		{
-			if (this->is_method_allowed())
-
-			if (!request->get_format() || this->location.first == false)
-				return (400);
-			if (!index_exist())
-				return (404);
 			if (!check_version())
 				return (505);
+			else if (!this->is_method_allowed())
+				return (405);
+			else if (!request->get_format() || this->location.first == false)
+				return (400);
+			else if (!index_exist())
+				return (404);
 			return (200);
 		}
 

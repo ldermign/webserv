@@ -22,8 +22,6 @@ class Request
 		{
 			std::string::iterator		it;
 			
-			std::cout << "REQUEST :" << std::endl;
-			std::cout << request << std::endl;
 			try
 			{
 				it = this->parse_start_line();
@@ -223,6 +221,7 @@ class Request
 
 			for (int i = 0; i < 3; i++)
 			{
+				std::cout << "i = " << i << std::endl;
 				it = this->skip_space(it);
 				switch (i)
 				{
