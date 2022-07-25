@@ -578,19 +578,14 @@ class Response
 
 		bool	is_method_allowed(void)
 		{
-			std::vector<std::string>		&methods = this->location.second.getMethods();
+			std::vector<std::string>		&methods_allowed = this->location.second.getMethods();
 
-			if (!methods.size())
-			{
-				return (this->is_default_method());
-			}
-			for (std::vector<std::string>::const_iterator it = methods.begin(); 
-					it != methods.end(); ++it)
-			{
-				if (!this->get_method().compare(*it))
-					return (true);
-			}
-			return (false);
+			if (!methods_allowed.size())
+				return (std::find(this->default_methods.begin(),
+						this->default_methods.end(), this->method)
+						!= this->default_methods.end());
+			return (std::find(methods_allowed.begin(), methods_allowed.end(),
+						this->method) != methods_allowed.end());
 		}
 
 		int		create_status(Request * request)
