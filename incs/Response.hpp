@@ -82,7 +82,7 @@ class Response
 
 
 		Response(Request *request, Server server)
-			: source(request->get_index()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
+			: source(request->get_source()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection())
 		{
 			this->set_index(this->find_index());

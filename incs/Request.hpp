@@ -36,13 +36,13 @@ class Request
 
 		virtual ~Request() {}
 
-		Request(Request const & src) : index(src.index)
+		Request(Request const & src) : source(src.source)
 		{
 		}
 
 		Request&		operator=(Request const & rhs)
 		{
-			this->index = rhs.index;
+			this->source = rhs.source;
 			return (*this);
 		}
 
@@ -63,9 +63,9 @@ class Request
 			return (this->request);
 		}
 
-		const std::string			&get_index(void) const
+		const std::string			&get_source(void) const
 		{
-			return (this->index);
+			return (this->source);
 		}
 
 		bool						get_connection(void) const
@@ -95,9 +95,9 @@ class Request
 			this->type = type;
 		}
 
-		void	set_index(std::string const & index)
+		void	set_source(std::string const & source)
 		{
-			this->index = index;
+			this->source = source;
 		}
 
 		void	set_version(std::string const & version)
@@ -138,7 +138,7 @@ class Request
 
 		// first request line
 
-		std::string				index;
+		std::string				source;
 		std::string				type;
 		std::string				version;
 
@@ -228,7 +228,7 @@ class Request
 						it += (this->type = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
-						it += (this->index = this->read_string_in_request(it, i)).length();
+						it += (this->source = this->read_string_in_request(it, i)).length();
 						break;
 					case 2:
 						it += (this->version = this->read_string_in_request(it, i)).length();
