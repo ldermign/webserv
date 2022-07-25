@@ -553,12 +553,18 @@ class Response
 			return (200);
 		}
 
+		bool	is_dir(std::string const & path) const
+		{
+			struct stat buffer;
+
+			return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFDIR);
+		}
+
 		bool	index_exist(void)
 		{
 			std::string		path_to_check;
 			std::ifstream	ifs;
 			std::vector<std::string>		&indexes = this->location.second.getIndex();
-		//	struct stat buffer;
 
 			path_to_check.append(this->location.second.getRoot());
 			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
@@ -569,13 +575,15 @@ class Response
 				ifs.open(path_to_check.c_str());
 				if (ifs.is_open())
 				{
-					//if (stat(this->location.second.getRoot().c_str(), &buffer) == 0)
-				//	{
-						this->set_path_source(path_to_check);
 						std::cout << "PATH_TO_CHECK = " << path_to_check << std::endl;
+					if (!this->is_dir(path_to_check))
+					{
+						this->set_path_source(path_to_check);
+						ifs.close();
 						return (true);
-				//	}
+					}
 				}
+				ifs.close();
 				path_to_check.erase(path_to_check.length() - it->length(), it->length());
 				std::cout << "ERASED path_to_check = " << path_to_check << std::endl;
 			}
