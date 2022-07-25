@@ -359,7 +359,6 @@ class Response
 			date << gmt->tm_sec;
 			date << " ";
 			date << "GMT";
-			std::cout << "DAAAAAAAAAAATE = " << date.str() << std::endl;
 			return (date.str());
 		}
 
@@ -485,7 +484,8 @@ class Response
 					body.append(line + '\n');
 				}
 			}
-			else if (this->status == 404 && this->root_exist())
+			else if (this->status == 404 && this->is_dir(this->location.second.getRoot())
+					&& this->location.second.getAutoindex())
 				body = create_autoindex();
 			else
 			{
@@ -571,11 +571,9 @@ class Response
 			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
 				path_to_check.append(*it);
-				std::cout << "NEW path_to_check = " << path_to_check << std::endl;
 				ifs.open(path_to_check.c_str());
 				if (ifs.is_open())
 				{
-						std::cout << "PATH_TO_CHECK = " << path_to_check << std::endl;
 					if (!this->is_dir(path_to_check))
 					{
 						this->set_path_source(path_to_check);
@@ -585,9 +583,7 @@ class Response
 				}
 				ifs.close();
 				path_to_check.erase(path_to_check.length() - it->length(), it->length());
-				std::cout << "ERASED path_to_check = " << path_to_check << std::endl;
 			}
-			std::cout << "PATH TO CHECK = " << path_to_check << std::endl;
 			return (false);
 		}
 
