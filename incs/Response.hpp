@@ -89,7 +89,7 @@ class Response
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
-			this->set_error_name(this->init_error_name());
+			this->set_error_name(this->find_status_message());
 			this->set_body(this->create_body());
 			this->set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
@@ -270,6 +270,7 @@ class Response
 		static std::vector<std::string>		months;
 		static std::vector<std::string>		default_methods;
 		static std::vector<int>				redirection_codes;
+		static std::map<int, std::string>	status_messages;
 
 	protected :
 
@@ -351,18 +352,41 @@ class Response
 			return (default_methods);
 		}
 
-		static std::vector<int>		init_redirection_codes(void)
+		static std::vector<int>		init_redirection_status(void)
 		{
-			std::vector<int>		redirection_codes;
+			std::vector<int>		redirection_status;
 
-			redirection_codes.push_back(300);
-			redirection_codes.push_back(301);
-			redirection_codes.push_back(302);
-			redirection_codes.push_back(303);
-			redirection_codes.push_back(304);
-			redirection_codes.push_back(307);
-			redirection_codes.push_back(308);
-			return (redirection_codes);
+			redirection_status.push_back(300);
+			redirection_status.push_back(301);
+			redirection_status.push_back(302);
+			redirection_status.push_back(303);
+			redirection_status.push_back(304);
+			redirection_status.push_back(307);
+			redirection_status.push_back(308);
+			return (redirection_status);
+		}
+
+		static std::map<int, std::string>		init_status_messages(void)
+		{
+			std::map<int, std::string>		status_messages;
+
+			status_messages[200] = "200 OK";
+			status_messages[301] = "301 Moved Permanently";
+			status_messages[302] = "302 Found";
+			status_messages[303] = "303 See Other";
+			status_messages[307] = "307 Temporary Redirect";
+			status_messages[308] = "308 Permanent Redirect";
+			status_messages[400] = "400 Bad request";
+			status_messages[401] = "401 Unauthorized";
+			status_messages[403] = "403 Forbidden";
+			status_messages[404] = "404 Not Found";
+			status_messages[405] = "405 Method Not Allowed";
+			status_messages[500] = "500 Internal Server status";
+			status_messages[502] = "502 Bad Gateway";
+			status_messages[503] = "503 Service Unavailable";
+			status_messages[504] = "504 Gateway Timeout";
+			status_messages[505] = "505 HTTP Version Not Supported";
+			return (status_messages);
 		}
 
 		std::string	get_week_day(int week_day) const
@@ -473,37 +497,9 @@ class Response
 			return (this->body.length());
 		}
 		
-		std::string		init_error_name(void) const
+		std::string		find_status_message(void) const
 		{
-			switch (this->status)
-			{
-				case 200:
-					return ("200 OK");
-				case 301:
-					return ("301 Moved Permanently");
-				case 400:
-					return ("400 Bad Request");
-				case 401:
-					return ("401 Unauthorized");
-				case 403:
-					return ("403 Forbidden");
-				case 404:
-					return ("404 Not Found");
-				case 405:
-					return ("405 Method Not Allowed");
-				case 500:
-					return ("500 Internal Server Error");
-				case 502:
-					return ("502 Bad Gateway");
-				case 503:
-					return ("503 Service Unavailable");
-				case 504:
-					return ("504 Gateway Timeout");
-				case 505:
-					return ("505 HTTP Version Not Supported");
-				default :
-					return ("Error: Unknown error code");
-			}
+			return (this->status_messages[this->get_status()]);
 		}
 
 		std::string		create_error_response_code(void)
