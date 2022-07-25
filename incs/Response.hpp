@@ -559,23 +559,31 @@ class Response
 
 		std::pair<bool, Location>		match_location(void)
 		{
-			std::vector<Location>		locations;
-			std::pair<bool, Location>	location;
+			std::vector<Location>						locations;
+			std::pair<bool, Location>					location;
+			std::vector<Location>::const_iterator		longest_match;
 			
 			locations = this->server.getLocation();
+			location.first = false;
+			longest_match = locations.end();
 			for (std::vector<Location>::const_iterator it = locations.begin();
 					it != locations.end(); ++it)
 			{
+
 				if (!this->get_index().compare(0, it->getPath().length(), it->getPath()))
 				{
-					location.first = true;
-					location.second = *it;
-					return (location);
+					if (longest_match == locations.end() ||
+						it->getPath().length() > longest_match->getPath().length())
+					{
+						location.first = true;
+						location.second = *it;
+						longest_match = it;
+					}
 				}
 			}
-			location.first = false;
 			return (location);
 		}
+
 		bool	is_default_method(void) const
 		{
 			return (std::find(this->default_methods.begin(), this->default_methods.end(),
@@ -625,6 +633,8 @@ class Response
 
 			path_to_check.append(this->location.second.getRoot());
 			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
+			if (*path_to_check.end() - 1 != '/')
+				path_to_check += '/';
 			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
 				path_to_check.append(*it);
