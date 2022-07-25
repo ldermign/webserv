@@ -28,6 +28,7 @@ class Response
 			this->set_server(rhs.get_server());
 			this->set_location(rhs.get_location());
 			this->set_response(rhs.get_response());
+			this->set_index(rhs.get_index());
 
 			// first line response
 
@@ -46,7 +47,7 @@ class Response
 			this->set_body(rhs.get_body());
 			this->set_error_name(rhs.get_error_name());
 
-			this->set_index(rhs.get_index());
+			this->set_source(rhs.get_source());
 			this->set_method(rhs.get_method());
 	
 			return (*this);
@@ -57,6 +58,7 @@ class Response
 			this->set_server(src.get_server());
 			this->set_location(src.get_location());
 			this->set_response(src.get_response());
+			this->set_index(src.get_index());
 
 			// first line response
 			this->set_status(src.get_status());
@@ -74,15 +76,16 @@ class Response
 
 			this->set_body(src.get_body());
 
-			this->set_index(src.get_index());
+			this->set_source(src.get_source());
 			this->set_method(src.get_method());
 		}
 
 
 		Response(Request *request, Server server)
-			: index(request->get_index()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
+			: source(request->get_index()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection())
 		{
+			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
@@ -139,9 +142,9 @@ class Response
 			return (this->version);
 		}
 
-		std::string		get_index(void) const
+		std::string		get_source(void) const
 		{
-			return (this->index);
+			return (this->source);
 		}
 
 		std::string		get_method(void) const
@@ -173,6 +176,11 @@ class Response
 		{
 			return (this->path_source);
 		}
+		
+		std::pair<bool, std::string>	get_index(void) const
+		{
+			return (this->index);
+		}
 
 		// Setters
 		
@@ -201,9 +209,9 @@ class Response
 			this->status = status;
 		}
 
-		void		set_index(std::string index)
+		void		set_source(std::string source)
 		{
-			this->index = index;
+			this->source = source;
 		}
 
 		void		set_method(std::string method)
@@ -251,6 +259,10 @@ class Response
 			this->path_source = path_source;
 		}
 
+		void		set_index(std::pair<bool, std::string> index)
+		{
+			this->index = index;
+		}
 
 		// statics
 
@@ -259,9 +271,10 @@ class Response
 		static std::vector<std::string>		default_methods;
 
 	protected :
+
 		// request data
 		
-		std::string		index;
+		std::string		source;
 		std::string		method;
 
 		// response data
@@ -270,6 +283,7 @@ class Response
 		Server									server;
 		std::pair<bool, Location>				location;
 		std::string								path_source;
+		std::pair<bool, std::string>			index;
 
 
 		// first line response
@@ -406,10 +420,10 @@ class Response
 		{
 			size_t			pos;
 
-			pos = this->index.rfind(".");
+			pos = this->get_path_source().find(".");
 			if (pos == std::string::npos)
 				return (".txt");
-			return (this->index.substr(pos));
+			return (this->get_path_source().substr(pos));
 		}
 
 		std::string		find_content_type(void)
@@ -423,6 +437,11 @@ class Response
 				return ("text/css");
 			else if (ext == ".js")
 				return ("text/javascript");
+			else if (ext == ".txt")
+			{
+				std::cout << "TEXT PLAIN" << std::endl;
+				return ("text/plain");
+			}
 			else if (ext == ".gif")
 				return ("image/gif");
 			else if (ext == ".jpeg")
@@ -431,7 +450,7 @@ class Response
 				return ("image/png");
 			else if (ext == ".svg")
 				return ("image/svg+xml");
-			return ("text/plain");
+			return ("text/html");
 		}
 
 		size_t			find_content_length(void)
@@ -496,10 +515,10 @@ class Response
 				this->set_content_type("text/html");
 
 				ss << "<html>" << END_RES_LINE;
-				ss << "<head><title>" << "Index of" << this->get_index()
+				ss << "<head><title>" << "Index of" << this->get_source()
 					<< "</title></head>" << END_RES_LINE;
 				ss << "<body>" << END_RES_LINE;
-				ss << "<center><h1>" << this->get_index()
+				ss << "<center><h1>" << this->get_source()
 					<< "</h1></center>" << END_RES_LINE;
 				ss << "</body>" << END_RES_LINE;
 				ss << "</html>" << END_RES_LINE;
@@ -570,7 +589,7 @@ class Response
 					it != locations.end(); ++it)
 			{
 
-				if (!this->get_index().compare(0, it->getPath().length(), it->getPath()))
+				if (!this->get_source().compare(0, it->getPath().length(), it->getPath()))
 				{
 					if (longest_match == locations.end() ||
 						it->getPath().length() > longest_match->getPath().length())
@@ -609,11 +628,8 @@ class Response
 			else if (!this->is_method_allowed())
 				return (405);
 			else if (!request->get_format() || this->location.first == false)
-			{
-				std::cout << "FORMAT = " << request->get_format() << std::endl;
 				return (400);
-			}
-			else if (!index_exist())
+			else if (!this->index.first)
 				return (404);
 			return (200);
 		}
@@ -625,14 +641,15 @@ class Response
 			return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFDIR);
 		}
 
-		bool	index_exist(void)
+		std::pair<bool, std::string>		find_index(void)
 		{
 			std::string		path_to_check;
 			std::ifstream	ifs;
 			std::vector<std::string>		&indexes = this->location.second.getIndex();
+			std::pair<bool, std::string>	index;
 
 			path_to_check.append(this->location.second.getRoot());
-			path_to_check.append(this->index.substr(this->location.second.getPath().length()));
+			path_to_check.append(this->source.substr(this->location.second.getPath().length()));
 			if (*path_to_check.end() - 1 != '/')
 				path_to_check += '/';
 			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
@@ -643,15 +660,18 @@ class Response
 				{
 					if (!this->is_dir(path_to_check))
 					{
+						index.first = true;
+						index.second = *it;
 						this->set_path_source(path_to_check);
 						ifs.close();
-						return (true);
+						return (index);
 					}
 				}
 				ifs.close();
 				path_to_check.erase(path_to_check.length() - it->length(), it->length());
 			}
-			return (false);
+			index.first = false;
+			return (index);
 		}
 
 		std::string		create_response(void)
