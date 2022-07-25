@@ -81,7 +81,7 @@ class Response
 		}
 
 
-		Response(Request *request, Server server)
+		Response(Request *request, Server & server)
 			: source(request->get_source()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
 			connection(request->get_connection())
 		{
@@ -269,6 +269,7 @@ class Response
 		static std::vector<std::string>		week_days;
 		static std::vector<std::string>		months;
 		static std::vector<std::string>		default_methods;
+		static std::vector<int>				redirection_codes;
 
 	protected :
 
@@ -350,6 +351,20 @@ class Response
 			return (default_methods);
 		}
 
+		static std::vector<int>		init_redirection_codes(void)
+		{
+			std::vector<int>		redirection_codes;
+
+			redirection_codes.push_back(300);
+			redirection_codes.push_back(301);
+			redirection_codes.push_back(302);
+			redirection_codes.push_back(303);
+			redirection_codes.push_back(304);
+			redirection_codes.push_back(307);
+			redirection_codes.push_back(308);
+			return (redirection_codes);
+		}
+
 		std::string	get_week_day(int week_day) const
 		{
 			return (this->week_days[week_day]);
@@ -422,7 +437,7 @@ class Response
 
 			pos = this->get_path_source().find(".");
 			if (pos == std::string::npos)
-				return (".txt");
+				return ("");
 			return (this->get_path_source().substr(pos));
 		}
 
@@ -629,6 +644,8 @@ class Response
 				return (405);
 			else if (!request->get_format() || this->location.first == false)
 				return (400);
+			else if (this->location.second.getReturnCode())
+				return (this->location.second.getReturnCode());
 			else if (!this->index.first)
 				return (404);
 			return (200);
@@ -674,6 +691,13 @@ class Response
 			return (index);
 		}
 
+		bool			is_redirection(void)
+		{
+			return (std::find(this->redirection_codes.begin(),
+						this->redirection_codes.end(),
+						this->status) != this->redirection_codes.end());
+		}
+
 		std::string		create_response(void)
 		{
 			std::stringstream		ss;
@@ -682,10 +706,13 @@ class Response
 			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
 			ss << "Server: " << this->get_server_name() << END_RES_LINE;
 			ss << "Date: " << this->get_date() << END_RES_LINE;
-			ss << "Content-Type: " << this->get_content_type() << "\r\n";
-			ss << "Content-Length: " << this->get_content_length() << "\r\n";
-			ss << "Connection: " << this->get_connection_value() << "\r\n";
-			ss << "\r\n";
+			ss << "Content-Type: " << this->get_content_type() << END_RES_LINE;
+			ss << "Content-Length: " << this->get_content_length() << END_RES_LINE;
+			if (this->is_redirection())
+				ss << "Location: http://" << this->server.getHost() \
+					<< ":" << this->server.getPort() << this->location.second.getReturnPath() << END_RES_LINE;
+			ss << "Connection: " << this->get_connection_value() << END_RES_LINE;
+			ss << END_RES_LINE;
 			ss << this->get_body();
 			response = ss.str();
 			return (response);

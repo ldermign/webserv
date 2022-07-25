@@ -452,7 +452,7 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	if (tmp.fail())
 	{
 		// std::cout << str << std::endl;
-		throw Parse::BadDirectiveReturn();
+//		throw Parse::BadDirectiveReturn();
 	}
 
 	{
