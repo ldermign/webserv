@@ -674,15 +674,34 @@ class Response
 			std::string		spaces;
 
 			if (n < offset)
-				offset = n;
+				offset = n - 1;
 			spaces.append(n - offset, ' ');
+
 			return (spaces);
+		}
+
+		std::string		index_in_autoindex(std::string const & index, const size_t space_gap, bool dir)
+		{
+			std::string			trimmed_index;
+
+			if (index.length() >= space_gap)
+			{
+				trimmed_index = index.substr(0, space_gap - 4);
+				if (dir)
+					trimmed_index.append("../");
+				else
+					trimmed_index.append("...");
+				return (trimmed_index);
+			}
+			return (index);
 		}
 
 		std::string		create_autoindex(void)
 		{
-				std::stringstream				ss;
+				std::stringstream						ss;
 				std::map<std::string, FileData>			content;
+				const size_t							first_space_gap = 40;
+				const size_t							second_space_gap = 60;
 
 				content = get_content_dir(this->get_path_source());
 				this->set_content_type("text/html");
@@ -694,20 +713,25 @@ class Response
 				{
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "\\" << "</a>";
-					ss << this->add_spaces(30, it->second.get_name().length() + 1);
+					ss << "<a href=" << it->second.get_name() << ">";
+					ss << this->index_in_autoindex(it->first, first_space_gap, true);
+					if (it->first.length() < first_space_gap)
+						ss << "/";
+					ss << "</a>";
+					ss << this->add_spaces(first_space_gap, it->second.get_name().length() + 1);
 					ss << it->second.get_edit_date();
-					ss << this->add_spaces(70, it->second.get_edit_date().length());
+					ss << this->add_spaces(second_space_gap, it->second.get_edit_date().length());
 					ss << "-" << END_RES_LINE;
 				}
+
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
 					if (this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "</a>";
-					ss << this->add_spaces(30, it->second.get_name().length());
+					ss << "<a href=" << it->second.get_name() << ">" << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
+					ss << this->add_spaces(first_space_gap, it->second.get_name().length());
 					ss << it->second.get_edit_date();
-					ss << this->add_spaces(70, it->second.get_edit_date().length());
+					ss << this->add_spaces(second_space_gap, it->second.get_edit_date().length());
 					ss << it->second.get_size() << END_RES_LINE;
 				}
 				ss << "</pre><hr></body>" << END_RES_LINE;
