@@ -9,11 +9,83 @@
 #include <fstream>
 #include <vector>
 #include <sys/stat.h>
+#include <dirent.h>
 
 #define	END_RES_LINE "\r\n"
 
 #include "Request.hpp"
 #include "Server.hpp"
+
+class FileData
+{
+	public :
+
+		FileData()
+		{
+
+		}
+
+		FileData(std::string name) : name(name)
+		{
+
+		}
+
+		FileData(FileData const & src)
+		{
+			this->set_name(src.get_name());
+			this->set_edit_date(src.get_name());
+			this->set_size(src.get_size());
+		}
+
+		FileData&		operator=(FileData const & rhs)
+		{
+			this->set_name(rhs.get_name());
+			this->set_edit_date(rhs.get_name());
+			this->set_size(rhs.get_size());
+			return (*this);
+		}
+
+		virtual ~ FileData()
+		{
+
+		}
+
+		void		set_name(std::string const & name)
+		{
+			this->name = name;
+		}
+
+		void		set_edit_date(std::string const & edit_date)
+		{
+			this->edit_date = edit_date;
+		}
+
+		void		set_size(size_t size)
+		{
+			this->size = size;
+		}
+
+		std::string		get_name(void) const
+		{
+			return (this->name);
+		}
+
+		std::string		get_edit_date(void) const
+		{
+			return (this->edit_date);
+		}
+
+		size_t			get_size(void) const
+		{
+			return (this->size);
+		}
+
+	private :
+
+		std::string		name;
+		std::string		edit_date;
+		size_t			size;
+};
 
 class Response
 {
@@ -529,19 +601,65 @@ class Response
 			return (ss.str());
 		}
 
+		std::map<std::string, FileData>			get_content_dir(std::string const & dir_name) const
+		{
+			std::map<std::string, FileData>		content_dir;
+			DIR						*dir;
+			struct dirent			*diread;
+
+			dir = opendir(dir_name.c_str());
+			if (dir)
+			{
+				while ((diread = readdir(dir)))
+				{
+					FileData					file(diread->d_name);
+
+					content_dir[diread->d_name] = file;
+				}
+			}
+			return (content_dir);
+		}
+
+		std::string		add_spaces(unsigned int n, size_t offset)
+		{
+			std::string		spaces;
+
+			spaces.append(n - offset, ' ');
+			return (spaces);
+		}
+
 		std::string		create_autoindex(void)
 		{
-				std::stringstream		ss;
+				std::stringstream				ss;
+				std::map<std::string, FileData>			content;
 
+				content = get_content_dir(this->get_path_source());
 				this->set_content_type("text/html");
-
 				ss << "<html>" << END_RES_LINE;
-				ss << "<head><title>" << "Index of" << this->get_source()
-					<< "</title></head>" << END_RES_LINE;
+				ss << "<head><title>Index of " << this->get_source() << "</title></head>" << END_RES_LINE;
 				ss << "<body>" << END_RES_LINE;
-				ss << "<center><h1>" << this->get_source()
-					<< "</h1></center>" << END_RES_LINE;
-				ss << "</body>" << END_RES_LINE;
+				ss << "<h1>Index of " << this->get_source() << "</h1><hr><pre>" << END_RES_LINE;
+				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
+				{
+					if (this->is_dir(it->second.get_name()))
+					{
+						ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "\\" << "</a>";
+						ss << this->add_spaces(30, it->second.get_name().length() + 1);
+						ss << "25-Jul-2022 20:39                   ";
+						ss << "-" << END_RES_LINE;
+					}
+				}
+				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
+				{
+					if (!this->is_dir(it->second.get_name()))
+					{
+						ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "</a>";
+						ss << this->add_spaces(30, it->second.get_name().length());
+						ss << "25-Jul-2022 20:39                   ";
+						ss << "-" << END_RES_LINE;
+					}
+				}
+				ss << "</pre><hr></body>" << END_RES_LINE;
 				ss << "</html>" << END_RES_LINE;
 				return (ss.str());
 		}
@@ -669,6 +787,24 @@ class Response
 			return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFDIR);
 		}
 
+		std::string							create_path_to_index(void) const
+		{
+			std::string				path_to_index;
+			std::string				root;
+			std::string				location_path;
+
+			root = this->location.second.getRoot();
+			location_path = this->source.substr(this->location.second.getPath().length());
+
+			if (*location_path.begin() == '/')
+				root.erase(root.end() - 1);
+			path_to_index.append(root);
+			path_to_index.append(location_path);
+			if (*(path_to_index.end() - 1) != '/')
+				path_to_index += '/';
+			return (path_to_index);
+		}
+
 		std::pair<bool, std::string>		find_index(void)
 		{
 			std::string		path_to_check;
@@ -676,10 +812,7 @@ class Response
 			std::vector<std::string>		&indexes = this->location.second.getIndex();
 			std::pair<bool, std::string>	index;
 
-			path_to_check.append(this->location.second.getRoot());
-			path_to_check.append(this->source.substr(this->location.second.getPath().length()));
-			if (*path_to_check.end() - 1 != '/')
-				path_to_check += '/';
+			path_to_check = this->create_path_to_index();
 			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
 			{
 				path_to_check.append(*it);
@@ -699,6 +832,7 @@ class Response
 				path_to_check.erase(path_to_check.length() - it->length(), it->length());
 			}
 			index.first = false;
+			this->set_path_source(path_to_check);
 			return (index);
 		}
 
