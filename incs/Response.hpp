@@ -696,6 +696,11 @@ class Response
 			return (index);
 		}
 
+		std::string		link_autoindex(std::string path_to_index) const
+		{
+			return (path_to_index.substr(this->location.second.getRoot().length()));
+		}
+
 		std::string		create_autoindex(void)
 		{
 				std::stringstream						ss;
@@ -713,7 +718,7 @@ class Response
 				{
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << it->second.get_name() << ">";
+					ss << "<a href=" << this->link_autoindex(it->second.get_path()) << ">";
 					ss << this->index_in_autoindex(it->first, first_space_gap, true);
 					if (it->first.length() < first_space_gap)
 						ss << "/";
@@ -728,7 +733,8 @@ class Response
 				{
 					if (this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << it->second.get_name() << ">" << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
+					ss << "<a href=" << this->link_autoindex(it->second.get_path()) << ">";
+					ss << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
 					ss << this->add_spaces(first_space_gap, it->second.get_name().length());
 					ss << it->second.get_edit_date();
 					ss << this->add_spaces(second_space_gap, it->second.get_edit_date().length());
@@ -752,11 +758,11 @@ class Response
 
 			if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
-			{
 				body = this->location.second.getReturnPath();
-			}
-			else if (this->status == 200)
+			else if ((this->status == 200 && !this->location.second.getAutoindex())
+					|| (this->location.second.getAutoindex() && this->index.first))
 			{
+
 				std::ifstream		ifs(this->get_path_source().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))
@@ -764,13 +770,13 @@ class Response
 					body.append(line + '\n');
 				}
 			}
-			else if (this->status == 404 && this->is_dir(this->location.second.getRoot())
+			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
 					&& this->location.second.getAutoindex())
-				body = create_autoindex();
-			else
 			{
-				body = this->create_error_response_code();
+				body = create_autoindex();
 			}
+			else
+				body = this->create_error_response_code();
 			return (body);
 		}
 
@@ -850,7 +856,7 @@ class Response
 				return (400);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
-			else if (!this->index.first)
+			else if (!this->index.first && !this->location.second.getAutoindex())
 				return (404);
 			return (200);
 		}
@@ -862,6 +868,13 @@ class Response
 			return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFDIR);
 		}
 
+		bool	is_file(std::string const & path) const
+		{
+			struct stat buffer;
+
+			return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFREG);
+		}
+
 		std::string							create_path_to_index(void) const
 		{
 			std::string				path_to_index;
@@ -871,12 +884,17 @@ class Response
 			root = this->location.second.getRoot();
 			location_path = this->source.substr(this->location.second.getPath().length());
 
-			if (*location_path.begin() == '/')
+			if (*location_path.begin() == '/' && *(root.end() - 1) == '/')
 				root.erase(root.end() - 1);
+			if (*(location_path.end() - 1) != '/' && *(root.end() - 1) != '/')
+				location_path.insert(location_path.begin(), '/');
 			path_to_index.append(root);
 			path_to_index.append(location_path);
-			if (*(path_to_index.end() - 1) != '/')
-				path_to_index += '/';
+			if (!this->is_file(path_to_index))
+			{
+				if (*(path_to_index.end() - 1) != '/')
+					path_to_index += '/';
+			}
 			return (path_to_index);
 		}
 
@@ -888,26 +906,34 @@ class Response
 			std::pair<bool, std::string>	index;
 
 			path_to_check = this->create_path_to_index();
-			for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
+			if (this->is_file(path_to_check))
 			{
-				path_to_check.append(*it);
-				ifs.open(path_to_check.c_str());
-				if (ifs.is_open())
-				{
-					if (!this->is_dir(path_to_check))
-					{
-						index.first = true;
-						index.second = *it;
-						this->set_path_source(path_to_check);
-						ifs.close();
-						return (index);
-					}
-				}
-				ifs.close();
-				path_to_check.erase(path_to_check.length() - it->length(), it->length());
+				index.first = true;
+				this->set_path_source(path_to_check);
 			}
-			index.first = false;
-			this->set_path_source(path_to_check);
+			else
+			{
+				for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it)
+				{
+					path_to_check.append(*it);
+					ifs.open(path_to_check.c_str());
+					if (ifs.is_open())
+					{
+						if (!this->is_dir(path_to_check))
+						{
+							index.first = true;
+							index.second = *it;
+							this->set_path_source(path_to_check);
+							ifs.close();
+							return (index);
+						}
+					}
+					ifs.close();
+					path_to_check.erase(path_to_check.length() - it->length(), it->length());
+				}
+				index.first = false;
+				this->set_path_source(path_to_check);
+			}
 			return (index);
 		}
 
