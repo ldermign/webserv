@@ -25,23 +25,27 @@ class FileData
 
 		}
 
-		FileData(std::string name) : name(name)
+		FileData(std::string path, std::string name) : path(path + name), name(name)
 		{
-
+			this->set_spec(this->init_spec());
+			this->set_edit_date(this->init_edit_date());
+			this->set_size(this->init_size());
 		}
 
 		FileData(FileData const & src)
 		{
 			this->set_name(src.get_name());
-			this->set_edit_date(src.get_name());
+			this->set_edit_date(src.get_edit_date());
 			this->set_size(src.get_size());
+			this->set_path(src.get_path());
 		}
 
 		FileData&		operator=(FileData const & rhs)
 		{
 			this->set_name(rhs.get_name());
-			this->set_edit_date(rhs.get_name());
+			this->set_edit_date(rhs.get_edit_date());
 			this->set_size(rhs.get_size());
+			this->set_path(rhs.get_path());
 			return (*this);
 		}
 
@@ -65,6 +69,17 @@ class FileData
 			this->size = size;
 		}
 
+		void		set_spec(struct stat const & spec)
+		{
+			this->spec = spec;
+		}
+
+		void		set_path(std::string const & path)
+		{
+			this->path = path;
+		}
+
+
 		std::string		get_name(void) const
 		{
 			return (this->name);
@@ -75,16 +90,50 @@ class FileData
 			return (this->edit_date);
 		}
 
+		std::string		get_path(void) const
+		{
+			return (this->path);
+		}
+
 		size_t			get_size(void) const
 		{
 			return (this->size);
 		}
 
+		struct stat get_spec(void) const
+		{
+			return (this->spec);
+		}
+
+		struct stat init_spec(void) const
+		{
+			struct stat		spec;
+
+			stat(this->get_path().c_str(), &spec);
+			return (spec);
+		}
+
+		std::string		init_edit_date(void) const
+		{
+			std::string		edit_date;
+
+			edit_date = std::ctime(&spec.st_mtime);
+			edit_date.erase(edit_date.end() - 1);
+			return (edit_date);
+		}
+
+		size_t		init_size(void)
+		{
+			return (spec.st_size);
+		}
+
 	private :
 
+		std::string		path;
 		std::string		name;
 		std::string		edit_date;
 		size_t			size;
+		struct stat		spec;
 };
 
 class Response
@@ -256,17 +305,17 @@ class Response
 
 		// Setters
 		
-		void		set_response(std::string response)
+		void		set_response(std::string const & response)
 		{
 			this->response = response;
 		}
 
-		void		set_content_type(std::string content_type)
+		void		set_content_type(std::string const & content_type)
 		{
 			this->content_type = content_type;
 		}
 		
-		void		set_date(std::string date)
+		void		set_date(std::string const & date)
 		{
 			this->date = date;
 		}
@@ -281,27 +330,27 @@ class Response
 			this->status = status;
 		}
 
-		void		set_source(std::string source)
+		void		set_source(std::string const & source)
 		{
 			this->source = source;
 		}
 
-		void		set_method(std::string method)
+		void		set_method(std::string const & method)
 		{
 			this->method = method;
 		}
 
-		void		set_version(std::string version)
+		void		set_version(std::string const & version)
 		{
 			this->version = version;
 		}
 
-		void		set_body(std::string body)
+		void		set_body(std::string const & body)
 		{
 			this->body = body;
 		}
 
-		void		set_error_name(std::string error_name)
+		void		set_error_name(std::string const & error_name)
 		{
 			this->error_name = error_name;
 		}
@@ -311,27 +360,27 @@ class Response
 			this->connection = connection;
 		}
 
-		void		set_server(Server server)
+		void		set_server(Server const & server)
 		{
 			this->server = server;
 		}
 
-		void		set_location(std::pair<bool, Location> location)
+		void		set_location(std::pair<bool, Location> const & location)
 		{
 			this->location = location;
 		}
 
-		void		set_server_name(std::string server_name)
+		void		set_server_name(std::string const & server_name)
 		{
 			this->server_name = server_name;
 		}
 
-		void		set_path_source(std::string path_source)
+		void		set_path_source(std::string const & path_source)
 		{
 			this->path_source = path_source;
 		}
 
-		void		set_index(std::pair<bool, std::string> index)
+		void		set_index(std::pair<bool, std::string> const & index)
 		{
 			this->index = index;
 		}
@@ -612,7 +661,7 @@ class Response
 			{
 				while ((diread = readdir(dir)))
 				{
-					FileData					file(diread->d_name);
+					FileData					file(dir_name, diread->d_name);
 
 					content_dir[diread->d_name] = file;
 				}
@@ -624,6 +673,8 @@ class Response
 		{
 			std::string		spaces;
 
+			if (n < offset)
+				offset = n;
 			spaces.append(n - offset, ' ');
 			return (spaces);
 		}
@@ -641,23 +692,23 @@ class Response
 				ss << "<h1>Index of " << this->get_source() << "</h1><hr><pre>" << END_RES_LINE;
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
-					if (this->is_dir(it->second.get_name()))
-					{
-						ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "\\" << "</a>";
-						ss << this->add_spaces(30, it->second.get_name().length() + 1);
-						ss << "25-Jul-2022 20:39                   ";
-						ss << "-" << END_RES_LINE;
-					}
+					if (!this->is_dir(it->second.get_path()))
+						continue ;
+					ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "\\" << "</a>";
+					ss << this->add_spaces(30, it->second.get_name().length() + 1);
+					ss << it->second.get_edit_date();
+					ss << this->add_spaces(70, it->second.get_edit_date().length());
+					ss << "-" << END_RES_LINE;
 				}
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
-					if (!this->is_dir(it->second.get_name()))
-					{
-						ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "</a>";
-						ss << this->add_spaces(30, it->second.get_name().length());
-						ss << "25-Jul-2022 20:39                   ";
-						ss << "-" << END_RES_LINE;
-					}
+					if (this->is_dir(it->second.get_path()))
+						continue ;
+					ss << "<a href=" << it->second.get_name() << ">" << it->second.get_name() << "</a>";
+					ss << this->add_spaces(30, it->second.get_name().length());
+					ss << it->second.get_edit_date();
+					ss << this->add_spaces(70, it->second.get_edit_date().length());
+					ss << it->second.get_size() << END_RES_LINE;
 				}
 				ss << "</pre><hr></body>" << END_RES_LINE;
 				ss << "</html>" << END_RES_LINE;
