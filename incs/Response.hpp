@@ -696,9 +696,17 @@ class Response
 			return (index);
 		}
 
-		std::string		link_autoindex(std::string path_to_index) const
+		std::string		link_autoindex(std::string const & dest) const
 		{
-			return (path_to_index.substr(this->location.second.getRoot().length()));
+			std::string			link;
+
+			link = this->source;
+			if (*(link.end() - 1) != '/')
+				link.append(1, '/');
+			link.append(dest);
+			std::cout << "LOCATION PATH = " << location.second.getPath() << std::endl;
+			std::cout << "LINK = " << link  << std::endl;
+			return (link);
 		}
 
 		std::string		create_autoindex(void)
@@ -718,7 +726,7 @@ class Response
 				{
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << this->link_autoindex(it->second.get_path()) << ">";
+					ss << "<a href=" << this->link_autoindex(it->first) << ">";
 					ss << this->index_in_autoindex(it->first, first_space_gap, true);
 					if (it->first.length() < first_space_gap)
 						ss << "/";
@@ -733,7 +741,7 @@ class Response
 				{
 					if (this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << this->link_autoindex(it->second.get_path()) << ">";
+					ss << "<a href=" << this->link_autoindex(it->first) << ">";
 					ss << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
 					ss << this->add_spaces(first_space_gap, it->second.get_name().length());
 					ss << it->second.get_edit_date();
@@ -886,7 +894,7 @@ class Response
 
 			if (*location_path.begin() == '/' && *(root.end() - 1) == '/')
 				root.erase(root.end() - 1);
-			if (*(location_path.end() - 1) != '/' && *(root.end() - 1) != '/')
+			if (*location_path.begin() != '/' && *(root.end() - 1) != '/')
 				location_path.insert(location_path.begin(), '/');
 			path_to_index.append(root);
 			path_to_index.append(location_path);
