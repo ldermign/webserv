@@ -123,6 +123,7 @@ void				Socket::receive_message(void)
 		s1.append(buff.begin(), buff.begin() + ret_func);
 		first_time = false;
 		std::cout << "size of s1 -> " << s1.size() << std::endl;
+		std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
