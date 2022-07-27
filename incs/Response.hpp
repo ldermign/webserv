@@ -9,6 +9,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <cstdio>
 
 #define	END_RES_LINE "\r\n"
 
@@ -91,6 +92,7 @@ class Response
 			this->set_status(this->create_status(request));
 			this->set_date(this->get_request_date());
 			this->set_content_type(this->find_content_type());
+			this->process_method();
 			this->set_error_name(this->find_status_message());
 			this->set_body(this->create_body());
 			this->set_content_length(this->find_content_length());
@@ -311,6 +313,27 @@ class Response
 
 	private : 
 
+		void	process_method(void)
+		{
+			if (!this->get_method().compare("DELETE"))
+			{
+				if (this->get_status() == 200)
+				{
+					if (remove(this->get_path_source().c_str()) != 0)
+						this->set_status(403);
+				}
+				// delete resssource
+			}
+			else if (!this->get_method().compare("GET"))
+			{
+				// parse params
+			}
+			else if (!this->get_method().compare("POST"))
+			{
+				// parse params
+			}
+		}
+
 		static std::vector<std::string>		init_week_days(void)
 		{
 			std::vector<std::string>		days;
@@ -474,7 +497,7 @@ class Response
 			if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				return ("application/octet-stream");
-			else if (ext == ".html")
+			else if (!this->get_method().compare("DELETE") || ext == ".html")
 				return ("text/html");
 			else if (ext == ".css")
 				return ("text/css");
@@ -585,8 +608,6 @@ class Response
 			if (*(link.end() - 1) != '/')
 				link.append(1, '/');
 			link.append(dest);
-			std::cout << "LOCATION PATH = " << location.second.getPath() << std::endl;
-			std::cout << "LINK = " << link  << std::endl;
 			return (link);
 		}
 
@@ -641,11 +662,25 @@ class Response
 			return (stat(this->location.second.getRoot().c_str(), &buffer) == 0);
 		}
 
+		std::string		delete_success(void) const
+		{
+			std::stringstream		ss;
+
+			ss << "<html>" << END_RES_LINE;
+			ss << "<body>" << END_RES_LINE;
+		    ss << "<h1>File deleted.</h1>" << END_RES_LINE;
+			ss << "</body>" << END_RES_LINE;
+			ss << "</html>" << END_RES_LINE;
+			return (ss.str());
+		}
+
 		std::string		create_body(void)
 		{
 			std::string			body;
 
-			if (this->location.second.getReturnCode()
+			if (!this->get_method().compare("DELETE") && this->get_status() == 200)
+				body = this->delete_success();
+			else if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				body = this->location.second.getReturnPath();
 			else if ((this->status == 200 && !this->location.second.getAutoindex())
@@ -737,7 +772,6 @@ class Response
 
 		int		create_status(Request * request)
 		{
-			std::cout << "PATH = " << this->get_path_source();
 			if (!check_version())
 				return (505);
 			else if (!this->is_method_allowed())
@@ -747,7 +781,9 @@ class Response
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
 			else if (!this->index.first && (!this->location.second.getAutoindex() ||
-						(this->location.second.getAutoindex() && !this->is_dir(this->get_path_source()))))
+						(this->location.second.getAutoindex() &&
+						 (!this->is_dir(this->get_path_source())
+						  || !this->get_method().compare("DELETE")))))
 				return (404);
 			return (200);
 		}
@@ -774,7 +810,6 @@ class Response
 
 			root = this->location.second.getRoot();
 			location_path = this->source.substr(this->location.second.getPath().length());
-
 			if (*location_path.begin() == '/' && *(root.end() - 1) == '/')
 				root.erase(root.end() - 1);
 			if (*location_path.begin() != '/' && *(root.end() - 1) != '/')
