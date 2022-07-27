@@ -15,12 +15,13 @@
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Autoindex.hpp"
+#include "ResponseHeader.hpp"
 
 class Response
 {
 	public :
 
-		Response() : server_name("Webserv") {}
+		Response() {}
 
 		virtual ~Response() {}
 
@@ -39,10 +40,7 @@ class Response
 
 			// header reponse
 
-			this->set_date(rhs.get_date());
-			this->set_content_type(rhs.get_content_type());
-			this->set_content_length(rhs.get_content_length());
-			this->set_connection(rhs.get_connection());
+			this->set_header(rhs.get_header());
 
 			// body response
 
@@ -66,41 +64,39 @@ class Response
 			this->set_autoindex(rhs.get_autoindex());
 
 			// first line response
+
 			this->set_status(rhs.get_status());
 			this->set_version(rhs.get_version());
 
-			// header reponse
+			// header
 
-			this->set_date(rhs.get_date());
-			this->set_content_type(rhs.get_content_type());
-			this->set_content_length(rhs.get_content_length());
-			this->set_connection(rhs.get_connection());
-			this->set_server_name(rhs.get_server_name());
+			this->set_header(rhs.get_header());
 
-			// body response
+			// body
 
 			this->set_body(rhs.get_body());
 
 
-			// request data
+			// request
+
 			this->set_source(rhs.get_source());
 			this->set_method(rhs.get_method());
 		}
 
 
 		Response(Request *request, Server & server)
-			: source(request->get_source()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version()), server_name("Webserv"), 
-			connection(request->get_connection())
+			: source(request->get_source()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version())
 		{
+			this->header = ResponseHeader("Webserv", request->get_connection());
+
 			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
-			this->set_date(this->get_request_date());
-			this->set_content_type(this->find_content_type());
+			this->header.set_content_type(this->find_content_type());
 			this->process_method();
 			this->set_error_name(this->find_status_message());
 			this->set_autoindex(Autoindex(this->get_source(), this->get_path_source()));
 			this->set_body(this->create_body());
-			this->set_content_length(this->find_content_length());
+			this->header.set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
 		}
 
@@ -119,26 +115,6 @@ class Response
 		std::string get_response(void) const
 		{
 			return (this->response);
-		}
-
-		std::string get_server_name(void) const
-		{
-			return (this->server_name);
-		}
-
-		std::string get_content_type(void) const
-		{
-			return (this->content_type);
-		}
-		
-		std::string get_date(void) const
-		{
-			return (this->date);
-		}
-
-		size_t	 get_content_length(void) const
-		{
-			return (this->content_length);
 		}
 
 		int		get_status(void) const
@@ -171,9 +147,9 @@ class Response
 			return (this->error_name);
 		}
 
-		bool			get_connection(void) const
+		ResponseHeader		get_header(void) const
 		{
-			return (this->connection);
+			return (this->header);
 		}
 
 		std::pair<bool, Location>	get_location(void) const
@@ -201,21 +177,6 @@ class Response
 		void		set_response(std::string const & response)
 		{
 			this->response = response;
-		}
-
-		void		set_content_type(std::string const & content_type)
-		{
-			this->content_type = content_type;
-		}
-		
-		void		set_date(std::string const & date)
-		{
-			this->date = date;
-		}
-
-		void		set_content_length(size_t content_length)
-		{
-			this->content_length = content_length;
 		}
 
 		void		set_status(int status)
@@ -248,10 +209,6 @@ class Response
 			this->error_name = error_name;
 		}
 
-		void		set_connection(bool connection)
-		{
-			this->connection = connection;
-		}
 
 		void		set_server(Server const & server)
 		{
@@ -261,11 +218,6 @@ class Response
 		void		set_location(std::pair<bool, Location> const & location)
 		{
 			this->location = location;
-		}
-
-		void		set_server_name(std::string const & server_name)
-		{
-			this->server_name = server_name;
 		}
 
 		void		set_path_source(std::string const & path_source)
@@ -283,10 +235,13 @@ class Response
 			this->autoindex = autoindex;
 		}
 
+		void		set_header(ResponseHeader const & header)
+		{
+			this->header = header;
+		}
+
 		// statics
 
-		static std::vector<std::string>		week_days;
-		static std::vector<std::string>		months;
 		static std::vector<std::string>		default_methods;
 		static std::vector<int>				redirection_status;
 		static std::map<int, std::string>	status_messages;
@@ -315,11 +270,7 @@ class Response
 
 		// header data
 
-		std::string				server_name;
-		std::string				date;
-		std::string				content_type;
-		size_t					content_length;
-		bool					connection;
+		ResponseHeader			header;
 
 		// body response
 
@@ -348,39 +299,6 @@ class Response
 			{
 				// parse params
 			}
-		}
-
-		static std::vector<std::string>		init_week_days(void)
-		{
-			std::vector<std::string>		days;
-
-			days.push_back("Sun");
-			days.push_back("Mon");
-			days.push_back("Tue");
-			days.push_back("Wed");
-			days.push_back("Thu");
-			days.push_back("Fri");
-			days.push_back("Sat");
-			return (days);
-		}
-
-		static std::vector<std::string>		init_months(void)
-		{
-			std::vector<std::string>		months;
-
-			months.push_back("Jan");
-			months.push_back("Feb");
-			months.push_back("Mar");
-			months.push_back("Apr");
-			months.push_back("May");
-			months.push_back("Jun");
-			months.push_back("Jul");
-			months.push_back("Aug");
-			months.push_back("Sep");
-			months.push_back("Oct");
-			months.push_back("Nov");
-			months.push_back("Dec");
-			return (months);
 		}
 
 		static std::vector<std::string>		init_default_methods(void)
@@ -427,72 +345,6 @@ class Response
 			status_messages[504] = "504 Gateway Timeout";
 			status_messages[505] = "505 HTTP Version Not Supported";
 			return (status_messages);
-		}
-
-		std::string	get_week_day(int week_day) const
-		{
-			return (this->week_days[week_day]);
-		}
-
-		std::string	get_day(int day) const
-		{
-			std::stringstream		ss;
-
-			if (day < 10)
-				ss << 0;
-			ss << day;
-			return (ss.str());
-		}
-		
-		std::string	get_month(int month) const
-		{
-			std::map<int, std::string>		months;
-
-			months[0] = "Jan";
-			months[1] = "Feb";
-			months[2] = "Mar";
-			months[3] = "Apr";
-			months[4] = "May";
-			months[5] = "Jun";
-			months[6] = "Jul";
-			months[7] = "Aug";
-			months[8] = "Sep";
-			months[9] = "Oct";
-			months[10] = "Nov";
-			months[11] = "Dec";
-			return (months[month]);
-		}
-
-		int			get_year(int year) const
-		{
-			return (year + 1900);
-		}
-
-		std::string	get_request_date(void) const
-		{
-			std::stringstream		date;
-			time_t					time;
-			tm						*gmt;
-
-			time = std::time(NULL);
-			gmt = std::gmtime(&time);
-
-			date << this->get_week_day(gmt->tm_wday);
-			date << ", " ;
-			date << this->get_day(gmt->tm_mday);
-			date << " ";
-			date << this->get_month(gmt->tm_mon);
-			date << " ";
-			date << this->get_year(gmt->tm_year);
-			date << " ";
-			date << gmt->tm_hour;
-			date << ":";
-			date << gmt->tm_min;
-			date << ":";
-			date << gmt->tm_sec;
-			date << " ";
-			date << "GMT";
-			return (date.str());
 		}
 
 		std::string		get_ext(void)
@@ -557,7 +409,7 @@ class Response
 		{
 			std::stringstream		ss;
 
-			this->set_content_type("text/html");
+			this->header.set_content_type("text/html");
 			ss << "<html>" << END_RES_LINE;
 			ss << "<head><title>" << this->get_error_name()
 				<< "</title></head>" << END_RES_LINE;
@@ -614,7 +466,7 @@ class Response
 			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
 					&& this->location.second.getAutoindex())
 			{
-				this->set_content_type("text/html");
+				this->header.set_content_type("text/html");
 				body = this->autoindex.create_autoindex();
 			}
 			else
@@ -624,7 +476,7 @@ class Response
 
 		std::string		get_connection_value(void)
 		{
-			if (this->connection)
+			if (this->header.get_connection())
 				return ("keep-alive");
 			else
 				return ("close");
@@ -794,10 +646,7 @@ class Response
 			std::string				response;
 
 			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
-			ss << "Server: " << this->get_server_name() << END_RES_LINE;
-			ss << "Date: " << this->get_date() << END_RES_LINE;
-			ss << "Content-Type: " << this->get_content_type() << END_RES_LINE;
-			ss << "Content-Length: " << this->get_content_length() << END_RES_LINE;
+			ss << this->get_header().create_header();
 			if (this->is_redirection(this->status) || this->get_status() == 300)
 				ss << "Location: http://" << this->server.getHost() \
 					<< ":" << this->server.getPort() << this->location.second.getReturnPath() << END_RES_LINE;

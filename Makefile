@@ -13,7 +13,8 @@ SRCS		+=	${PARSDIR}Parse.cpp \
 				${PARSDIR}Config.cpp
 
 # Response creation
-SRCS		+=  ${RES_DIR}Response.cpp
+SRCS		+=  ${RES_DIR}Response.cpp \
+				${RES_DIR}ResponseHeader.cpp
 
 INCSDIR		= incs/
 

@@ -32,8 +32,6 @@ class Autoindex
 		{
 			this->set_source(rhs.get_source());
 			this->set_path_source(rhs.get_path_source());
-			std::cout << "SOURCE = "  << this->get_source() << std::endl;
-			std::cout << "PATH SOURCE = " << this->get_path_source() << std::endl;
 			return (*this);
 		}
 
