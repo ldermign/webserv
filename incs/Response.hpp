@@ -737,6 +737,7 @@ class Response
 
 		int		create_status(Request * request)
 		{
+			std::cout << "PATH = " << this->get_path_source();
 			if (!check_version())
 				return (505);
 			else if (!this->is_method_allowed())
@@ -745,7 +746,8 @@ class Response
 				return (400);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
-			else if (!this->index.first && !this->location.second.getAutoindex())
+			else if (!this->index.first && (!this->location.second.getAutoindex() ||
+						(this->location.second.getAutoindex() && !this->is_dir(this->get_path_source()))))
 				return (404);
 			return (200);
 		}
