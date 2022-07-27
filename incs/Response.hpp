@@ -1,22 +1,20 @@
 #pragma once
 
 #include <iostream>
-#include <sstream>
 #include <string>
+#include <sstream>
 #include <map>
 #include <iterator>
 #include <fstream>
 #include <vector>
 #include <sys/stat.h>
-#include <dirent.h>
 #include <cstdio>
 
 #define	END_RES_LINE "\r\n"
 
 #include "Request.hpp"
 #include "Server.hpp"
-#include "FileData.hpp"
-
+#include "Autoindex.hpp"
 
 class Response
 {
@@ -32,6 +30,7 @@ class Response
 			this->set_location(rhs.get_location());
 			this->set_response(rhs.get_response());
 			this->set_index(rhs.get_index());
+			this->set_autoindex(rhs.get_autoindex());
 
 			// first line response
 
@@ -50,37 +49,42 @@ class Response
 			this->set_body(rhs.get_body());
 			this->set_error_name(rhs.get_error_name());
 
+			// request data
+
 			this->set_source(rhs.get_source());
 			this->set_method(rhs.get_method());
 	
 			return (*this);
 		}
 
-		Response(Response const & src)
+		Response(Response const & rhs)
 		{
-			this->set_server(src.get_server());
-			this->set_location(src.get_location());
-			this->set_response(src.get_response());
-			this->set_index(src.get_index());
+			this->set_server(rhs.get_server());
+			this->set_location(rhs.get_location());
+			this->set_response(rhs.get_response());
+			this->set_index(rhs.get_index());
+			this->set_autoindex(rhs.get_autoindex());
 
 			// first line response
-			this->set_status(src.get_status());
-			this->set_version(src.get_version());
+			this->set_status(rhs.get_status());
+			this->set_version(rhs.get_version());
 
 			// header reponse
 
-			this->set_date(src.get_date());
-			this->set_content_type(src.get_content_type());
-			this->set_content_length(src.get_content_length());
-			this->set_connection(src.get_connection());
-			this->set_server_name(src.get_server_name());
+			this->set_date(rhs.get_date());
+			this->set_content_type(rhs.get_content_type());
+			this->set_content_length(rhs.get_content_length());
+			this->set_connection(rhs.get_connection());
+			this->set_server_name(rhs.get_server_name());
 
 			// body response
 
-			this->set_body(src.get_body());
+			this->set_body(rhs.get_body());
 
-			this->set_source(src.get_source());
-			this->set_method(src.get_method());
+
+			// request data
+			this->set_source(rhs.get_source());
+			this->set_method(rhs.get_method());
 		}
 
 
@@ -94,6 +98,7 @@ class Response
 			this->set_content_type(this->find_content_type());
 			this->process_method();
 			this->set_error_name(this->find_status_message());
+			this->set_autoindex(Autoindex(this->get_source(), this->get_path_source()));
 			this->set_body(this->create_body());
 			this->set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
@@ -186,8 +191,13 @@ class Response
 			return (this->index);
 		}
 
+		Autoindex						get_autoindex(void) const
+		{
+			return (this->autoindex);
+		}
+
 		// Setters
-		
+	
 		void		set_response(std::string const & response)
 		{
 			this->response = response;
@@ -268,6 +278,11 @@ class Response
 			this->index = index;
 		}
 
+		void		set_autoindex(Autoindex const & autoindex)
+		{
+			this->autoindex = autoindex;
+		}
+
 		// statics
 
 		static std::vector<std::string>		week_days;
@@ -290,6 +305,7 @@ class Response
 		std::pair<bool, Location>				location;
 		std::string								path_source;
 		std::pair<bool, std::string>			index;
+		Autoindex								autoindex;
 
 
 		// first line response
@@ -554,106 +570,7 @@ class Response
 			return (ss.str());
 		}
 
-		std::map<std::string, FileData>			get_content_dir(std::string const & dir_name) const
-		{
-			std::map<std::string, FileData>		content_dir;
-			DIR						*dir;
-			struct dirent			*diread;
 
-			dir = opendir(dir_name.c_str());
-			if (dir)
-			{
-				while ((diread = readdir(dir)))
-				{
-					FileData					file(dir_name, diread->d_name);
-
-					content_dir[diread->d_name] = file;
-				}
-			}
-			return (content_dir);
-		}
-
-		std::string		add_spaces(unsigned int n, size_t offset)
-		{
-			std::string		spaces;
-
-			if (n < offset)
-				offset = n - 1;
-			spaces.append(n - offset, ' ');
-
-			return (spaces);
-		}
-
-		std::string		index_in_autoindex(std::string const & index, const size_t space_gap, bool dir)
-		{
-			std::string			trimmed_index;
-
-			if (index.length() >= space_gap)
-			{
-				trimmed_index = index.substr(0, space_gap - 4);
-				if (dir)
-					trimmed_index.append("../");
-				else
-					trimmed_index.append("...");
-				return (trimmed_index);
-			}
-			return (index);
-		}
-
-		std::string		link_autoindex(std::string const & dest) const
-		{
-			std::string			link;
-
-			link = this->source;
-			if (*(link.end() - 1) != '/')
-				link.append(1, '/');
-			link.append(dest);
-			return (link);
-		}
-
-		std::string		create_autoindex(void)
-		{
-				std::stringstream						ss;
-				std::map<std::string, FileData>			content;
-				const size_t							first_space_gap = 40;
-				const size_t							second_space_gap = 60;
-
-				content = get_content_dir(this->get_path_source());
-				this->set_content_type("text/html");
-				ss << "<html>" << END_RES_LINE;
-				ss << "<head><title>Index of " << this->get_source() << "</title></head>" << END_RES_LINE;
-				ss << "<body>" << END_RES_LINE;
-				ss << "<h1>Index of " << this->get_source() << "</h1><hr><pre>" << END_RES_LINE;
-				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
-				{
-					if (!this->is_dir(it->second.get_path()))
-						continue ;
-					ss << "<a href=" << this->link_autoindex(it->first) << ">";
-					ss << this->index_in_autoindex(it->first, first_space_gap, true);
-					if (it->first.length() < first_space_gap)
-						ss << "/";
-					ss << "</a>";
-					ss << this->add_spaces(first_space_gap, it->second.get_name().length() + 1);
-					ss << it->second.get_edit_date();
-					ss << this->add_spaces(second_space_gap, it->second.get_edit_date().length());
-					ss << "-" << END_RES_LINE;
-				}
-
-				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
-				{
-					if (this->is_dir(it->second.get_path()))
-						continue ;
-					ss << "<a href=" << this->link_autoindex(it->first) << ">";
-					ss << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
-					ss << this->add_spaces(first_space_gap, it->second.get_name().length());
-					ss << it->second.get_edit_date();
-					ss << this->add_spaces(second_space_gap, it->second.get_edit_date().length());
-					ss << it->second.get_size() << END_RES_LINE;
-				}
-				ss << "</pre><hr></body>" << END_RES_LINE;
-				ss << "</html>" << END_RES_LINE;
-				return (ss.str());
-		}
 
 		bool			root_exist(void) const
 		{
@@ -697,7 +614,8 @@ class Response
 			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
 					&& this->location.second.getAutoindex())
 			{
-				body = create_autoindex();
+				this->set_content_type("text/html");
+				body = this->autoindex.create_autoindex();
 			}
 			else
 				body = this->create_error_response_code();
