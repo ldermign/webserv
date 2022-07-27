@@ -609,7 +609,7 @@ class Response
 				return ("image/png");
 			else if (ext == ".svg")
 				return ("image/svg+xml");
-			return ("text/html");
+			return ("text/plain");
 		}
 
 		size_t			find_content_length(void)
