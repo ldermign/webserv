@@ -25,7 +25,7 @@ class ResponseBody
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
-			this->set_path_source(rhs.get_path_source());
+			this->set_index_path(rhs.get_index_path());
 			this->set_status_message(rhs.get_status_message());
 		}
 
@@ -43,21 +43,21 @@ class ResponseBody
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
-			this->set_path_source(rhs.get_path_source());
+			this->set_index_path(rhs.get_index_path());
 			this->set_status_message(rhs.get_status_message());
 
 			return (*this);
 		}
 
 		ResponseBody(std::string const & method, std::string const & source,
-				int status, bool index, std::string const & path_source,
+				int status, bool index, std::string const & index_path,
 					std::string const & status_message, Server const & server,
 						std::pair<bool, Location> const & location) : server(server),
 							location(location), method(method), source(source),
-								status(status), index(index), path_source(path_source),
+								status(status), index(index), index_path(index_path),
 									status_message(status_message)
 		{
-			this->set_autoindex(Autoindex(this->get_source(), this->get_path_source()));
+			this->set_autoindex(Autoindex(this->get_source(), this->get_index_path()));
 			this->set_body(this->create_body());
 		}
 
@@ -76,7 +76,7 @@ class ResponseBody
 						!this->is_redirection(this->location.second.getReturnCode())))
 			{
 			std::cout << "STATUS = " << this->get_status() << std::endl;
-				std::ifstream		ifs(this->get_path_source().c_str());
+				std::ifstream		ifs(this->get_index_path().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))
 				{
@@ -135,9 +135,9 @@ class ResponseBody
 			this->autoindex = autoindex;
 		}
 
-		void		set_path_source(std::string const & path_source)
+		void		set_index_path(std::string const & index_path)
 		{
-			this->path_source = path_source;
+			this->index_path = index_path;
 		}
 
 		void		set_status_message(std::string const & status_message)
@@ -187,9 +187,9 @@ class ResponseBody
 			return (this->autoindex);
 		}
 
-		std::string		get_path_source(void) const
+		std::string		get_index_path(void) const
 		{
-			return (this->path_source);
+			return (this->index_path);
 		}
 
 		std::string		get_status_message(void) const
@@ -211,7 +211,7 @@ class ResponseBody
 		int								status;
 		bool							index;
 		Autoindex						autoindex;
-		std::string						path_source;
+		std::string						index_path;
 		std::string						status_message;
 
 		static std::vector<int>		init_redirection_status(void)

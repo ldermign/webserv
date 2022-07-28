@@ -24,18 +24,18 @@ class Autoindex
 
 		}
 
-		Autoindex(Autoindex const & rhs) : source(rhs.get_source()), path_source(rhs.get_path_source())
+		Autoindex(Autoindex const & rhs) : source(rhs.get_source()), index_path(rhs.get_index_path())
 		{
 		}
 
 		Autoindex&		operator=(Autoindex const & rhs)
 		{
 			this->set_source(rhs.get_source());
-			this->set_path_source(rhs.get_path_source());
+			this->set_index_path(rhs.get_index_path());
 			return (*this);
 		}
 
-		Autoindex(std::string const & source, std::string const & path_source) : source(source), path_source(path_source)
+		Autoindex(std::string const & source, std::string const & index_path) : source(source), index_path(index_path)
 		{
 
 		}
@@ -47,9 +47,9 @@ class Autoindex
 			this->source = source;
 		}
 
-		void				set_path_source(std::string const & path_source)
+		void				set_index_path(std::string const & index_path)
 		{
-			this->path_source = path_source;
+			this->index_path = index_path;
 		}
 
 		// Getters
@@ -59,9 +59,9 @@ class Autoindex
 			return (this->source);
 		}
 
-		std::string			get_path_source(void) const
+		std::string			get_index_path(void) const
 		{
-			return (this->path_source);
+			return (this->index_path);
 		}
 	
 		std::string		create_autoindex(void)
@@ -71,7 +71,7 @@ class Autoindex
 				const size_t							first_space_gap = 40;
 				const size_t							second_space_gap = 60;
 
-				content = get_content_dir(this->get_path_source());
+				content = get_content_dir(this->get_index_path());
 				ss << "<html>" << END_RES_LINE;
 				ss << "<head><title>Index of " << this->get_source() << "</title></head>" << END_RES_LINE;
 				ss << "<body>" << END_RES_LINE;
@@ -110,7 +110,7 @@ class Autoindex
 	private :
 
 		std::string			source;
-		std::string			path_source;
+		std::string			index_path;
 
 		std::map<std::string, FileData>			get_content_dir(std::string const & dir_name) const
 		{

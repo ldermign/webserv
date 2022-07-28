@@ -98,7 +98,7 @@ class Response
 			this->process_method();
 			this->set_status_message(this->find_status_message());
 			this->set_body(ResponseBody(this->get_method(), this->get_source(), this->get_status(),
-					this->get_index(), this->get_path_source(), this->get_status_message(), this->get_server(),
+					this->get_index(), this->get_index_path(), this->get_status_message(), this->get_server(),
 					this->get_location()));
 			this->header.set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
@@ -161,9 +161,9 @@ class Response
 			return (this->location);
 		}
 
-		std::string		get_path_source(void) const
+		std::string		get_index_path(void) const
 		{
-			return (this->path_source);
+			return (this->index_path);
 		}
 		
 		bool		get_index(void) const
@@ -224,9 +224,9 @@ class Response
 			this->location = location;
 		}
 
-		void		set_path_source(std::string const & path_source)
+		void		set_index_path(std::string const & index_path)
 		{
-			this->path_source = path_source;
+			this->index_path = index_path;
 		}
 
 		void		set_index(bool index)
@@ -262,7 +262,7 @@ class Response
 		std::string								response;
 		Server									server;
 		std::pair<bool, Location>				location;
-		std::string								path_source;
+		std::string								index_path;
 		bool									index;
 		Autoindex								autoindex;
 
@@ -289,7 +289,7 @@ class Response
 			{
 				if (this->get_status() == 200)
 				{
-					if (remove(this->get_path_source().c_str()) != 0)
+					if (remove(this->get_index_path().c_str()) != 0)
 					{
 						this->set_status(403);
 						this->header.set_status(403);
@@ -357,10 +357,10 @@ class Response
 		{
 			size_t			pos;
 
-			pos = this->get_path_source().rfind(".");
+			pos = this->get_index_path().rfind(".");
 			if (pos == std::string::npos)
 				return ("");
-			return (this->get_path_source().substr(pos));
+			return (this->get_index_path().substr(pos));
 		}
 
 		std::string		find_content_type(void)
@@ -374,7 +374,7 @@ class Response
 			else if (this->get_status() != 200 || !this->get_method().compare("DELETE")
 					|| (this->get_status() == 200 && this->is_dir(this->location.second.getRoot())
 						&& this->location.second.getAutoindex() &&
-						this->is_dir(this->get_path_source())) || !ext.compare(".html")
+						this->is_dir(this->get_index_path())) || !ext.compare(".html")
 							|| !ext.compare(".php"))
 			{
 				return ("text/html");
@@ -501,7 +501,7 @@ class Response
 				return (this->location.second.getReturnCode());
 			else if (!this->index && (!this->location.second.getAutoindex() ||
 						(this->location.second.getAutoindex() &&
-						 (!this->is_dir(this->get_path_source())
+						 (!this->is_dir(this->get_index_path())
 						  || !this->get_method().compare("DELETE")))))
 				return (404);
 			return (200);
@@ -554,7 +554,7 @@ class Response
 			if (this->is_file(path_to_check))
 			{
 				index = true;
-				this->set_path_source(path_to_check);
+				this->set_index_path(path_to_check);
 			}
 			else
 			{
@@ -567,7 +567,7 @@ class Response
 						if (!this->is_dir(path_to_check))
 						{
 							index = true;
-							this->set_path_source(path_to_check);
+							this->set_index_path(path_to_check);
 							ifs.close();
 							return (index);
 						}
@@ -576,7 +576,7 @@ class Response
 					path_to_check.erase(path_to_check.length() - it->length(), it->length());
 				}
 				index = false;
-				this->set_path_source(path_to_check);
+				this->set_index_path(path_to_check);
 			}
 			return (index);
 		}
