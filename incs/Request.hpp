@@ -26,12 +26,14 @@ class Request
 			{
 				it = this->parse_start_line();
 				it = this->parse_header(it);
+				it = this->parse_body(it);
 				this->format = true;
 			}
 			catch (std::exception const & e)
 			{
 				this->format = false;
 			}
+			std::cout << "body = " << this->get_body() << std::endl;
 		}
 
 		virtual ~Request() {}
@@ -83,6 +85,11 @@ class Request
 			return (this->content_type);
 		}
 
+		std::string			get_body(void) const
+		{
+			return (this->body);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -120,6 +127,11 @@ class Request
 			this->content_type = content_type;
 		}
 
+		void	set_body(std::string const & body)
+		{
+			this->body = body;
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -146,6 +158,8 @@ class Request
 
 		bool					connection;
 		std::string				content_type;
+
+		std::string				body;
 
 		// error
 
@@ -297,6 +311,7 @@ class Request
 				it = skip_end_line(it);
 			}
 			this->assign_valid_fields(fields);
+			it = skip_end_line(it);
 			/*
 			std::cout << "HEADER = " << std::endl;
 			for (std::map<std::string, std::string>::iterator it = fields.begin();
@@ -305,6 +320,15 @@ class Request
 				std::cout << "first = " << it->first << " second = " << it->second << std::endl;
 			}
 			*/
+			return (it);
+		}
+
+		std::string::iterator		parse_body(std::string::iterator const & it)
+		{
+			std::string			body;
+
+			body.append(it, this->request.end());
+			this->set_body(body);
 			return (it);
 		}
 };
