@@ -1,15 +1,16 @@
 #pragma once
 
+#define	END_RES_LINE "\r\n"
+
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <map>
 #include <iterator>
 #include <vector>
-#include <sys/stat.h>
 #include <cstdio>
 
-#define	END_RES_LINE "\r\n"
+#include <sys/stat.h>
 
 #include "Request.hpp"
 #include "Server.hpp"
@@ -44,7 +45,7 @@ class Response
 			// body response
 
 			this->set_body(rhs.get_body());
-			this->set_error_name(rhs.get_error_name());
+			this->set_status_message(rhs.get_status_message());
 
 			// request data
 
@@ -95,9 +96,9 @@ class Response
 			this->header.set_status(this->get_status());
 			this->header.set_content_type(this->find_content_type());
 			this->process_method();
-			this->set_error_name(this->find_status_message());
+			this->set_status_message(this->find_status_message());
 			this->set_body(ResponseBody(this->get_method(), this->get_source(), this->get_status(),
-					this->get_index(), this->get_path_source(), this->get_error_name(), this->get_server(),
+					this->get_index(), this->get_path_source(), this->get_status_message(), this->get_server(),
 					this->get_location()));
 			this->header.set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
@@ -145,9 +146,9 @@ class Response
 			return (this->body);
 		}
 
-		std::string		get_error_name(void) const
+		std::string		get_status_message(void) const
 		{
-			return (this->error_name);
+			return (this->status_message);
 		}
 
 		ResponseHeader		get_header(void) const
@@ -165,7 +166,7 @@ class Response
 			return (this->path_source);
 		}
 		
-		std::pair<bool, std::string>	get_index(void) const
+		bool		get_index(void) const
 		{
 			return (this->index);
 		}
@@ -207,9 +208,9 @@ class Response
 			this->body = body;
 		}
 
-		void		set_error_name(std::string const & error_name)
+		void		set_status_message(std::string const & status_message)
 		{
-			this->error_name = error_name;
+			this->status_message = status_message;
 		}
 
 
@@ -228,7 +229,7 @@ class Response
 			this->path_source = path_source;
 		}
 
-		void		set_index(std::pair<bool, std::string> const & index)
+		void		set_index(bool index)
 		{
 			this->index = index;
 		}
@@ -262,9 +263,8 @@ class Response
 		Server									server;
 		std::pair<bool, Location>				location;
 		std::string								path_source;
-		std::pair<bool, std::string>			index;
+		bool									index;
 		Autoindex								autoindex;
-
 
 		// first line response
 
@@ -278,7 +278,7 @@ class Response
 		// body response
 
 		ResponseBody			body;
-		std::string				error_name;
+		std::string				status_message;
 
 
 	private : 
@@ -499,7 +499,7 @@ class Response
 				return (405);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
-			else if (!this->index.first && (!this->location.second.getAutoindex() ||
+			else if (!this->index && (!this->location.second.getAutoindex() ||
 						(this->location.second.getAutoindex() &&
 						 (!this->is_dir(this->get_path_source())
 						  || !this->get_method().compare("DELETE")))))
@@ -543,17 +543,17 @@ class Response
 			return (path_to_index);
 		}
 
-		std::pair<bool, std::string>		find_index(void)
+		bool		 		find_index(void)
 		{
-			std::string		path_to_check;
-			std::ifstream	ifs;
+			std::string						path_to_check;
+			std::ifstream					ifs;
 			std::vector<std::string>		&indexes = this->location.second.getIndex();
-			std::pair<bool, std::string>	index;
+			bool							index;
 
 			path_to_check = this->create_path_to_index();
 			if (this->is_file(path_to_check))
 			{
-				index.first = true;
+				index = true;
 				this->set_path_source(path_to_check);
 			}
 			else
@@ -566,8 +566,7 @@ class Response
 					{
 						if (!this->is_dir(path_to_check))
 						{
-							index.first = true;
-							index.second = *it;
+							index = true;
 							this->set_path_source(path_to_check);
 							ifs.close();
 							return (index);
@@ -576,7 +575,7 @@ class Response
 					ifs.close();
 					path_to_check.erase(path_to_check.length() - it->length(), it->length());
 				}
-				index.first = false;
+				index = false;
 				this->set_path_source(path_to_check);
 			}
 			return (index);
@@ -587,7 +586,7 @@ class Response
 			std::stringstream		ss;
 			std::string				response;
 
-			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
+			ss << this->version << " " << this->get_status_message() << END_RES_LINE;
 			ss << this->get_header().create_header();
 			ss << END_RES_LINE;
 			ss << this->get_body().create_body();

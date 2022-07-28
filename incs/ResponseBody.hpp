@@ -50,11 +50,12 @@ class ResponseBody
 		}
 
 		ResponseBody(std::string const & method, std::string const & source,
-				int status, std::pair<bool, std::string> index,
-				std::string const & path_source, std::string const & status_message,
-				Server const & server, std::pair<bool, Location> const & location) : server(server),
-				location(location), method(method), source(source), status(status), index(index),
-				path_source(path_source), status_message(status_message)
+				int status, bool index, std::string const & path_source,
+					std::string const & status_message, Server const & server,
+						std::pair<bool, Location> const & location) : server(server),
+							location(location), method(method), source(source),
+								status(status), index(index), path_source(path_source),
+									status_message(status_message)
 		{
 			this->set_autoindex(Autoindex(this->get_source(), this->get_path_source()));
 			this->set_body(this->create_body());
@@ -71,8 +72,8 @@ class ResponseBody
 				body = this->location.second.getReturnPath();
 			else if ((this->get_status() == 200 && !this->location.second.getAutoindex())
 					|| ((this->get_status() == 200 || this->get_status() == 404) &&
-						this->location.second.getAutoindex() && this->index.first
-						&& !this->is_redirection(this->location.second.getReturnCode())))
+						this->location.second.getAutoindex() && this->index &&
+						!this->is_redirection(this->location.second.getReturnCode())))
 			{
 			std::cout << "STATUS = " << this->get_status() << std::endl;
 				std::ifstream		ifs(this->get_path_source().c_str());
@@ -124,7 +125,7 @@ class ResponseBody
 			this->source = source;
 		}
 
-		void		set_index(std::pair<bool, std::string> const & index)
+		void		set_index(bool index)
 		{
 			this->index = index;
 		}
@@ -176,7 +177,7 @@ class ResponseBody
 			return (this->status);
 		}
 
-		std::pair<bool, std::string>	get_index(void) const
+		bool 	get_index(void) const
 		{
 			return (this->index);
 		}
@@ -208,7 +209,7 @@ class ResponseBody
 		std::string						method;
 		std::string						source;
 		int								status;
-		std::pair<bool, std::string>	index;
+		bool							index;
 		Autoindex						autoindex;
 		std::string						path_source;
 		std::string						status_message;
