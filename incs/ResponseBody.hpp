@@ -70,9 +70,11 @@ class ResponseBody
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				body = this->location.second.getReturnPath();
 			else if ((this->get_status() == 200 && !this->location.second.getAutoindex())
-					|| (this->location.second.getAutoindex() && this->index.first
+					|| ((this->get_status() == 200 || this->get_status() == 404) &&
+						this->location.second.getAutoindex() && this->index.first
 						&& !this->is_redirection(this->location.second.getReturnCode())))
 			{
+			std::cout << "STATUS = " << this->get_status() << std::endl;
 				std::ifstream		ifs(this->get_path_source().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))

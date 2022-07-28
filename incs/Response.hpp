@@ -491,12 +491,12 @@ class Response
 
 		int		create_status(Request * request)
 		{
-			if (!check_version())
+			if (!request->get_format() || this->location.first == false)
+				return (400);
+			else if (!check_version())
 				return (505);
 			else if (!this->is_method_allowed())
 				return (405);
-			else if (!request->get_format() || this->location.first == false)
-				return (400);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
 			else if (!this->index.first && (!this->location.second.getAutoindex() ||
