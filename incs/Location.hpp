@@ -34,16 +34,16 @@ public:
 
 	Location					&getLocation( void ) { return *this; }
 
-	std::string					getPath( void ) { return this->_path; }
+	std::string					getPath( void ) const { return this->_path; }
 	std::vector< std::string >	&getIndex( void ) { return this->_index; }
-	std::string					getRoot( void ) { return this->_root; }
-	bool						getAutoindex( void ) { return this->_autoindex; }
+	std::string					getRoot( void ) const { return this->_root; }
+	bool						getAutoindex( void ) const { return this->_autoindex; }
 	std::vector< std::string >	&getMethods( void ) { return this->_methods; }
-	size_t						getReturnCode( void ) { return this->_returnCode; }
-	std::string					getReturnPath( void ) { return this->_returnPath; }
-	std::string					getCgiExtension( void ) { return this->_cgiExtension; }
-	std::string					getCgiPath( void ) { return this->_cgiPath; }
-	std::string					getDownload( void ) { return this->_download; }
+	size_t						getReturnCode( void ) const { return this->_returnCode; }
+	std::string					getReturnPath( void ) const { return this->_returnPath; }
+	std::string					getCgiExtension( void ) const { return this->_cgiExtension; }
+	std::string					getCgiPath( void ) const { return this->_cgiPath; }
+	std::string					getDownload( void ) const { return this->_download; }
 
 //	CANONICAL FORM
 

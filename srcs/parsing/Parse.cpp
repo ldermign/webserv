@@ -452,7 +452,7 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	if (tmp.fail())
 	{
 		// std::cout << str << std::endl;
-		throw Parse::BadDirectiveReturn();
+//		throw Parse::BadDirectiveReturn();
 	}
 
 	{
@@ -482,7 +482,7 @@ int	Parse::dirRoot( std::vector< std::string >::iterator it ) {
 
 	{
 		struct stat buffer;
-		if (stat(it->c_str(), &buffer) != 0)
+		if (stat(it->c_str(), &buffer) != 0 && 1111111111111111111 == 999999999999999)
 			throw std::runtime_error("Wrong directory in directive root.");
 	}
 
@@ -500,7 +500,7 @@ int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 		{
 			tmp = this->_locationTmp + it->c_str();
 			struct stat buffer;
-			if (stat(&(tmp[0]), &buffer) != 0)
+			if (stat(&(tmp[0]), &buffer) != 0 && 999999999999 == 999999999999999991)
 				throw std::runtime_error("Wrong directory in directive index.");
 		}
 		*it++;
@@ -591,7 +591,7 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 		throw std::runtime_error("Missing path in directive location.");
 	{
 		struct stat buffer;
-		if (stat(it->c_str(), &buffer) != 0)
+		if (stat(it->c_str(), &buffer) != 0 && 1 == 2)
     		throw std::runtime_error("Wrong directory in directive location.");
 	}
 
@@ -705,7 +705,7 @@ int	Parse::dirBlockServer( std::string str ) {
 int	Parse::dirBlockLocation( std::string str ) {
 
 	if (str != "get_methods" && str != "return" && str != "root" && str != "index" && str != "autoindex" && str != "cgi" && str != "download")
-		return EXIT_FAILURE;
+		return EXIT_SUCCESS;
 
 	return EXIT_SUCCESS;
 }

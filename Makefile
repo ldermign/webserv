@@ -12,11 +12,18 @@ SRCS		+=	${PARSDIR}Parse.cpp \
 				${PARSDIR}Server.cpp \
 				${PARSDIR}Config.cpp
 
+# Response creation
+SRCS		+=  ${RES_DIR}Response.cpp \
+				${RES_DIR}ResponseHeader.cpp \
+				${RES_DIR}ResponseBody.cpp
+
 INCSDIR		= incs/
 
 SRCSDIR 	= srcs/
 
 PARSDIR		= srcs/parsing/
+
+RES_DIR		= srcs/response/
 
 OBJSDIR		= objs
 

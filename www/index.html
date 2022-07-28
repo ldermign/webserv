@@ -7,6 +7,10 @@
 <body>
 
 	<h1>Welcome to Webserv</h1>
-	<p><?php echo "salut"; ?></p>
+	<form action="form_send.php" method="post">
+		<input type="text" name="nom"  placeholder="Entrez votre nom..."><br>
+		<input type="text" name="prenom" placeholder="Entrez votre prénom..."><br>
+	<input type="submit" value="Envoyer">
+</form>
 </body>
 </html>

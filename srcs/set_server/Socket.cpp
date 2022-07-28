@@ -7,6 +7,7 @@
  * 				-> cette class recoit et envoie des requetes
  * 				-> permet de faire le lien entre le server et les fonctions de traitemetn de requetes
 */
+
 Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server(Server())
 {
 	std::cout << "empty socket was created" << std::endl;
@@ -89,6 +90,7 @@ Response*			Socket::create_response(std::string	& message)
 	Communication		communication(message, _data_server);
 
 	this->set_message(communication.get_response());
+
 	return (communication.get_res());
 }
 
@@ -121,6 +123,7 @@ void				Socket::receive_message(void)
 		s1.append(buff.begin(), buff.begin() + ret_func);
 		first_time = false;
 		std::cout << "size of s1 -> " << s1.size() << std::endl;
+		std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
@@ -130,7 +133,7 @@ void				Socket::receive_message(void)
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		response = this->create_response(this->_message);
-		_still_connected = (_still_connected) ? true : response->get_connection();
+		_still_connected = (_still_connected) ? true : response->get_header().get_connection();
 		_flag = SEND;
 		return ;
 	}
