@@ -75,7 +75,6 @@ class ResponseBody
 						this->location.second.getAutoindex() && this->index &&
 						!this->is_redirection(this->location.second.getReturnCode())))
 			{
-			std::cout << "STATUS = " << this->get_status() << std::endl;
 				std::ifstream		ifs(this->get_index_path().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))

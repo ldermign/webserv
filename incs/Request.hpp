@@ -33,7 +33,6 @@ class Request
 			{
 				this->format = false;
 			}
-			std::cout << "body = " << this->get_body() << std::endl;
 		}
 
 		virtual ~Request() {}
@@ -249,7 +248,6 @@ class Request
 				}
 			}
 			it = skip_end_line(it);
-			std::cout << "*it = " << *it << std::endl;
 			return (it);
 		}
 
@@ -296,7 +294,6 @@ class Request
 					header_line.first.append(1, *it);
 					++it;
 				}
-					std::cout << "PAS DE POINTS" << std::endl;
 				if (*it == ':')
 					++it;
 				it = skip_space(it);
