@@ -116,7 +116,6 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	Response			*response;
-	std::string			request("GET / HTTP/1.1\r\nContent-Length: 14\r\n\r\n");
 	
 	std::cout << "I got to receive " << std::endl;
 	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
@@ -133,8 +132,7 @@ void				Socket::receive_message(void)
 	{
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
-//		response = this->create_response(this->_message);
-		response = this->create_response(request);
+		response = this->create_response(this->_message);
 		_still_connected = (_still_connected) ? true : response->get_header().get_connection();
 		_flag = SEND;
 		return ;
