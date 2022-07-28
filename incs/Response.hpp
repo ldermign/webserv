@@ -85,12 +85,14 @@ class Response
 
 
 		Response(Request *request, Server & server)
-			: source(request->get_source()), method(request->get_type()), server(server), location(this->match_location()), version(request->get_version())
+			: source(request->get_source()), method(request->get_type()),
+				server(server), location(this->match_location()),
+					version(request->get_version())
 		{
-			this->header = ResponseHeader("Webserv", request->get_connection());
-
+			this->header = ResponseHeader("Webserv", request->get_connection(), this->get_server(), this->get_location());
 			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
+			this->header.set_status(this->get_status());
 			this->header.set_content_type(this->find_content_type());
 			this->process_method();
 			this->set_error_name(this->find_status_message());
@@ -243,8 +245,8 @@ class Response
 		// statics
 
 		static std::vector<std::string>		default_methods;
-		static std::vector<int>				redirection_status;
 		static std::map<int, std::string>	status_messages;
+		static std::vector<int>				redirection_status;
 
 	protected :
 
@@ -287,7 +289,10 @@ class Response
 				if (this->get_status() == 200)
 				{
 					if (remove(this->get_path_source().c_str()) != 0)
+					{
 						this->set_status(403);
+						this->header.set_status(403);
+					}
 				}
 				// delete resssource
 			}
@@ -443,6 +448,13 @@ class Response
 			return (ss.str());
 		}
 
+		bool			is_redirection(unsigned int status)
+		{
+			return (std::find(this->redirection_status.begin(),
+						this->redirection_status.end(),
+						status) != this->redirection_status.end());
+		}
+
 		std::string		create_body(void)
 		{
 			std::string			body;
@@ -453,9 +465,10 @@ class Response
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				body = this->location.second.getReturnPath();
 			else if ((this->status == 200 && !this->location.second.getAutoindex())
-					|| (this->location.second.getAutoindex() && this->index.first))
+					|| (this->location.second.getAutoindex() && this->index.first
+						&& !this->is_redirection(this->location.second.getReturnCode())))
 			{
-
+				std::cout << "STATUSSSSSSSSSSSSSSSSSSSS = " << this->get_status() << std::endl;
 				std::ifstream		ifs(this->get_path_source().c_str());
 				std::string			line;
 				while (std::getline(ifs, line))
@@ -474,13 +487,6 @@ class Response
 			return (body);
 		}
 
-		std::string		get_connection_value(void)
-		{
-			if (this->header.get_connection())
-				return ("keep-alive");
-			else
-				return ("close");
-		}
 
 		bool	check_version(void)
 		{
@@ -633,13 +639,6 @@ class Response
 			return (index);
 		}
 
-		bool			is_redirection(unsigned int status)
-		{
-			return (std::find(this->redirection_status.begin(),
-						this->redirection_status.end(),
-						status) != this->redirection_status.end());
-		}
-
 		std::string		create_response(void)
 		{
 			std::stringstream		ss;
@@ -647,10 +646,6 @@ class Response
 
 			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
 			ss << this->get_header().create_header();
-			if (this->is_redirection(this->status) || this->get_status() == 300)
-				ss << "Location: http://" << this->server.getHost() \
-					<< ":" << this->server.getPort() << this->location.second.getReturnPath() << END_RES_LINE;
-			ss << "Connection: " << this->get_connection_value() << END_RES_LINE;
 			ss << END_RES_LINE;
 			ss << this->get_body();
 			response = ss.str();

@@ -6,6 +6,10 @@
 #include <ctime>
 #include <map>
 #include <vector>
+#include <algorithm>
+
+#include "Server.hpp"
+#include "Location.hpp"
 
 #define	END_RES_LINE "\r\n"
 
@@ -30,6 +34,9 @@ class ResponseHeader
 			this->set_content_length(rhs.get_content_length());
 			this->set_connection(rhs.get_connection());
 			this->set_server_name(rhs.get_server_name());
+			this->set_status(rhs.get_status());
+			this->set_server(rhs.get_server());
+			this->set_location(rhs.get_location());
 		}
 
 		ResponseHeader&		operator=(ResponseHeader const & rhs)
@@ -40,10 +47,16 @@ class ResponseHeader
 			this->set_content_length(rhs.get_content_length());
 			this->set_connection(rhs.get_connection());
 			this->set_server_name(rhs.get_server_name());
+			this->set_status(rhs.get_status());
+			this->set_server(rhs.get_server());
+			this->set_location(rhs.get_location());
 			return (*this);
 		}
 
-		ResponseHeader(std::string const & server_name, bool connection) : server_name(server_name), connection(connection)
+		ResponseHeader(std::string const & server_name, bool connection,
+				Server const & server, std::pair<bool, Location> const & location)
+				: server_name(server_name), connection(connection), 
+					server(server), location(location)
 		{
 			this->init_date();
 		}
@@ -81,6 +94,21 @@ class ResponseHeader
 			this->connection = connection;
 		}
 
+		void		set_status(int status)
+		{
+			this->status = status;
+		}
+
+		void		set_server(Server const & server)
+		{
+			this->server = server;
+		}
+
+		void		set_location(std::pair<bool, Location> const & location)
+		{
+			this->location = location;
+		}
+
 		// Getters
 
 		std::string	get_header(void) const
@@ -113,7 +141,21 @@ class ResponseHeader
 			return (this->connection);
 		}
 
-		
+		int				get_status(void) const
+		{
+			return (this->status);
+		}
+
+		Server			get_server(void) const
+		{
+			return (this->server);
+		}
+
+		std::pair<bool, Location>		get_location(void) const
+		{
+			return (this->location);
+		}
+
 		void			init_date(void)
 		{
 			std::stringstream		date;
@@ -141,6 +183,13 @@ class ResponseHeader
 			this->set_date(date.str());
 		}
 
+		bool			is_redirection(unsigned int status)
+		{
+			return (std::find(this->redirection_status.begin(),
+						this->redirection_status.end(),
+						status) != this->redirection_status.end());
+		}
+
 		std::string		create_header(void)
 		{
 			std::stringstream		ss;
@@ -149,6 +198,10 @@ class ResponseHeader
 			ss << "Date: " << this->get_date() << END_RES_LINE;
 			ss << "Content-Type: " << this->get_content_type() << END_RES_LINE;
 			ss << "Content-Length: " << this->get_content_length() << END_RES_LINE;
+			if (this->is_redirection(this->get_status()) || this->get_status() == 300)
+				ss << "Location: http://" << this->server.getHost() \
+					<< ":" << this->server.getPort() << this->location.second.getReturnPath() << END_RES_LINE;
+			ss << "Connection: " << this->get_connection_value() << END_RES_LINE;
 			return (ss.str());
 		}
 
@@ -156,16 +209,26 @@ class ResponseHeader
 
 		static std::vector<std::string>		week_days;
 		static std::vector<std::string>		months;
+		static std::vector<int>				redirection_status;
 
 	private :
 
+		// whole header
+
 		std::string				header;
+
+
+		// header field
 
 		std::string				server_name;
 		std::string				date;
 		std::string				content_type;
 		size_t					content_length;
 		bool					connection;
+
+		int								status;
+		Server							server;
+		std::pair<bool, Location>		location;
 
 		static std::vector<std::string>		init_week_days(void)
 		{
@@ -200,6 +263,19 @@ class ResponseHeader
 			return (months);
 		}
 
+		static std::vector<int>		init_redirection_status(void)
+		{
+			std::vector<int>		redirection_status;
+
+			redirection_status.push_back(301);
+			redirection_status.push_back(302);
+			redirection_status.push_back(303);
+			redirection_status.push_back(304);
+			redirection_status.push_back(307);
+			redirection_status.push_back(308);
+			return (redirection_status);
+		}
+
 		std::string	get_day(int day) const
 		{
 			std::stringstream		ss;
@@ -223,5 +299,13 @@ class ResponseHeader
 		int			get_year(int year) const
 		{
 			return (year + 1900);
+		}
+
+		std::string		get_connection_value(void)
+		{
+			if (this->get_connection())
+				return ("keep-alive");
+			else
+				return ("close");
 		}
 };
