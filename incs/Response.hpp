@@ -5,7 +5,6 @@
 #include <sstream>
 #include <map>
 #include <iterator>
-#include <fstream>
 #include <vector>
 #include <sys/stat.h>
 #include <cstdio>
@@ -14,8 +13,8 @@
 
 #include "Request.hpp"
 #include "Server.hpp"
-#include "Autoindex.hpp"
 #include "ResponseHeader.hpp"
+#include "ResponseBody.hpp"
 
 class Response
 {
@@ -89,15 +88,17 @@ class Response
 				server(server), location(this->match_location()),
 					version(request->get_version())
 		{
-			this->header = ResponseHeader("Webserv", request->get_connection(), this->get_server(), this->get_location());
+			this->set_header(ResponseHeader("Webserv", request->get_connection(),
+					this->get_server(), this->get_location()));
 			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
 			this->header.set_status(this->get_status());
 			this->header.set_content_type(this->find_content_type());
 			this->process_method();
 			this->set_error_name(this->find_status_message());
-			this->set_autoindex(Autoindex(this->get_source(), this->get_path_source()));
-			this->set_body(this->create_body());
+			this->set_body(ResponseBody(this->get_method(), this->get_source(), this->get_status(),
+					this->get_index(), this->get_path_source(), this->get_error_name(), this->get_server(),
+					this->get_location()));
 			this->header.set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
 		}
@@ -139,7 +140,7 @@ class Response
 			return (this->method);
 		}
 
-		std::string		get_body(void) const
+		ResponseBody	get_body(void) const
 		{
 			return (this->body);
 		}
@@ -201,7 +202,7 @@ class Response
 			this->version = version;
 		}
 
-		void		set_body(std::string const & body)
+		void		set_body(ResponseBody const & body)
 		{
 			this->body = body;
 		}
@@ -276,7 +277,7 @@ class Response
 
 		// body response
 
-		std::string				body;
+		ResponseBody			body;
 		std::string				error_name;
 
 
@@ -356,7 +357,7 @@ class Response
 		{
 			size_t			pos;
 
-			pos = this->get_path_source().find(".");
+			pos = this->get_path_source().rfind(".");
 			if (pos == std::string::npos)
 				return ("");
 			return (this->get_path_source().substr(pos));
@@ -370,8 +371,14 @@ class Response
 			if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				return ("application/octet-stream");
-			else if (!this->get_method().compare("DELETE") || ext == ".html")
+			else if (this->get_status() != 200 || !this->get_method().compare("DELETE")
+					|| (this->get_status() == 200 && this->is_dir(this->location.second.getRoot())
+						&& this->location.second.getAutoindex() &&
+						this->is_dir(this->get_path_source())) || !ext.compare(".html")
+							|| !ext.compare(".php"))
+			{
 				return ("text/html");
+			}
 			else if (ext == ".css")
 				return ("text/css");
 			else if (ext == ".js")
@@ -391,7 +398,7 @@ class Response
 
 		size_t			find_content_length(void)
 		{
-			return (this->body.length());
+			return (this->body.get_body().length());
 		}
 		
 		std::string		find_status_message(void) const
@@ -410,42 +417,11 @@ class Response
 			return (this->status_messages[this->get_status()]);
 		}
 
-		std::string		create_error_response_code(void)
-		{
-			std::stringstream		ss;
-
-			this->header.set_content_type("text/html");
-			ss << "<html>" << END_RES_LINE;
-			ss << "<head><title>" << this->get_error_name()
-				<< "</title></head>" << END_RES_LINE;
-			ss << "<body>" << END_RES_LINE;
-			ss << "<center><h1>" << this->get_error_name()
-				<< "</h1></center>" << END_RES_LINE;
-			ss << "<hr><center>Webserv/1.0 (42)</center>" << END_RES_LINE;
-			ss << "</body>" << END_RES_LINE;
-			ss << "</html>" << END_RES_LINE;
-			return (ss.str());
-		}
-
-
-
 		bool			root_exist(void) const
 		{
 			struct stat buffer;
 
 			return (stat(this->location.second.getRoot().c_str(), &buffer) == 0);
-		}
-
-		std::string		delete_success(void) const
-		{
-			std::stringstream		ss;
-
-			ss << "<html>" << END_RES_LINE;
-			ss << "<body>" << END_RES_LINE;
-		    ss << "<h1>File deleted.</h1>" << END_RES_LINE;
-			ss << "</body>" << END_RES_LINE;
-			ss << "</html>" << END_RES_LINE;
-			return (ss.str());
 		}
 
 		bool			is_redirection(unsigned int status)
@@ -454,39 +430,6 @@ class Response
 						this->redirection_status.end(),
 						status) != this->redirection_status.end());
 		}
-
-		std::string		create_body(void)
-		{
-			std::string			body;
-
-			if (!this->get_method().compare("DELETE") && this->get_status() == 200)
-				body = this->delete_success();
-			else if (this->location.second.getReturnCode()
-					&& !this->is_redirection(this->location.second.getReturnCode()))
-				body = this->location.second.getReturnPath();
-			else if ((this->status == 200 && !this->location.second.getAutoindex())
-					|| (this->location.second.getAutoindex() && this->index.first
-						&& !this->is_redirection(this->location.second.getReturnCode())))
-			{
-				std::cout << "STATUSSSSSSSSSSSSSSSSSSSS = " << this->get_status() << std::endl;
-				std::ifstream		ifs(this->get_path_source().c_str());
-				std::string			line;
-				while (std::getline(ifs, line))
-				{
-					body.append(line + '\n');
-				}
-			}
-			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
-					&& this->location.second.getAutoindex())
-			{
-				this->header.set_content_type("text/html");
-				body = this->autoindex.create_autoindex();
-			}
-			else
-				body = this->create_error_response_code();
-			return (body);
-		}
-
 
 		bool	check_version(void)
 		{
@@ -647,7 +590,7 @@ class Response
 			ss << this->version << " " << this->get_error_name() << END_RES_LINE;
 			ss << this->get_header().create_header();
 			ss << END_RES_LINE;
-			ss << this->get_body();
+			ss << this->get_body().create_body();
 			response = ss.str();
 			return (response);
 		}
