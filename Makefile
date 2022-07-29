@@ -42,7 +42,7 @@ all:		${NAME}
 ${NAME}: 	${OBJS} ${DEPS}
 			${CC} ${CFLAGS} -o ${NAME} ${OBJS}
 
--include	${DEPS}
+#-include	${DEPS}
 
 ${OBJS}:	${OBJSDIR}/%.o:%.cpp
 			mkdir -p ${@D}

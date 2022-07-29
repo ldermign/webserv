@@ -94,7 +94,12 @@ Response*			Socket::create_response(std::string	& message)
 	return (communication.get_res());
 }
 
-bool				is_the_end(std::string s1)
+bool				is_the_body(std::string &s1)
+{
+	std::string s2 = s1;
+	return (s2.find("\n\r\n") != std::string::npos) ? false : true;
+}
+bool				is_the_end(std::string &s1)
 {
 	if (!std::strcmp(s1.c_str(), "\r\n") || !std::strcmp(s1.c_str(), "\n"))
 		return true;
@@ -127,9 +132,9 @@ void				Socket::receive_message(void)
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	_message.append(buff.begin(), buff.begin() + ret_func);
-	if (is_the_end(s1))
+	if (is_the_end(s1) and !is_the_body(_message))
 	{
+		_message.append(buff.begin(), buff.begin() + ret_func);
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		response = this->create_response(this->_message);
@@ -137,6 +142,7 @@ void				Socket::receive_message(void)
 		_flag = SEND;
 		return ;
 	}
+	_message.append(buff.begin(), buff.begin() + ret_func);
 }
 
 struct sockaddr		Socket::get_data(void) const
