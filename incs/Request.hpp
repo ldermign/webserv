@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <cstdlib>
 
 struct Lower
 {
@@ -18,7 +19,7 @@ class Request
 
 		Request() {}
 
-		Request(std::string const & request) : request(request)
+		Request(std::string const & request) : request(request), content_length(0)
 		{
 			std::string::iterator		it;
 			
@@ -293,6 +294,11 @@ class Request
 			return (false);
 		}
 
+		bool	is_number(std::string const & str)
+		{
+			return (str.find_first_not_of("0123456789") == std::string::npos);
+		}
+
 		void	assign_valid_fields(std::map<std::string, std::string> & fields)
 		{
 			if (!fields["connection"].compare("keep-alive"))
@@ -300,12 +306,16 @@ class Request
 			else
 				this->set_connection(0);
 			this->set_content_type(fields["content-type"]);
+			if (this->is_number(fields["content-length"]))
+				this->set_content_length(std::atol(fields["content-length"].c_str()));
 		}
 
 		void	print_header(void) const
 		{
+			std::cout << "header: " << std::endl;
 			std::cout << "Connection: " << this->get_connection() << std::endl;
 			std::cout << "Content-Type: " << this->get_content_type() << std::endl;
+			std::cout << "Content-length: " << this->get_content_length() << std::endl;
 		}
 
 		std::string::iterator		parse_header(std::string::iterator it)
@@ -338,17 +348,9 @@ class Request
 				it = skip_end_line(it);
 			}
 			this->assign_valid_fields(fields);
-			std::cout << "OUI" << std::endl;
 			it = skip_end_line(it);
-			std::cout << "NAN" << std::endl;
-			/*
-			std::cout << "HEADER = " << std::endl;
-			for (std::map<std::string, std::string>::iterator it = fields.begin();
-				it != fields.end(); ++it)
-			{
-				std::cout << "first = " << it->first << " second = " << it->second << std::endl;
-			}
-			*/
+			
+			this->print_header();
 			return (it);
 		}
 
