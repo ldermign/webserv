@@ -37,13 +37,30 @@ class Request
 
 		virtual ~Request() {}
 
-		Request(Request const & src) : source(src.source)
+		Request(Request const & rhs)
 		{
+			this->set_request(rhs.get_request());
+			this->set_source(rhs.get_source());
+			this->set_type(rhs.get_type());
+			this->set_version(rhs.get_version());
+			this->set_connection(rhs.get_connection());
+			this->set_content_type(rhs.get_content_type());
+			this->set_content_length(rhs.get_content_length());
+			this->set_body(rhs.get_body());
+			this->set_format(rhs.get_format());
 		}
 
 		Request&		operator=(Request const & rhs)
 		{
-			this->source = rhs.source;
+			this->set_request(rhs.get_request());
+			this->set_source(rhs.get_source());
+			this->set_type(rhs.get_type());
+			this->set_version(rhs.get_version());
+			this->set_connection(rhs.get_connection());
+			this->set_content_type(rhs.get_content_type());
+			this->set_content_length(rhs.get_content_length());
+			this->set_body(rhs.get_body());
+			this->set_format(rhs.get_format());
 			return (*this);
 		}
 
@@ -89,6 +106,11 @@ class Request
 			return (this->body);
 		}
 
+		size_t				get_content_length(void) const
+		{
+			return (this->content_length);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -131,6 +153,11 @@ class Request
 			this->body = body;
 		}
 
+		void	set_content_length(size_t content_length)
+		{
+			this->content_length = content_length;
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -157,6 +184,7 @@ class Request
 
 		bool					connection;
 		std::string				content_type;
+		size_t					content_length;
 
 		std::string				body;
 
@@ -310,7 +338,9 @@ class Request
 				it = skip_end_line(it);
 			}
 			this->assign_valid_fields(fields);
+			std::cout << "OUI" << std::endl;
 			it = skip_end_line(it);
+			std::cout << "NAN" << std::endl;
 			/*
 			std::cout << "HEADER = " << std::endl;
 			for (std::map<std::string, std::string>::iterator it = fields.begin();

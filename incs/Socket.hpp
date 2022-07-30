@@ -29,7 +29,7 @@ class Socket
 		void				set_message(std::string new_message);
 		Socket				accept_new_socket(void);
 		void				send_message(void);
-		Response*			create_response(std::string & message);
+		Response			create_response(std::string & message);
 		void				receive_message(void);
 		void				destroy(void);
 };

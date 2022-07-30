@@ -84,12 +84,12 @@ class Response
 		}
 
 
-		Response(Request *request, Server & server)
-			: source(request->get_source()), method(request->get_type()),
+		Response(Request request, Server & server)
+			: source(request.get_source()), method(request.get_type()),
 				server(server), location(this->match_location()),
-					version(request->get_version())
+					version(request.get_version())
 		{
-			this->set_header(ResponseHeader("Webserv", request->get_connection(),
+			this->set_header(ResponseHeader("Webserv", request.get_connection(),
 					this->get_server(), this->get_location()));
 			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
@@ -489,9 +489,9 @@ class Response
 						this->method) != methods_allowed.end());
 		}
 
-		int		create_status(Request * request)
+		int		create_status(Request const & request)
 		{
-			if (!request->get_format() || this->location.first == false)
+			if (!request.get_format() || this->location.first == false)
 				return (400);
 			else if (!check_version())
 				return (505);

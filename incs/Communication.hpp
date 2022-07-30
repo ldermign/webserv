@@ -13,23 +13,23 @@ class Communication
 
 		Communication(std::string request, Server server)
 		{
-			this->req = new Request(request);
-			this->res = new Response(this->req, server);
+			this->req = Request(request);
+			this->res = Response(this->req, server);
 		}
 
 		std::string		get_response(void) const
 		{
-			return (res->get_response());
+			return (res.get_response());
 		}
 
-		Response*		get_res(void) const
+		Response		get_res(void) const
 		{
 			return (this->res);
 		}
 
 	private :
 
-		Request		*req;
-		Response	*res;
+		Request		req;
+		Response	res;
 
 };

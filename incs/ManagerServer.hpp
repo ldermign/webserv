@@ -52,7 +52,7 @@ class ManagerServer
 	{}
 	ManagerServer&	operator=(const ManagerServer &ma)
 	{
-		*this = ma;
+		(void)ma;
 		return *this;
 	}
 };
