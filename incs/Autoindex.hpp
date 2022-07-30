@@ -1,14 +1,16 @@
 #pragma once
 
+#define	END_RES_LINE "\r\n"
+
 #include <map>
 #include <iostream>
 #include <string>
 #include <sstream>
 
-#include "FileData.hpp"
 #include <dirent.h>
 
-#define	END_RES_LINE "\r\n"
+#include "FileData.hpp"
+#include "Request.hpp"
 
 class Autoindex
 {
@@ -24,27 +26,27 @@ class Autoindex
 
 		}
 
-		Autoindex(Autoindex const & rhs) : source(rhs.get_source()), index_path(rhs.get_index_path())
+		Autoindex(Autoindex const & rhs) : request(rhs.get_request()), index_path(rhs.get_index_path())
 		{
 		}
 
 		Autoindex&		operator=(Autoindex const & rhs)
 		{
-			this->set_source(rhs.get_source());
+			this->set_request(rhs.get_request());
 			this->set_index_path(rhs.get_index_path());
 			return (*this);
 		}
 
-		Autoindex(std::string const & source, std::string const & index_path) : source(source), index_path(index_path)
+		Autoindex(Request const & request, std::string const & index_path) : request(request), index_path(index_path)
 		{
 
 		}
 
 		// Setters
 		
-		void				set_source(std::string const & source)
+		void				set_request(Request const & request)
 		{
-			this->source = source;
+			this->request = request;
 		}
 
 		void				set_index_path(std::string const & index_path)
@@ -54,14 +56,14 @@ class Autoindex
 
 		// Getters
 
-		std::string			get_source(void) const
-		{
-			return (this->source);
-		}
-
 		std::string			get_index_path(void) const
 		{
 			return (this->index_path);
+		}
+
+		Request				get_request(void) const
+		{
+			return (this->request);
 		}
 	
 		std::string		create_autoindex(void)
@@ -73,9 +75,9 @@ class Autoindex
 
 				content = get_content_dir(this->get_index_path());
 				ss << "<html>" << END_RES_LINE;
-				ss << "<head><title>Index of " << this->get_source() << "</title></head>" << END_RES_LINE;
+				ss << "<head><title>Index of " << this->get_request().get_source() << "</title></head>" << END_RES_LINE;
 				ss << "<body>" << END_RES_LINE;
-				ss << "<h1>Index of " << this->get_source() << "</h1><hr><pre>" << END_RES_LINE;
+				ss << "<h1>Index of " << this->get_request().get_source() << "</h1><hr><pre>" << END_RES_LINE;
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
 					if (!this->is_dir(it->second.get_path()))
@@ -109,7 +111,7 @@ class Autoindex
 
 	private :
 
-		std::string			source;
+		Request				request;
 		std::string			index_path;
 
 		std::map<std::string, FileData>			get_content_dir(std::string const & dir_name) const
@@ -162,7 +164,7 @@ class Autoindex
 		{
 			std::string			link;
 
-			link = this->source;
+			link = this->get_request().get_source();
 			if (*(link.end() - 1) != '/')
 				link.append(1, '/');
 			link.append(dest);

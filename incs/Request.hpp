@@ -42,7 +42,7 @@ class Request
 		{
 			this->set_request(rhs.get_request());
 			this->set_source(rhs.get_source());
-			this->set_type(rhs.get_type());
+			this->set_method(rhs.get_method());
 			this->set_version(rhs.get_version());
 			this->set_connection(rhs.get_connection());
 			this->set_content_type(rhs.get_content_type());
@@ -55,7 +55,7 @@ class Request
 		{
 			this->set_request(rhs.get_request());
 			this->set_source(rhs.get_source());
-			this->set_type(rhs.get_type());
+			this->set_method(rhs.get_method());
 			this->set_version(rhs.get_version());
 			this->set_connection(rhs.get_connection());
 			this->set_content_type(rhs.get_content_type());
@@ -67,9 +67,9 @@ class Request
 
 		// Getters
 
-		std::string			get_type(void) const
+		std::string			get_method(void) const
 		{
-			return (this->type);
+			return (this->method);
 		}
 
 		std::string			get_version(void) const
@@ -119,9 +119,9 @@ class Request
 			this->request = request;
 		}
 
-		void	set_type(std::string const & type)
+		void	set_method(std::string const & method)
 		{
-			this->type = type;
+			this->method = method;
 		}
 
 		void	set_source(std::string const & source)
@@ -178,7 +178,7 @@ class Request
 		// first request line
 
 		std::string				source;
-		std::string				type;
+		std::string				method;
 		std::string				version;
 
 		// request header
@@ -267,7 +267,7 @@ class Request
 				switch (i)
 				{
 					case 0 :
-						it += (this->type = this->read_string_in_request(it, i)).length();
+						it += (this->method = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
 						it += (this->source = this->read_string_in_request(it, i)).length();
