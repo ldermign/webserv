@@ -15,6 +15,8 @@ class Socket
 		bool					_still_connected;
 		const Server			_data_server;
 
+		void					_receive_body(Response *re, size_t nbytes_content_length);
+
 	public :
 		Socket(void);
 		Socket(int fd, struct sockaddr data, int flag, const Server &data_server);
@@ -30,6 +32,7 @@ class Socket
 		Socket				accept_new_socket(void);
 		void				send_message(void);
 		Response*			create_response(std::string & message);
+		Response*			create_response(std::string	& message, Response* re);
 		void				receive_message(void);
 		void				destroy(void);
 };
