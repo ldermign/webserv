@@ -2,6 +2,7 @@
 #include "Socket.hpp"
 #include "Response.hpp"
 #include "Request.hpp"
+#include "limits.h"
 
 /*
  * explication : 
@@ -128,7 +129,6 @@ void				Socket::_receive_body(Response re, size_t &nbytes_content_length)
 	if (ret_func < 0)
 		throw exp;
 	_message.append(buff_body.begin(), buff_body.begin() + ret_func);
-	create_response(request);
 	nbytes_content_length -= (size_t)ret_func;
 	return ;
 }
@@ -141,7 +141,7 @@ bool				got_a_body(std::string str)
 
 void				Socket::receive_message(void)
 {
-	int					ret_func;
+	int					ret_func = INT_MAX;
 	std::vector<char>	buff(BUFF_SIZE);
 	std::string			s1 = "";
 	bool				first_time = true;
@@ -170,9 +170,9 @@ void				Socket::receive_message(void)
 		throw exp;
 	if (is_the_end(s1) || is_in_body_fill)
 	{
+		std::cout << "RECV"<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		if (not is_in_body_fill)
 			_message.append(buff.begin(), buff.begin() + ret_func);
-		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		// create request prend la request sans body
 		request = this->create_request(_message);
@@ -180,10 +180,7 @@ void				Socket::receive_message(void)
 		{
 			std::cout << "nbyte = " << nbytes_content_length << std::endl;
 			return ;
-		//	request.add_body("GET / HTTP/1.1\r\nConnection: close\r\nContent-Length: 16\r\n\r\nceci est un body\r\n");
 		}
-		std::cout << "nbyte = " << nbytes_content_length << std::endl;
-		// create response prend l'objet requete apre lui avoir rajouter ou non son body
 		nbytes_content_length = 0;
 		response = this->create_response(request);
 		_still_connected = (_still_connected) ? true : response.get_header().get_connection();
