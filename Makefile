@@ -39,7 +39,7 @@ RM			= rm -rf
 
 all:		${NAME}
 
-${NAME}: 	${OBJS} ${DEPS}
+${NAME}: 	${OBJS}
 			${CC} ${CFLAGS} -o ${NAME} ${OBJS}
 
 #-include	${DEPS}
