@@ -15,7 +15,7 @@ class Socket
 		bool					_still_connected;
 		const Server			_data_server;
 
-		void					_receive_body(Response re, size_t nbytes_content_length);
+		void					_receive_body(Response re, size_t& nbytes_content_length);
 
 	public :
 		Socket(void);
