@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Socket.hpp"
-#include "Communication.hpp"
+#include "Response.hpp"
+#include "Request.hpp"
 
 /*
  * explication : 
@@ -85,22 +86,20 @@ Socket				Socket::accept_new_socket(void)
 	return new_one;
 }
 
-Response*			Socket::create_response(std::string	& message)
+Response			Socket::create_response(Request const & request)
 {
-	Communication		communication(message, _data_server);
+	Response		response(request, _data_server);
 
-	this->set_message(communication.get_response());
+	this->set_message(response.get_response());
 
-	return (communication.get_res());
+	return (response);
 }
 
-Response*			Socket::create_response(std::string	& message, Response* re)
+Request				Socket::create_request(std::string & message)
 {
-	Communication		communication(message, _data_server, re);
+	Request				request(message);
 
-	this->set_message(communication.get_response());
-	delete re;
-	return (communication.get_res());
+	return (request);
 }
 
 bool				is_the_end(std::string &s1)
@@ -117,11 +116,12 @@ bool				is_the_end(std::string &s1)
 	return false;
 }
 
-void				Socket::_receive_body(Response *re, size_t nbytes_content_length)
+void				Socket::_receive_body(Response re, size_t nbytes_content_length)
 {
 	std::vector<char>	buff_body(nbytes_content_length);
 	int					ret_func;
 	std::runtime_error	exp("Socket::receive_messsage()");
+	Request				request;
 
 	ret_func = recv(_fd, &buff_body[0], buff_body.size(), 0);
 	if (ret_func < 0)
@@ -129,7 +129,7 @@ void				Socket::_receive_body(Response *re, size_t nbytes_content_length)
 	nbytes_content_length = 0;
 	_message.append(buff_body.begin(), buff_body.begin() + ret_func);
 	_flag = SEND;
-	delete _create_response(_message, re);
+	create_response(request);
 	return ;
 }
 
@@ -141,7 +141,8 @@ void				Socket::receive_message(void)
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
 	static size_t		nbytes_content_length = 0;
-	static Response		*response = NULL;
+	static Response		response;
+	Request				request;
 	
 	std::cout << "I got to receive " << std::endl;
 	if (nbytes_content_length)
@@ -160,13 +161,19 @@ void				Socket::receive_message(void)
 		_message.append(buff.begin(), buff.begin() + ret_func);
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
-		response = this->create_response(this->_message);
-		_still_connected = (_still_connected) ? true : response->get_header().get_connection();
+		// create request prend la request sans body
+		request = this->create_request(_message);
+		if (request.get_content_length() != 0)
+		{
+			// add body prend la nouvelle requete + son body
+			request.add_body("GET / HTTP/1.1\r\nConnection: close\r\nContent-Length: 16\r\n\r\nceci est un body\r\n");
+		}
+		// create response prend l'objet requete apre lui avoir rajouter ou non son body
+		response = this->create_response(request);
+		_still_connected = (_still_connected) ? true : response.get_header().get_connection();
 		_flag = SEND;
-		if ((nbytes_content_length = response->get_content_length()) != 0)
+		if ((nbytes_content_length = request.get_content_length()) != 0)
 			_flag = RECV;
-		else
-			delete response;
 		return ;
 	}
 	_message.append(buff.begin(), buff.begin() + ret_func);

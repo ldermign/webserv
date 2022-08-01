@@ -15,7 +15,7 @@ class Socket
 		bool					_still_connected;
 		const Server			_data_server;
 
-		void					_receive_body(Response *re, size_t nbytes_content_length);
+		void					_receive_body(Response re, size_t nbytes_content_length);
 
 	public :
 		Socket(void);
@@ -31,8 +31,10 @@ class Socket
 		void				set_message(std::string new_message);
 		Socket				accept_new_socket(void);
 		void				send_message(void);
-		Response*			create_response(std::string & message);
-		Response*			create_response(std::string	& message, Response* re);
+
+		Response			create_response(Request const & request);
+		Request				create_request(std::string & message);
+
 		void				receive_message(void);
 		void				destroy(void);
 };

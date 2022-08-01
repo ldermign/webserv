@@ -3,6 +3,8 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <cstdlib>
+#include <sstream>
 
 struct Lower
 {
@@ -18,7 +20,7 @@ class Request
 
 		Request() {}
 
-		Request(std::string const & request) : request(request)
+		Request(std::string const & request) : request(request), content_length(0)
 		{
 			std::string::iterator		it;
 			
@@ -37,21 +39,38 @@ class Request
 
 		virtual ~Request() {}
 
-		Request(Request const & src) : source(src.source)
+		Request(Request const & rhs)
 		{
+			this->set_request(rhs.get_request());
+			this->set_source(rhs.get_source());
+			this->set_method(rhs.get_method());
+			this->set_version(rhs.get_version());
+			this->set_connection(rhs.get_connection());
+			this->set_content_type(rhs.get_content_type());
+			this->set_content_length(rhs.get_content_length());
+			this->set_body(rhs.get_body());
+			this->set_format(rhs.get_format());
 		}
 
 		Request&		operator=(Request const & rhs)
 		{
-			this->source = rhs.source;
+			this->set_request(rhs.get_request());
+			this->set_source(rhs.get_source());
+			this->set_method(rhs.get_method());
+			this->set_version(rhs.get_version());
+			this->set_connection(rhs.get_connection());
+			this->set_content_type(rhs.get_content_type());
+			this->set_content_length(rhs.get_content_length());
+			this->set_body(rhs.get_body());
+			this->set_format(rhs.get_format());
 			return (*this);
 		}
 
 		// Getters
 
-		std::string			get_type(void) const
+		std::string			get_method(void) const
 		{
-			return (this->type);
+			return (this->method);
 		}
 
 		std::string			get_version(void) const
@@ -89,6 +108,11 @@ class Request
 			return (this->body);
 		}
 
+		size_t				get_content_length(void) const
+		{
+			return (this->content_length);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -96,9 +120,9 @@ class Request
 			this->request = request;
 		}
 
-		void	set_type(std::string const & type)
+		void	set_method(std::string const & method)
 		{
-			this->type = type;
+			this->method = method;
 		}
 
 		void	set_source(std::string const & source)
@@ -131,6 +155,20 @@ class Request
 			this->body = body;
 		}
 
+		void	set_content_length(size_t content_length)
+		{
+			this->content_length = content_length;
+		}
+
+		void	add_body(std::string const & request)
+		{
+			size_t		pos;
+
+			pos = request.find("\r\n\r\n");
+
+			this->set_body(request.substr(pos + 4));
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -150,13 +188,14 @@ class Request
 		// first request line
 
 		std::string				source;
-		std::string				type;
+		std::string				method;
 		std::string				version;
 
 		// request header
 
 		bool					connection;
 		std::string				content_type;
+		size_t					content_length;
 
 		std::string				body;
 
@@ -238,7 +277,7 @@ class Request
 				switch (i)
 				{
 					case 0 :
-						it += (this->type = this->read_string_in_request(it, i)).length();
+						it += (this->method = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
 						it += (this->source = this->read_string_in_request(it, i)).length();
@@ -265,6 +304,11 @@ class Request
 			return (false);
 		}
 
+		bool	is_number(std::string const & str)
+		{
+			return (str.find_first_not_of("0123456789") == std::string::npos);
+		}
+
 		void	assign_valid_fields(std::map<std::string, std::string> & fields)
 		{
 			if (!fields["connection"].compare("keep-alive"))
@@ -272,12 +316,16 @@ class Request
 			else
 				this->set_connection(0);
 			this->set_content_type(fields["content-type"]);
+			if (this->is_number(fields["content-length"]))
+				this->set_content_length(std::atol(fields["content-length"].c_str()));
 		}
 
 		void	print_header(void) const
 		{
+			std::cout << "header: " << std::endl;
 			std::cout << "Connection: " << this->get_connection() << std::endl;
 			std::cout << "Content-Type: " << this->get_content_type() << std::endl;
+			std::cout << "Content-length: " << this->get_content_length() << std::endl;
 		}
 
 		std::string::iterator		parse_header(std::string::iterator it)
@@ -311,14 +359,8 @@ class Request
 			}
 			this->assign_valid_fields(fields);
 			it = skip_end_line(it);
-			/*
-			std::cout << "HEADER = " << std::endl;
-			for (std::map<std::string, std::string>::iterator it = fields.begin();
-				it != fields.end(); ++it)
-			{
-				std::cout << "first = " << it->first << " second = " << it->second << std::endl;
-			}
-			*/
+			
+//			this->print_header();
 			return (it);
 		}
 
@@ -330,4 +372,5 @@ class Request
 			this->set_body(body);
 			return (it);
 		}
+
 };

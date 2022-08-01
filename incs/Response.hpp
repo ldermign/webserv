@@ -49,8 +49,7 @@ class Response
 
 			// request data
 
-			this->set_source(rhs.get_source());
-			this->set_method(rhs.get_method());
+			this->set_request(rhs.get_request());
 	
 			return (*this);
 		}
@@ -79,17 +78,14 @@ class Response
 
 			// request
 
-			this->set_source(rhs.get_source());
-			this->set_method(rhs.get_method());
+			this->set_request(rhs.get_request());
 		}
 
 
-		Response(Request *request, Server & server)
-			: source(request->get_source()), method(request->get_type()),
-				server(server), location(this->match_location()),
-					version(request->get_version())
+		Response(Request const & request, Server const & server)
+			: request(request), server(server), location(this->match_location()), version(request.get_version())
 		{
-			this->set_header(ResponseHeader("Webserv", request->get_connection(),
+			this->set_header(ResponseHeader("Webserv", request.get_connection(),
 					this->get_server(), this->get_location()));
 			this->set_index(this->find_index());
 			this->set_status(this->create_status(request));
@@ -97,7 +93,7 @@ class Response
 			this->header.set_content_type(this->find_content_type());
 			this->process_method();
 			this->set_status_message(this->find_status_message());
-			this->set_body(ResponseBody(this->get_method(), this->get_source(), this->get_status(),
+			this->set_body(ResponseBody(this->request, this->get_status(),
 					this->get_index(), this->get_index_path(), this->get_status_message(), this->get_server(),
 					this->get_location()));
 			this->header.set_content_length(this->find_content_length());
@@ -110,7 +106,12 @@ class Response
 		}
 
 		// Getters
-		
+
+		Request		get_request(void) const
+		{
+			return (this->request);
+		}
+
 		Server		get_server(void) const
 		{
 			return (this->server);
@@ -129,16 +130,6 @@ class Response
 		std::string		get_version(void) const
 		{
 			return (this->version);
-		}
-
-		std::string		get_source(void) const
-		{
-			return (this->source);
-		}
-
-		std::string		get_method(void) const
-		{
-			return (this->method);
 		}
 
 		ResponseBody	get_body(void) const
@@ -177,6 +168,11 @@ class Response
 		}
 
 		// Setters
+
+		void		set_request(Request const & request)
+		{
+			this->request = request;
+		}
 	
 		void		set_response(std::string const & response)
 		{
@@ -186,16 +182,6 @@ class Response
 		void		set_status(int status)
 		{
 			this->status = status;
-		}
-
-		void		set_source(std::string const & source)
-		{
-			this->source = source;
-		}
-
-		void		set_method(std::string const & method)
-		{
-			this->method = method;
 		}
 
 		void		set_version(std::string const & version)
@@ -253,9 +239,8 @@ class Response
 	protected :
 
 		// request data
-		
-		std::string		source;
-		std::string		method;
+
+		Request			request;
 
 		// response data
 
@@ -285,7 +270,7 @@ class Response
 
 		void	process_method(void)
 		{
-			if (!this->get_method().compare("DELETE"))
+			if (!this->get_request().get_method().compare("DELETE"))
 			{
 				if (this->get_status() == 200)
 				{
@@ -297,11 +282,11 @@ class Response
 				}
 				// delete resssource
 			}
-			else if (!this->get_method().compare("GET"))
+			else if (!this->get_request().get_method().compare("GET"))
 			{
 				// parse params
 			}
-			else if (!this->get_method().compare("POST"))
+			else if (!this->get_request().get_method().compare("POST"))
 			{
 				// parse params
 			}
@@ -371,7 +356,7 @@ class Response
 			if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				return ("application/octet-stream");
-			else if (this->get_status() != 200 || !this->get_method().compare("DELETE")
+			else if (this->get_status() != 200 || !this->get_request().get_method().compare("DELETE")
 					|| (this->get_status() == 200 && this->is_dir(this->location.second.getRoot())
 						&& this->location.second.getAutoindex() &&
 						this->is_dir(this->get_index_path())) || !ext.compare(".html")
@@ -457,7 +442,7 @@ class Response
 					it != locations.end(); ++it)
 			{
 
-				if (!this->get_source().compare(0, it->getPath().length(), it->getPath()))
+				if (!this->get_request().get_source().compare(0, it->getPath().length(), it->getPath()))
 				{
 					if (longest_match == locations.end() ||
 						it->getPath().length() > longest_match->getPath().length())
@@ -474,7 +459,7 @@ class Response
 		bool	is_default_method(void) const
 		{
 			return (std::find(this->default_methods.begin(), this->default_methods.end(),
-						this->method) != this->default_methods.end());
+						this->get_request().get_method()) != this->default_methods.end());
 		}
 
 		bool	is_method_allowed(void)
@@ -483,15 +468,15 @@ class Response
 
 			if (!methods_allowed.size())
 				return (std::find(this->default_methods.begin(),
-						this->default_methods.end(), this->method)
+						this->default_methods.end(), this->get_request().get_method())
 						!= this->default_methods.end());
 			return (std::find(methods_allowed.begin(), methods_allowed.end(),
-						this->method) != methods_allowed.end());
+						this->get_request().get_method()) != methods_allowed.end());
 		}
 
-		int		create_status(Request * request)
+		int		create_status(Request const & request)
 		{
-			if (!request->get_format() || this->location.first == false)
+			if (!request.get_format() || this->location.first == false)
 				return (400);
 			else if (!check_version())
 				return (505);
@@ -502,7 +487,7 @@ class Response
 			else if (!this->index && (!this->location.second.getAutoindex() ||
 						(this->location.second.getAutoindex() &&
 						 (!this->is_dir(this->get_index_path())
-						  || !this->get_method().compare("DELETE")))))
+						  || !this->get_request().get_method().compare("DELETE")))))
 				return (404);
 			return (200);
 		}
@@ -528,7 +513,7 @@ class Response
 			std::string				location_path;
 
 			root = this->location.second.getRoot();
-			location_path = this->source.substr(this->location.second.getPath().length());
+			location_path = this->get_request().get_source().substr(this->location.second.getPath().length());
 			if (*location_path.begin() == '/' && *(root.end() - 1) == '/')
 				root.erase(root.end() - 1);
 			if (*location_path.begin() != '/' && *(root.end() - 1) != '/')

@@ -6,6 +6,7 @@
 #include "Autoindex.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
+#include "Request.hpp"
 
 class ResponseBody
 {
@@ -21,7 +22,6 @@ class ResponseBody
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
 			this->set_location(rhs.get_location());
-			this->set_method(rhs.get_method());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
@@ -39,7 +39,6 @@ class ResponseBody
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
 			this->set_location(rhs.get_location());
-			this->set_method(rhs.get_method());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
@@ -49,15 +48,13 @@ class ResponseBody
 			return (*this);
 		}
 
-		ResponseBody(std::string const & method, std::string const & source,
-				int status, bool index, std::string const & index_path,
-					std::string const & status_message, Server const & server,
-						std::pair<bool, Location> const & location) : server(server),
-							location(location), method(method), source(source),
-								status(status), index(index), index_path(index_path),
+		ResponseBody(Request const & request, int status, bool index,
+				std::string const & index_path, std::string const & status_message,
+				Server const & server, std::pair<bool, Location> const & location)
+					: server(server), request(request), location(location), status(status), index(index), index_path(index_path),
 									status_message(status_message)
 		{
-			this->set_autoindex(Autoindex(this->get_source(), this->get_index_path()));
+			this->set_autoindex(Autoindex(this->get_request(), this->get_index_path()));
 			this->set_body(this->create_body());
 		}
 
@@ -65,7 +62,7 @@ class ResponseBody
 		{
 			std::string			body;
 
-			if (!this->get_method().compare("DELETE") && this->get_status() == 200)
+			if (!this->get_request().get_method().compare("DELETE") && this->get_status() == 200)
 				body = this->delete_success();
 			else if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
@@ -99,6 +96,11 @@ class ResponseBody
 			this->body = body;
 		}
 
+		void		set_request(Request const & request)
+		{
+			this->request = request;
+		}
+
 		void		set_server(Server const & server)
 		{
 			this->server = server;
@@ -109,19 +111,9 @@ class ResponseBody
 			this->location = location;
 		}
 
-		void		set_method(std::string const & method)
-		{
-			this->method = method;
-		}
-
 		void		set_status(int status)
 		{
 			this->status = status;
-		}
-
-		void		set_source(std::string const & source)
-		{
-			this->source = source;
 		}
 
 		void		set_index(bool index)
@@ -161,16 +153,6 @@ class ResponseBody
 			return (this->location);
 		}
 
-		std::string		get_method(void) const
-		{
-			return (this->method);
-		}
-		
-		std::string		get_source(void) const
-		{
-			return (this->source);
-		}
-
 		int		get_status(void) const
 		{
 			return (this->status);
@@ -196,6 +178,11 @@ class ResponseBody
 			return (this->status_message);
 		}
 
+		Request			get_request(void) const
+		{
+			return (this->request);
+		}
+
 		// static
 
 		static std::vector<int>				redirection_status;
@@ -204,9 +191,8 @@ class ResponseBody
 
 		std::string						body;
 		Server							server; 
+		Request							request;
 		std::pair<bool, Location>		location;
-		std::string						method;
-		std::string						source;
 		int								status;
 		bool							index;
 		Autoindex						autoindex;
