@@ -7,6 +7,7 @@
  * 				-> cette class recoit et envoie des requetes
  * 				-> permet de faire le lien entre le server et les fonctions de traitemetn de requetes
 */
+
 Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server(Server())
 {
 	std::cout << "empty socket was created" << std::endl;
@@ -89,10 +90,20 @@ Response*			Socket::create_response(std::string	& message)
 	Communication		communication(message, _data_server);
 
 	this->set_message(communication.get_response());
+
 	return (communication.get_res());
 }
 
-bool				is_the_end(std::string s1)
+Response*			Socket::create_response(std::string	& message, Response* re)
+{
+	Communication		communication(message, _data_server, re);
+
+	this->set_message(communication.get_response());
+	delete re;
+	return (communication.get_res());
+}
+
+bool				is_the_end(std::string &s1)
 {
 	if (!std::strcmp(s1.c_str(), "\r\n") || !std::strcmp(s1.c_str(), "\n"))
 		return true;
@@ -106,6 +117,22 @@ bool				is_the_end(std::string s1)
 	return false;
 }
 
+void				Socket::_receive_body(Response *re, size_t nbytes_content_length)
+{
+	std::vector<char>	buff_body(nbytes_content_length);
+	int					ret_func;
+	std::runtime_error	exp("Socket::receive_messsage()");
+
+	ret_func = recv(_fd, &buff_body[0], buff_body.size(), 0);
+	if (ret_func < 0)
+		throw exp;
+	nbytes_content_length = 0;
+	_message.append(buff_body.begin(), buff_body.begin() + ret_func);
+	_flag = SEND;
+	delete _create_response(_message, re);
+	return ;
+}
+
 void				Socket::receive_message(void)
 {
 	int					ret_func;
@@ -113,27 +140,36 @@ void				Socket::receive_message(void)
 	std::string			s1 = "";
 	bool				first_time = true;
 	std::runtime_error	exp("Socket::receive_messsage()");
-	Response			*response;
+	static size_t		nbytes_content_length = 0;
+	static Response		*response = NULL;
 	
 	std::cout << "I got to receive " << std::endl;
-	if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
+	if (nbytes_content_length)
+		return _receive_body(response, nbytes_content_length);
+	else if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) > 0)
 	{
 		s1.append(buff.begin(), buff.begin() + ret_func);
 		first_time = false;
 		std::cout << "size of s1 -> " << s1.size() << std::endl;
+		std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
-	_message.append(buff.begin(), buff.begin() + ret_func);
 	if (is_the_end(s1))
 	{
+		_message.append(buff.begin(), buff.begin() + ret_func);
 		std::cout << "RECV from "<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl;
 		first_time = true;
 		response = this->create_response(this->_message);
-		_still_connected = (_still_connected) ? true : response->get_connection();
+		_still_connected = (_still_connected) ? true : response->get_header().get_connection();
 		_flag = SEND;
+		if ((nbytes_content_length = response->get_content_length()) != 0)
+			_flag = RECV;
+		else
+			delete response;
 		return ;
 	}
+	_message.append(buff.begin(), buff.begin() + ret_func);
 }
 
 struct sockaddr		Socket::get_data(void) const

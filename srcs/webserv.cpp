@@ -5,6 +5,7 @@
 #include "Server.hpp"
 #include "Config.hpp"
 #include "FtServer.hpp"
+#include "ManagerServer.hpp"
 
 void	printAllServer( std::vector< Server > all ) {
 
@@ -109,6 +110,7 @@ int		main(int argc, char **argv)
 	std::vector< Server >	allServ = allConfig.getVectorServers();
 	printAllServer(allServ);
 
+<<<<<<< HEAD
 	 std::string	name("cali");
 	 in_addr_t	domain = inet_addr("127.0.0.1");
 	 u_short		port = htons(4321);
@@ -126,5 +128,9 @@ int		main(int argc, char **argv)
 
 
 
+=======
+	ManagerServer	ms(allServ);
+	ms.main_loop();
+>>>>>>> 4234b0b36b75edd74fe2c004f381dfb0041cec0c
 	return 0;
 }

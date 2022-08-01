@@ -22,12 +22,11 @@ class Request
 		{
 			std::string::iterator		it;
 			
-			std::cout << "REQUEST :" << std::endl;
-			std::cout << request << std::endl;
 			try
 			{
 				it = this->parse_start_line();
 				it = this->parse_header(it);
+				it = this->parse_body(it);
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -38,13 +37,13 @@ class Request
 
 		virtual ~Request() {}
 
-		Request(Request const & src) : index(src.index)
+		Request(Request const & src) : source(src.source)
 		{
 		}
 
 		Request&		operator=(Request const & rhs)
 		{
-			this->index = rhs.index;
+			this->source = rhs.source;
 			return (*this);
 		}
 
@@ -65,9 +64,9 @@ class Request
 			return (this->request);
 		}
 
-		const std::string			&get_index(void) const
+		const std::string			&get_source(void) const
 		{
-			return (this->index);
+			return (this->source);
 		}
 
 		bool						get_connection(void) const
@@ -85,6 +84,11 @@ class Request
 			return (this->content_type);
 		}
 
+		std::string			get_body(void) const
+		{
+			return (this->body);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -97,9 +101,9 @@ class Request
 			this->type = type;
 		}
 
-		void	set_index(std::string const & index)
+		void	set_source(std::string const & source)
 		{
-			this->index = index;
+			this->source = source;
 		}
 
 		void	set_version(std::string const & version)
@@ -122,6 +126,11 @@ class Request
 			this->content_type = content_type;
 		}
 
+		void	set_body(std::string const & body)
+		{
+			this->body = body;
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -140,7 +149,7 @@ class Request
 
 		// first request line
 
-		std::string				index;
+		std::string				source;
 		std::string				type;
 		std::string				version;
 
@@ -148,6 +157,8 @@ class Request
 
 		bool					connection;
 		std::string				content_type;
+
+		std::string				body;
 
 		// error
 
@@ -182,7 +193,7 @@ class Request
 			return (it);
 		}
 
-		std::string		read_string_in_request(std::string::iterator it)
+		std::string		read_string_in_request(std::string::iterator it, unsigned int i)
 		{
 			std::string		str;
 			bool			format = false;
@@ -193,7 +204,7 @@ class Request
 				format = true;
 				++it;
 			}
-			if (!format)
+			if (!format && i != 2)
 				throw (FormatException());
 			return (str);
 		}
@@ -221,19 +232,19 @@ class Request
 		{
 			std::string::iterator it = this->request.begin();
 
-			for (int i = 0; i < 3; i++)
+			for (unsigned int i = 0; i < 3; i++)
 			{
 				it = this->skip_space(it);
 				switch (i)
 				{
 					case 0 :
-						it += (this->type = this->read_string_in_request(it)).length();
+						it += (this->type = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
-						it += (this->index = this->read_string_in_request(it)).length();
+						it += (this->source = this->read_string_in_request(it, i)).length();
 						break;
 					case 2:
-						it += (this->version = this->read_string_in_request(it)).length();
+						it += (this->version = this->read_string_in_request(it, i)).length();
 				}
 			}
 			it = skip_end_line(it);
@@ -299,6 +310,7 @@ class Request
 				it = skip_end_line(it);
 			}
 			this->assign_valid_fields(fields);
+			it = skip_end_line(it);
 			/*
 			std::cout << "HEADER = " << std::endl;
 			for (std::map<std::string, std::string>::iterator it = fields.begin();
@@ -307,6 +319,15 @@ class Request
 				std::cout << "first = " << it->first << " second = " << it->second << std::endl;
 			}
 			*/
+			return (it);
+		}
+
+		std::string::iterator		parse_body(std::string::iterator const & it)
+		{
+			std::string			body;
+
+			body.append(it, this->request.end());
+			this->set_body(body);
 			return (it);
 		}
 };
