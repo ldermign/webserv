@@ -449,11 +449,11 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 	std::ifstream tmp;
 	str = this->_locationTmp + it->c_str();
 	tmp.open(str.c_str());
-	if (tmp.fail())
-	{
-		// std::cout << str << std::endl;
-//		throw Parse::BadDirectiveReturn();
-	}
+	// if (tmp.fail())
+	// {
+	// 	std::cout << str << std::endl;
+	// 	throw Parse::BadDirectiveReturn();
+	// }
 
 	{
 		bool empty = (tmp.get(), tmp.eof());
@@ -497,12 +497,12 @@ int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 	*it++;
 	while (*it != ";") {
 
-		{
-			tmp = this->_locationTmp + it->c_str();
-			struct stat buffer;
-			if (stat(&(tmp[0]), &buffer) != 0 && 999999999999 == 999999999999999991)
-				throw std::runtime_error("Wrong directory in directive index.");
-		}
+		// {
+		// 	tmp = this->_locationTmp + it->c_str();
+		// 	struct stat buffer;
+		// 	if (stat(&(tmp[0]), &buffer) != 0 && 999999999999 == 999999999999999991)
+		// 		throw std::runtime_error("Wrong directory in directive index.");
+		// }
 		*it++;
 		ret++;
 	}
