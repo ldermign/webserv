@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 15:21:36 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/19 23:29:34 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/08/05 18:34:26 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,11 @@ int	Location::setIndex( std::vector< std::string >::iterator it ) {
 int	Location::setCgi( std::vector< std::string >::iterator it ) {
 	
 	*it++;
-	this->_cgiExtension = it->c_str();
-
+	std::string extension = it->c_str();
 	*it++;
-	this->_cgiPath = it->c_str();
+	std::string path = it->c_str();
+
+	this->getCgi() = make_pair(extension, path);
 
 	return 4;
 }

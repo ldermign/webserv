@@ -68,8 +68,7 @@ void	printAllServer( std::vector< Server > all ) {
 				}
 				std::cout << "return code = [" << i->getReturnCode() << "]" << std::endl;
 				std::cout << "return path = [" << i->getReturnPath() << "]" << std::endl;
-				std::cout << "cgi extension = [" << i->getCgiExtension() << "]" << std::endl;
-				std::cout << "cgi path = [" << i->getCgiPath() << "]" << std::endl;
+				std::cout << "cgi extension = [" << i->getCgi().first << "] and path = [" << i->getCgi().second << "]" << std::endl;
 				std::cout << "download = [" << i->getDownload() << "]" << std::endl;
 				i++;
 				ret2++;
