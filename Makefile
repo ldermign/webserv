@@ -3,7 +3,7 @@ NAME		= webserv
 SRCS		=	${SRCSDIR}webserv.cpp \
 
 #server
-SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
+# SRCS		+=	${SRCSDIR}set_server/Socket.cpp \
 				${SRCSDIR}set_server/FtServer.cpp 
 
 # Parse 
@@ -13,7 +13,7 @@ SRCS		+=	${PARSDIR}Parse.cpp \
 				${PARSDIR}Config.cpp
 
 # Response creation
-SRCS		+=  ${RES_DIR}Response.cpp \
+# SRCS		+=  ${RES_DIR}Response.cpp \
 				${RES_DIR}ResponseHeader.cpp \
 				${RES_DIR}ResponseBody.cpp
 

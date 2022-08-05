@@ -32,19 +32,10 @@ void	printAllServer( std::vector< Server > all ) {
 					std::cout << std::endl;
 			}
 		}
-		std::cout << "error code for path [" << it->getErrorPath() << "] =" << std::endl;
+		std::cout << "error pages = " << std::endl;
 		{
-			std::vector< int >::iterator	i;
-			i = it->getErrorCode().begin();
-			std::cout << "\t";
-			while (i < it->getErrorCode().end()) {
-				std::cout << *i;
-				i++;
-				if (i != it->getErrorCode().end())
-					std::cout << " - ";
-				else
-					std::cout << std::endl;
-			}
+			for (std::vector< std::pair< int, std::string > >::iterator	i = it->getErrorPage().begin() ; i != it->getErrorPage().end() ; ++i)
+				std::cout << "\t" << i->first << " " << i->second << std::endl;
 		}
 		{
 			int ret2 = 1;
@@ -71,17 +62,9 @@ void	printAllServer( std::vector< Server > all ) {
 				std::cout << "autoindex = [" << i->getAutoindex() << "]" << std::endl;
 				std::cout << "methods =" << std::endl;
 				{
-					std::vector< std::string >::iterator	j;
-					j = i->getMethods().begin();
-					std::cout << "\t";
-					while (j < i->getMethods().end()) {
-						std::cout << *j;
-						j++;
-						if (j != i->getMethods().end())
-							std::cout << " - ";
-						else
-							std::cout << std::endl;
-					}
+					for (std::vector< std::string >::iterator j = i->getMethods().begin() ; j != i->getMethods().end() ; ++j)
+						std::cout << "\t" << *j;
+					std::cout << std::endl;
 				}
 				std::cout << "return code = [" << i->getReturnCode() << "]" << std::endl;
 				std::cout << "return path = [" << i->getReturnPath() << "]" << std::endl;
