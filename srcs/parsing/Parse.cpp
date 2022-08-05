@@ -336,34 +336,32 @@ int	Parse::dirClientMaxBodySize( std::vector< std::string >::iterator it ) {
 int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 
 	int ret = 0, i = 0;
-	std::string file;
 	
+	// std::cout << *it << std::endl;
 	*it++;
+		// std::cout << *it << std::endl;
+
 	while (it[ret] != ";")
 		ret++;
 
-	if (ret < 2)
+	if (ret != 2)
 	{
 		// std::cout << "pas assez arg" << std::endl;
 		throw Parse::BadDirectiveErrorPage();
 	}
 	
-	int j = 0;
-	while (j < ret - 1) {
-		
-		std::string file = it->c_str();
-		i = 0;
-		while (file[i]) {
-			if (!std::isdigit(file[i]))
-					throw Parse::BadDirectiveErrorPage();
-			i++;
-		}
-		j++;
-		// if (file.substr())
-		//checker ici que c'est les bons chiffres
-		*it++;
+	std::string file = it->c_str();
+	i = 0;
+	while (file[i]) {
+		if (!std::isdigit(file[i]))
+				throw Parse::BadDirectiveErrorPage();
+		i++;
 	}
 
+
+	*it++;
+
+	// std::cout << *it << std::endl;
 	std::ifstream tmp;
 	std::string str = it->c_str();
 	tmp.open(str.c_str());
@@ -381,7 +379,8 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	}
 	tmp.close();
 	
-	return ret + 2;
+
+	return 4;
 }
 
 int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
@@ -657,7 +656,7 @@ void	Parse::checkAllDirectives( void ) {
 					ret = this->dirLocation(it, this->_args.end());
 				else if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
 				{
-					std::cout << "rola " << *it << std::endl;
+					std::cout << "ca marche pas en fait la " << *it << std::endl;
 					throw Parse::WrongInfo();
 				}
 				for (int i = 0 ; it < this->_args.end() && i < ret ; i++)

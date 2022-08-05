@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/18 16:57:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/20 14:01:21 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/08/05 11:05:29 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,24 +77,14 @@ int	Server::setClient( std::vector< std::string >::iterator it ) {
 
 int	Server::setError( std::vector< std::string >::iterator it ) {
 
-	int ret = 0;
-	
 	*it++;
-	while (it[ret] != ";")
-		ret++;
+	int nbr = atoi(it->c_str());
+	*it++;
+	std::string str = it->c_str();
 
-	while (*it != ";") {
-	
-		std::string str = it->c_str();
-		if (!isdigit(str[0]))
-			break ;
-		this->getErrorCode().push_back(atoi(str.c_str()));
-		*it++;
-	}
+	this->getErrorPage().push_back(make_pair(nbr, str));
 
-	this->_errorPath = it->c_str();
-	
-	return ret + 2;
+	return 4;
 }
 
 int	Server::setServer( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last ) {
