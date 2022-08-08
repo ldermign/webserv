@@ -6,7 +6,8 @@
 #include "Autoindex.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
-#include "Request.hpp"
+#include "Request.hpp" 
+#include "Cgi.hpp"
 
 class ResponseBody
 {
@@ -21,6 +22,7 @@ class ResponseBody
 		{
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
+			this->set_request(rhs.get_request());
 			this->set_location(rhs.get_location());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
@@ -38,6 +40,7 @@ class ResponseBody
 		{
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
+			this->set_request(rhs.get_request());
 			this->set_location(rhs.get_location());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
@@ -50,12 +53,29 @@ class ResponseBody
 
 		ResponseBody(Request const & request, int status, bool index,
 				std::string const & index_path, std::string const & status_message,
-				Server const & server, std::pair<bool, Location> const & location)
-					: server(server), request(request), location(location), status(status), index(index), index_path(index_path),
-									status_message(status_message)
+				Server const & server, std::pair<bool, Location> const & location) : server(server),
+				request(request), location(location), status(status),
+				index(index), index_path(index_path), status_message(status_message)
 		{
 			this->set_autoindex(Autoindex(this->get_request(), this->get_index_path()));
 			this->set_body(this->create_body());
+		}
+
+		std::string		get_ext(std::string const & file)
+		{
+			size_t			pos;
+
+			pos = file.rfind(".");
+			if (pos == std::string::npos)
+				return ("");
+			return (this->get_index_path().substr(pos));
+		}
+
+		std::string		execute_cgi(std::string const & script_path)
+		{
+			Cgi				cgi(script_path, this->get_request());
+
+			return (cgi.exec_script());
 		}
 
 		std::string		create_body(void)
@@ -74,10 +94,13 @@ class ResponseBody
 			{
 				std::ifstream		ifs(this->get_index_path().c_str());
 				std::string			line;
+
 				while (std::getline(ifs, line))
 				{
 					body.append(line + '\n');
 				}
+				if (!this->get_ext(this->get_index_path()).compare(".php"))
+					body = execute_cgi(this->get_index_path());
 			}
 			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
 					&& this->location.second.getAutoindex())

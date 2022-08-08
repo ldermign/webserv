@@ -94,8 +94,8 @@ class Response
 			this->process_method();
 			this->set_status_message(this->find_status_message());
 			this->set_body(ResponseBody(this->request, this->get_status(),
-					this->get_index(), this->get_index_path(), this->get_status_message(), this->get_server(),
-					this->get_location()));
+			this->get_index(), this->get_index_path(), this->get_status_message(),
+			this->get_server(), this->get_location()));
 			this->header.set_content_length(this->find_content_length());
 			this->set_response(this->create_response());
 		}
@@ -338,11 +338,11 @@ class Response
 			return (status_messages);
 		}
 
-		std::string		get_ext(void)
+		std::string		get_ext(std::string const & file)
 		{
 			size_t			pos;
 
-			pos = this->get_index_path().rfind(".");
+			pos = file.rfind(".");
 			if (pos == std::string::npos)
 				return ("");
 			return (this->get_index_path().substr(pos));
@@ -352,7 +352,7 @@ class Response
 		{
 			std::string		ext;
 
-			ext = get_ext();
+			ext = get_ext(this->get_index_path());
 			if (this->location.second.getReturnCode()
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				return ("application/octet-stream");
