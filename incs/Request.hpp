@@ -262,13 +262,14 @@ class Request
 			}
 			if (index && *it == '?')
 			{
+				if (this->get_method().compare("GET"))
+					throw (FormatException());
 				while (it != this->request.end() && *it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
 				{
 					params.append(1, *it);
 					format = true;
 					++it;
 				}
-				params.erase(params.begin());
 				this->set_params(params);
 			}
 			if (!format && i != 2)
@@ -308,7 +309,9 @@ class Request
 						it += (this->method = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
-						it += (this->source = this->read_string_in_request(it, i)).length() + this->get_params().length() + 1;
+						it += (this->source = this->read_string_in_request(it, i)).length() + this->get_params().length();
+						if (!params.empty())
+							params.erase(params.begin());
 						break;
 					case 2:
 						it += (this->version = this->read_string_in_request(it, i)).length();

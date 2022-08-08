@@ -83,7 +83,7 @@ class Response
 
 
 		Response(Request const & request, Server const & server)
-			: request(request), server(server), location(this->match_location()), version(request.get_version())
+			: request(request), server(server), location(this->match_location()), version("HTTP/1.1")
 		{
 			this->set_header(ResponseHeader("Webserv", request.get_connection(),
 					this->get_server(), this->get_location()));
@@ -418,15 +418,8 @@ class Response
 
 		bool	check_version(void)
 		{
-			if (this->get_version().empty())
-			{
-				this->set_version("HTTP/1.1");
-				return (true);
-			}
-			else if (!this->get_version().compare("HTTP/1.1"))
-				return (true);
-			this->set_version("HTTP/1.1");
-			return (false);
+			return (!this->request.get_version().compare("HTTP/1.1")
+				|| this->request.get_version().empty());
 		}
 
 		std::pair<bool, Location>		match_location(void)
