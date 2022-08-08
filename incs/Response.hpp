@@ -441,7 +441,6 @@ class Response
 			for (std::vector<Location>::const_iterator it = locations.begin();
 					it != locations.end(); ++it)
 			{
-
 				if (!this->get_request().get_source().compare(0, it->getPath().length(), it->getPath()))
 				{
 					if (longest_match == locations.end() ||

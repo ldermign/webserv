@@ -51,7 +51,7 @@ class Cgi
 
 		Cgi(std::string const & script_path, Request const & request)	
 		{
-			this->set_cgi_env(this->init_cgi_env("200", request.get_method(), script_path));
+			this->set_cgi_env(this->init_cgi_env("200", request.get_method(), script_path, request.get_params()));
 			this->init_envp();
 		}
 
@@ -74,10 +74,11 @@ class Cgi
 
 		std::string		exec_script(void) const
 		{
-			int		pid;
-			char	**argv = NULL;
-			FILE	*buf = tmpfile();
-			int		buf_fd;
+			int				pid;
+			char			**argv = NULL;
+			FILE			*buf = tmpfile();
+			FILE			*err_log = tmpfile();
+			int				fds[2];
 			std::string		script_executed;
 
 /*
@@ -90,19 +91,21 @@ class Cgi
 				i++;
 			}
 			*/
-			buf_fd = fileno(buf);
+			fds[0] = fileno(buf);
+			fds[1] = fileno(err_log);
 			pid = fork();
 			if (!pid)
 			{
-				dup2(buf_fd, 1);
+				dup2(fds[0], 1);
+				dup2(fds[1], 2);
 				if (execve("/usr/bin/php-cgi", argv, this->get_envp()) == -1)
 					exit(0);
 			}
 			wait(NULL);
 			script_executed = this->read_file(buf);
-//			remove content type header
 			script_executed.erase(0, 42);
 			fclose(buf);
+			fclose(err_log);
 			return (script_executed);
 		}
 
@@ -139,13 +142,14 @@ class Cgi
 		char**			envp;
 
 		std::map<std::string, std::string>		init_cgi_env(std::string const & redirect_status,
-				std::string const & request_method, std::string const & script_filename)
+				std::string const & request_method, std::string const & script_filename, std::string const & query_string)
 		{
 			std::map<std::string, std::string>		cgi_env;
 
 			cgi_env["REDIRECT_STATUS"] = redirect_status;
 			cgi_env["REQUEST_METHOD"] = request_method;
 			cgi_env["SCRIPT_FILENAME"] = script_filename;
+			cgi_env["QUERY_STRING"] = query_string;
 			return (cgi_env);
 		}
 

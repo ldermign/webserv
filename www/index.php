@@ -8,5 +8,7 @@
 
 	<h1>Welcome to Webserv</h1>
 	<p><?php echo "salut"; ?></p>
+	<p><?php echo $_GET['name']; ?></p>
+	<p><?php echo $_POST['nickname']; ?></p>
 </body>
 </html>
