@@ -6,7 +6,8 @@
 #include "Autoindex.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
-#include "Request.hpp"
+#include "Request.hpp" 
+#include "Cgi.hpp"
 
 class ResponseBody
 {
@@ -21,12 +22,14 @@ class ResponseBody
 		{
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
+			this->set_request(rhs.get_request());
 			this->set_location(rhs.get_location());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
 			this->set_index_path(rhs.get_index_path());
 			this->set_status_message(rhs.get_status_message());
+			this->set_content_length(rhs.get_content_length());
 		}
 
 		virtual ~ ResponseBody()
@@ -38,24 +41,43 @@ class ResponseBody
 		{
 			this->set_body(rhs.get_body());
 			this->set_server(rhs.get_server());
+			this->set_request(rhs.get_request());
 			this->set_location(rhs.get_location());
 			this->set_status(rhs.get_status());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
 			this->set_index_path(rhs.get_index_path());
 			this->set_status_message(rhs.get_status_message());
-
+			this->set_content_length(rhs.get_content_length());
 			return (*this);
 		}
 
 		ResponseBody(Request const & request, int status, bool index,
 				std::string const & index_path, std::string const & status_message,
 				Server const & server, std::pair<bool, Location> const & location)
-					: server(server), request(request), location(location), status(status), index(index), index_path(index_path),
-									status_message(status_message)
+				: server(server), request(request), location(location),
+				status(status), index(index), index_path(index_path),
+				status_message(status_message)
 		{
 			this->set_autoindex(Autoindex(this->get_request(), this->get_index_path()));
 			this->set_body(this->create_body());
+		}
+
+		std::string		get_ext(std::string const & file)
+		{
+			size_t			pos;
+
+			pos = file.rfind(".");
+			if (pos == std::string::npos)
+				return ("");
+			return (this->get_index_path().substr(pos));
+		}
+
+		std::string		execute_cgi(std::string const & script_path)
+		{
+			Cgi				cgi(script_path, this->get_request());
+
+			return (cgi.exec_script());
 		}
 
 		std::string		create_body(void)
@@ -74,10 +96,13 @@ class ResponseBody
 			{
 				std::ifstream		ifs(this->get_index_path().c_str());
 				std::string			line;
+
 				while (std::getline(ifs, line))
 				{
 					body.append(line + '\n');
 				}
+				if (!this->get_ext(this->get_index_path()).compare(".php"))
+					body = execute_cgi(this->get_index_path());
 			}
 			else if (this->status == 200 && this->is_dir(this->location.second.getRoot())
 					&& this->location.second.getAutoindex())
@@ -86,6 +111,7 @@ class ResponseBody
 			}
 			else
 				body = this->create_error_response_code();
+			this->set_content_length(body.length());
 			return (body);
 		}
 
@@ -135,6 +161,11 @@ class ResponseBody
 		{
 			this->status_message = status_message;
 		}
+		
+		void		set_content_length(size_t content_length)
+		{
+			this->content_length = content_length;
+		}
 
 		// getters
 
@@ -183,6 +214,11 @@ class ResponseBody
 			return (this->request);
 		}
 
+		size_t			get_content_length(void) const
+		{
+			return (this->content_length);
+		}
+
 		// static
 
 		static std::vector<int>				redirection_status;
@@ -198,6 +234,7 @@ class ResponseBody
 		Autoindex						autoindex;
 		std::string						index_path;
 		std::string						status_message;
+		size_t							content_length;
 
 		static std::vector<int>		init_redirection_status(void)
 		{

@@ -43,6 +43,7 @@ class Request
 		{
 			this->set_request(rhs.get_request());
 			this->set_source(rhs.get_source());
+			this->set_params(rhs.get_params());
 			this->set_method(rhs.get_method());
 			this->set_version(rhs.get_version());
 			this->set_connection(rhs.get_connection());
@@ -56,6 +57,7 @@ class Request
 		{
 			this->set_request(rhs.get_request());
 			this->set_source(rhs.get_source());
+			this->set_params(rhs.get_params());
 			this->set_method(rhs.get_method());
 			this->set_version(rhs.get_version());
 			this->set_connection(rhs.get_connection());
@@ -86,6 +88,11 @@ class Request
 		const std::string			&get_source(void) const
 		{
 			return (this->source);
+		}
+
+		const std::string			&get_params(void) const
+		{
+			return (this->params);
 		}
 
 		bool						get_connection(void) const
@@ -130,6 +137,11 @@ class Request
 			this->source = source;
 		}
 
+		void	set_params(std::string const & params)
+		{
+			this->params = params;
+		}
+
 		void	set_version(std::string const & version)
 		{
 			this->version = version;
@@ -160,15 +172,6 @@ class Request
 			this->content_length = content_length;
 		}
 
-		void	add_body(std::string const & request)
-		{
-			size_t		pos;
-
-			pos = request.find("\r\n\r\n");
-
-			this->set_body(request.substr(pos + 4));
-		}
-
 		class FormatException : public std::exception
 		{
 			public :
@@ -188,6 +191,7 @@ class Request
 		// first request line
 
 		std::string				source;
+		std::string				params;
 		std::string				method;
 		std::string				version;
 
@@ -236,12 +240,28 @@ class Request
 		{
 			std::string		str;
 			bool			format = false;
+			bool			index = false;
+			std::string		params;
 
-			while (it != this->request.end() && *it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+			if (i == 1)
+				index = true;
+			while (it != this->request.end() && *it != ' ' && *it != '\t' && *it != '\r' && *it != '\n' && !(index && *it == '?'))
 			{
 				str.append(1, *it);
 				format = true;
 				++it;
+			}
+			if (index && *it == '?')
+			{
+				if (this->get_method().compare("GET"))
+					throw (FormatException());
+				while (it != this->request.end() && *it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+				{
+					params.append(1, *it);
+					format = true;
+					++it;
+				}
+				this->set_params(params);
 			}
 			if (!format && i != 2)
 				throw (FormatException());
@@ -280,7 +300,9 @@ class Request
 						it += (this->method = this->read_string_in_request(it, i)).length();
 						break;
 					case 1:
-						it += (this->source = this->read_string_in_request(it, i)).length();
+						it += (this->source = this->read_string_in_request(it, i)).length() + this->get_params().length();
+						if (!params.empty())
+							params.erase(params.begin());
 						break;
 					case 2:
 						it += (this->version = this->read_string_in_request(it, i)).length();
@@ -359,8 +381,6 @@ class Request
 			}
 			this->assign_valid_fields(fields);
 			it = skip_end_line(it);
-			
-//			this->print_header();
 			return (it);
 		}
 
