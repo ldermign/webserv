@@ -13,8 +13,6 @@
 #include "Request.hpp"
 #include "ResponseHeader.hpp"
 
-#define CGI_ENV_NB 3
-
 class Cgi
 {
 
@@ -84,16 +82,6 @@ class Cgi
 			int				std_streams_fds[3];
 			std::string		script_executed;
 
-/*
-			char **envp = this->get_envp();
-			int i = 0;
-			std::cout  << "ENVP = "  << std::endl;
-			while (envp[i] != NULL)
-			{
-				std::cout << envp[i] << std::endl;
-				i++;
-			}
-*/
 			std_streams_fds[0] = fileno(stdout_buf);
 			std_streams_fds[1] = fileno(stdin_buf);
 			std_streams_fds[2] = fileno(stderr_buf);
