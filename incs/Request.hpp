@@ -172,15 +172,6 @@ class Request
 			this->content_length = content_length;
 		}
 
-		void	add_body(std::string const & request)
-		{
-			size_t		pos;
-
-			pos = request.find("\r\n\r\n");
-
-			this->set_body(request.substr(pos + 4));
-		}
-
 		class FormatException : public std::exception
 		{
 			public :
@@ -390,8 +381,6 @@ class Request
 			}
 			this->assign_valid_fields(fields);
 			it = skip_end_line(it);
-			
-//			this->print_header();
 			return (it);
 		}
 

@@ -96,7 +96,7 @@ class Response
 			this->set_body(ResponseBody(this->request, this->get_status(),
 			this->get_index(), this->get_index_path(), this->get_status_message(),
 			this->get_server(), this->get_location()));
-			this->header.set_content_length(this->find_content_length());
+			this->header.set_content_length(this->get_body().get_content_length());
 			this->set_response(this->create_response());
 		}
 
