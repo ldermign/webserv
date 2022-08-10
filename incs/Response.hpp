@@ -466,6 +466,16 @@ class Response
 						this->get_request().get_method()) != methods_allowed.end());
 		}
 
+		bool	check_cgi(void)
+		{
+			if (this->get_index() && !this->get_ext(this->get_index_path()).compare(".php"))
+			{
+				return (!this->get_location().second.getCgi().first.compare(".php")
+						&& this->is_dir(this->get_location().second.getCgi().second));
+			}
+			return (true);
+		}
+
 		int		create_status(Request const & request)
 		{
 			if (!request.get_format() || this->location.first == false)
@@ -476,6 +486,8 @@ class Response
 				return (405);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
+			else if (!this->check_cgi())
+				return (500);
 			else if (!this->index && (!this->location.second.getAutoindex() ||
 						(this->location.second.getAutoindex() &&
 						 (!this->is_dir(this->get_index_path())

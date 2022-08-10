@@ -12,6 +12,7 @@
 
 #include "Request.hpp"
 #include "ResponseHeader.hpp"
+#include "Location.hpp"
 
 class Cgi
 {
@@ -48,7 +49,7 @@ class Cgi
 			this->set_envp(rhs.get_envp());
 		}
 
-		Cgi(std::string const & script_path, Request const & request) : request(request)
+		Cgi(std::string const & script_path, Request const & request, Location const & location) : request(request), location(location)
 		{
 			this->set_cgi_env(this->init_cgi_env("200", request.get_method(),
 						script_path, request));
@@ -72,7 +73,7 @@ class Cgi
 			return (content);
 		}
 
-		std::string		exec_script(void) const
+		std::string		exec_script(void)
 		{
 			int				pid;
 			char			**argv = NULL;
@@ -95,8 +96,8 @@ class Cgi
 				dup2(std_streams_fds[0], 0);
 				dup2(std_streams_fds[1], 1);
 				dup2(std_streams_fds[2], 2);
-				execve("/usr/bin/php-cgi", argv, this->get_envp());
-				std::cerr << "error: cannot execute cgi" << std::endl;
+				execve((this->get_location().getCgi().second + "php-cgi").c_str(), argv, this->get_envp());
+				std::cout << "error: cannot execute cgi" << std::endl;
 				exit(0);
 			}
 			wait(NULL);
@@ -113,6 +114,11 @@ class Cgi
 		Request									get_request(void) const
 		{
 			return (this->request);
+		}
+
+		Location								get_location(void) const
+		{
+			return (this->location);
 		}
 
 		std::map<std::string, std::string>		get_cgi_env(void) const
@@ -132,6 +138,11 @@ class Cgi
 			this->request = request;
 		}
 
+		void		set_location(Location const & location)
+		{
+			this->location = location;
+		}
+
 		void		set_cgi_env(std::map<std::string, std::string> const & cgi_env)
 		{
 			this->cgi_env = cgi_env;
@@ -148,6 +159,7 @@ class Cgi
 		// environment variables
 
 		Request									request;
+		Location								location;
 
 		std::map<std::string, std::string>		cgi_env;
 

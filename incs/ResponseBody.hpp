@@ -75,7 +75,7 @@ class ResponseBody
 
 		std::string		execute_cgi(std::string const & script_path)
 		{
-			Cgi				cgi(script_path, this->get_request());
+			Cgi				cgi(script_path, this->get_request(), this->get_location().second);
 
 			return (cgi.exec_script());
 		}
