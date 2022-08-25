@@ -122,7 +122,7 @@ class ResponseBody
 			}
 			else
 			{
-				body = this->create_error_response_code();
+				body = this->create_error_response();
 			}
 			this->set_content_length(body.length());
 			return (body);
@@ -276,7 +276,7 @@ class ResponseBody
 						status) != this->redirection_status.end());
 		}
 
-		std::string		create_error_response_code(void)
+		std::string		create_default_error_response(void)
 		{
 			std::stringstream		ss;
 
@@ -290,6 +290,42 @@ class ResponseBody
 			ss << "</body>" << END_RES_LINE;
 			ss << "</html>" << END_RES_LINE;
 			return (ss.str());
+		}
+
+		std::pair<int, std::string> find_error_personalized(void)
+		{
+			std::vector<std::pair<int, std::string> >		error_page = this->server.getErrorPage();
+			std::pair<int, std::string>						not_found;
+
+			for (std::vector<std::pair<int, std::string> >::const_iterator it = error_page.begin();
+					it != error_page.end(); ++it)
+			{
+				if (it->first == this->get_status())
+					return (*it);
+			}
+			not_found.first = -1;
+			return (not_found);
+		}
+
+		std::string		create_error_response(void)
+		{
+			std::string						error_response;
+			std::pair<int, std::string>		error_page;
+
+			error_page = find_error_personalized();
+			if (error_page.first != -1)
+			{
+				std::ifstream		ifs(error_page.second.c_str());
+				std::string			line;
+
+				while (std::getline(ifs, line))
+				{
+					error_response.append(line + '\n');
+				}
+			}
+			else
+				error_response = create_default_error_response();
+			return (error_response);
 		}
 
 		std::string		delete_success(void) const
