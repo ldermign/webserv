@@ -73,6 +73,15 @@ class Cgi
 			return (content);
 		}
 
+		std::string			create_exe_name(void)
+		{
+			std::string		php_exe = "php-cgi";
+
+			if (*(this->location.getCgi().second.end() - 1) != '/')
+				php_exe.insert(php_exe.begin(), '/');
+			return (php_exe);
+		}
+
 		std::string		exec_script(void)
 		{
 			int				pid;
@@ -96,7 +105,7 @@ class Cgi
 				dup2(std_streams_fds[0], 0);
 				dup2(std_streams_fds[1], 1);
 				dup2(std_streams_fds[2], 2);
-				execve((this->get_location().getCgi().second + "php-cgi").c_str(), argv, this->get_envp());
+				execve((this->get_location().getCgi().second + create_exe_name()).c_str(), argv, this->get_envp());
 				std::cout << "error: cannot execute cgi" << std::endl;
 				exit(0);
 			}

@@ -80,6 +80,16 @@ class ResponseBody
 			return (cgi.exec_script());
 		}
 
+		bool	check_cgi(void)
+		{
+			if (this->get_index() && !this->get_ext(this->get_index_path()).compare(".php"))
+			{
+				return (!this->get_location().second.getCgi().first.compare(".php")
+						&& this->is_dir(this->get_location().second.getCgi().second));
+			}
+			return (true);
+		}
+
 		std::string		create_body(void)
 		{
 			std::string			body;
@@ -90,9 +100,10 @@ class ResponseBody
 					&& !this->is_redirection(this->location.second.getReturnCode()))
 				body = this->location.second.getReturnPath();
 			else if ((this->get_status() == 200 && !this->location.second.getAutoindex())
-					|| ((this->get_status() == 200 || this->get_status() == 404) &&
+					|| ((this->get_status() == 200 || (this->get_status() == 404 && !check_cgi())) &&
 						this->location.second.getAutoindex() && this->index &&
-						!this->is_redirection(this->location.second.getReturnCode())))
+						!this->is_redirection(this->location.second.getReturnCode()))
+					|| (this->get_status() == 200 && check_cgi() && !this->get_ext(this->get_index_path()).compare(".php")))
 			{
 				std::ifstream		ifs(this->get_index_path().c_str());
 				std::string			line;
@@ -110,7 +121,9 @@ class ResponseBody
 				body = this->autoindex.create_autoindex();
 			}
 			else
+			{
 				body = this->create_error_response_code();
+			}
 			this->set_content_length(body.length());
 			return (body);
 		}

@@ -360,7 +360,7 @@ class Response
 					|| (this->get_status() == 200 && this->is_dir(this->location.second.getRoot())
 						&& this->location.second.getAutoindex() &&
 						this->is_dir(this->get_index_path())) || !ext.compare(".html")
-							|| !ext.compare(".php"))
+							|| (!ext.compare(".php") && this->check_cgi()))
 			{
 				return ("text/html");
 			}
@@ -473,6 +473,18 @@ class Response
 				return (!this->get_location().second.getCgi().first.compare(".php")
 						&& this->is_dir(this->get_location().second.getCgi().second));
 			}
+			return (false);
+		}
+
+		bool	php_cgi_exist(void)
+		{
+			std::string		php_exe = "php-cgi";
+
+			if (*(this->location.second.getCgi().second.end() - 1) != '/')
+				php_exe.insert(php_exe.begin(), '/');
+
+			if (!is_file(this->location.second.getCgi().second + php_exe))
+				return (false);
 			return (true);
 		}
 
@@ -486,13 +498,14 @@ class Response
 				return (405);
 			else if (this->location.second.getReturnCode())
 				return (this->location.second.getReturnCode());
-			else if (!this->check_cgi())
-				return (500);
-			else if (!this->index && (!this->location.second.getAutoindex() ||
+			else if ((!this->index && (!this->location.second.getAutoindex() ||
 						(this->location.second.getAutoindex() &&
 						 (!this->is_dir(this->get_index_path())
 						  || !this->get_request().get_method().compare("DELETE")))))
+						|| (check_cgi() && !php_cgi_exist()))
+			{
 				return (404);
+			}
 			return (200);
 		}
 
