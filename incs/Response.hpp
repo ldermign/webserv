@@ -362,7 +362,7 @@ class Response
 						this->is_dir(this->get_index_path())) || !ext.compare(".html")
 							|| (!ext.compare(".php") && this->check_cgi()))
 			{
-				return ("text/html");
+				return ("text/html; charset=utf-8");
 			}
 			else if (ext == ".css")
 				return ("text/css");
@@ -372,12 +372,18 @@ class Response
 				return ("text/plain");
 			else if (ext == ".gif")
 				return ("image/gif");
-			else if (ext == ".jpeg")
+			else if (ext == ".jpeg" || ext == ".jpg")
 				return ("image/jpeg");
 			else if (ext == ".png")
 				return ("image/png");
 			else if (ext == ".svg")
 				return ("image/svg+xml");
+			else if (ext == ".pdf")
+					return ("application/pdf");
+			else if (ext == ".json")
+					return ("application/json");
+			else if (ext == ".ogg")
+					return ("application/ogg");
 			return ("application/octet-stream");
 		}
 
