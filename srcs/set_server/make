@@ -104,24 +104,22 @@ Request				Socket::create_request(std::string & message)
 	return (request);
 }
 
-bool				got_a_body(std::string str)
-{
-	str = str.substr(0, str.size() - 1);
-	return	(str.find("\r\n\r\n") != std::string::npos) ? true : false;
-}
-
 bool				is_the_end(std::string &s1)
 {
 	if (!std::strcmp(s1.c_str(), "\r\n") || !std::strcmp(s1.c_str(), "\n"))
 		return true;
+	std::cout << "2 ames" << std::endl;
 	const char	*str = s1.c_str();
 	size_t		var_i = s1.size() - 1;
 	while ((str[var_i] == '\n' || str[var_i] == '\r') && var_i > 0)
 		var_i --;
 	var_i++;
+	size_t it = var_i;
+	while (str[it] != 0)
+		std::cout << "voici" << (int)str[it++] << std::endl;
 	if (!std::strncmp(str + var_i, "\n\r\n", 3) || !std::strcmp(str + var_i, "\n\n") || !std::strncmp(str + var_i, "\r\n\n", 3) || !std::strncmp(str + var_i, "\r\n\r\n", 4))
 		return true;
-	return false or got_a_body(s1);
+	return false;
 }
 
 void				Socket::_receive_body(Response re, size_t &nbytes_content_length)
@@ -141,6 +139,11 @@ void				Socket::_receive_body(Response re, size_t &nbytes_content_length)
 	return ;
 }
 
+bool				got_a_body(std::string str)
+{
+	str = str.substr(0, str.size() - 1);
+	return	(str.find("\r\n\r\n") != std::string::npos) ? true : false;
+}
 
 void				Socket::receive_message(void)
 {
