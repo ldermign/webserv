@@ -58,7 +58,7 @@ void				Socket::send_message(void)
 	ret_func = send(_fd, _message.c_str(), _message.size(), 0);
 	std::cout << "SEND to "<< get_fd() <<" : \n" << BLUE << get_message() << RESET << std::endl;
 	_message = "";
-	if (ret_func == -1)
+	if (ret_func == -1 || ret_func == 0)
 		throw exp;
 	_flag = RECV;
 }

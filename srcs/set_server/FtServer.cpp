@@ -122,6 +122,14 @@ void					FtServer::_action_socket(void)
 
 	for (std::vector<Socket>::iterator it = _fds.begin(); it != _fds.end(); it++)
 	{
+		if (FD_ISSET(it->get_fd(), &_set[2]))
+		{
+			std::cerr << "client " << it->get_fd() << " returned an error" << std::endl;
+			Socket	fd = *it;
+			buff_rem.push_back(fd);
+			it->destroy();
+			continue;
+		}
 		if (it->get_flag() == ACCEPT && FD_ISSET(it->get_fd(), &_set[0]))
 		{
 			Socket	fd = it->accept_new_socket();
