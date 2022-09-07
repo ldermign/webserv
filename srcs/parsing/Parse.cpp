@@ -352,9 +352,16 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	
 	std::string file = it->c_str();
 	i = 0;
+	if (std::isdigit(file[i])) {
+		int nbr = atoi(it->c_str());
+		if (nbr < 100 || nbr > 599)
+			throw Parse::BadDirectiveErrorPage();
+	}
 	while (file[i]) {
 		if (!std::isdigit(file[i]))
-				throw Parse::BadDirectiveErrorPage();
+			throw Parse::BadDirectiveErrorPage();
+		if (i >= 3)
+			throw Parse::BadDirectiveErrorPage();
 		i++;
 	}
 
