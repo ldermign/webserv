@@ -13,7 +13,7 @@ class FtServer
 		in_addr_t				_domain;
 		std::string				_name;
 		fd_set					_set[3];
-		const Server				_data;
+		Server					_data;
 		void					_create_main_socket(void);
 		void					_bind_main_socket(void);
 		void					_select_socket(void);
@@ -28,4 +28,5 @@ class FtServer
 		const FtServer& operator=(const FtServer& fs);
 		const int		&get_main_fd(void) const;
 		int				main_loop(void);
+		void			destroy_me(void);
 };

@@ -13,13 +13,14 @@ class Socket
 		std::string				_message;
 		int						_flag;
 		bool					_still_connected;
-		const Server			_data_server;
+		Server					_data_server;
+		size_t					_client_max;
 
 		void					_receive_body(Response re, size_t& nbytes_content_length);
 
 	public :
 		Socket(void);
-		Socket(int fd, struct sockaddr data, int flag, const Server &data_server);
+		Socket(int fd, struct sockaddr data, int flag, Server &data_server);
 		Socket& operator=(const Socket& fc);
 		~Socket(void);
 		bool				still_connected(void) const;
