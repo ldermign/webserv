@@ -43,7 +43,7 @@ public:
 	int			dirGetMethods( std::vector< std::string >::iterator it );
 	int			dirReturn( std::vector< std::string >::iterator it );
 	int			dirRoot( std::vector< std::string >::iterator it );
-	int			dirIndex( std::vector< std::string >::iterator it );
+	int			dirIndex( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last );
 	int			dirAutoindex( std::vector< std::string >::iterator it );
 	int			dirCgi( std::vector< std::string >::iterator it );
 	int			dirDownload( std::vector< std::string >::iterator it );
