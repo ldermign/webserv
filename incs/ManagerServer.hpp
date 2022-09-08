@@ -27,9 +27,9 @@ class ManagerServer
 		{
 			if (_all_servers.size() < 1)
 				return ;
-			time_t t = time(NULL) + 10;
-			while (time(NULL) < t)
-		//	while (true)
+		//	time_t t = time(NULL) + 10;
+		//	while (time(NULL) < t)
+			while (true)
 			{
 				for (std::vector<FtServer>::iterator it = _all_servers.begin(); it < _all_servers.end(); it++)
 					it->main_loop();	
