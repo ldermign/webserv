@@ -91,7 +91,13 @@ int		main(int argc, char **argv)
 	allConfig.checkAll(argv[1]);
 	std::vector< Server >	allServ = allConfig.getVectorServers();
 	printAllServer(allServ);
-	ManagerServer	ms(allServ);
-	ms.main_loop();
-	return 0;
+	try {
+		ManagerServer	ms(allServ);
+		ms.main_loop();
+	} catch (std::exception &e)
+	{
+	    std::cout << RED << "error occured while initialization of a server : " << e.what() << RESET << std::endl;
+	    std::cout << "Quit" << std::endl;
+	}
+	return 1;
 }

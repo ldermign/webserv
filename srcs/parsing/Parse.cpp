@@ -643,6 +643,7 @@ void	Parse::checkAllDirectives( void ) {
 				else if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
 				{
 					std::cout << "ca marche pas en fait la [" << *it << "]" << std::endl;
+
 					throw Parse::WrongInfo();
 				}
 				for (int i = 0 ; it < this->_args.end() && i < ret ; i++)

@@ -7,7 +7,7 @@
 
 
 FtServer::FtServer(void) :	_main_socket_fd(-1),
-							_port(htons(1234)),
+							_port(htons(5)),
 							_domain(INADDR_ANY),
 							_name ("Jose"),
 							_set(),
@@ -177,6 +177,17 @@ void					FtServer::_action_socket(void)
 		}
 	}
 	_fds.insert(_fds.end(), buff_add.begin(), buff_add.end());
+}
+
+void				FtServer::destroy_me(void)
+{
+	if (_main_socket_fd != -1)
+		close(_main_socket_fd);
+	for (std::vector<Socket>::iterator it = _fds.begin(); it < _fds.end(); it++)
+	{
+		if (it->get_fd() > -1)
+			close(it->get_fd());
+	}
 }
 
 int					FtServer::main_loop(void)
