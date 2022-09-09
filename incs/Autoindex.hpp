@@ -80,6 +80,7 @@ class Autoindex
 				ss << "<h1>Index of " << this->get_request().get_source() << "</h1><hr><pre>" << END_RES_LINE;
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
+					std::cout << "FIRST = " << it->first << std::endl;
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
 					ss << "<a href=" << this->link_autoindex(it->first) << ">";
@@ -114,6 +115,18 @@ class Autoindex
 		Request				request;
 		std::string			index_path;
 
+		std::string			replace_special_char(std::string elem_name) const
+		{
+			//int		hex_value;
+
+			for (std::string::iterator it = elem_name.begin(); it != elem_name.end(); ++it)
+			{
+				if (elem_name.find("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_") == std::string::npos)
+					elem_name.replace(it, it, 1, 'c');
+			}
+			return (elem_name);
+		}
+
 		std::map<std::string, FileData>			get_content_dir(std::string const & dir_name) const
 		{
 			std::map<std::string, FileData>		content_dir;
@@ -127,7 +140,7 @@ class Autoindex
 				{
 					FileData					file(dir_name, diread->d_name);
 
-					content_dir[diread->d_name] = file;
+					content_dir[replace_special_char(diread->d_name)] = file;
 				}
 			}
 			return (content_dir);
