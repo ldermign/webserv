@@ -88,9 +88,13 @@ int		main(int argc, char **argv)
 	}
 
 	Config allConfig;
-	allConfig.checkAll(argv[1]);
-	std::vector< Server >	allServ = allConfig.getVectorServers();
-	printAllServer(allServ);
+	std::vector< Server > allServ;
+	try {
+		allConfig.checkAll(argv[1]);
+		allServ = allConfig.getVectorServers();
+		printAllServer(allServ);
+	}
+	catch (std::exception &e) {}
 	try {
 		ManagerServer	ms(allServ);
 		ms.main_loop();
