@@ -330,6 +330,7 @@ class Response
 			status_messages[403] = "403 Forbidden";
 			status_messages[404] = "404 Not Found";
 			status_messages[405] = "405 Method Not Allowed";
+			status_messages[413] = "413 Payload Too Large";
 			status_messages[500] = "500 Internal Server status";
 			status_messages[502] = "502 Bad Gateway";
 			status_messages[503] = "503 Service Unavailable";
@@ -494,6 +495,11 @@ class Response
 			return (true);
 		}
 
+		bool	is_body_too_large(void)
+		{
+			return (this->get_request().get_body().size() > this->get_server().getClient());
+		}
+
 		int		create_status(Request const & request)
 		{
 			if (!request.get_format() || this->location.first == false)
@@ -512,6 +518,8 @@ class Response
 			{
 				return (404);
 			}
+			else if (this->is_body_too_large())
+				return (413);
 			return (200);
 		}
 
