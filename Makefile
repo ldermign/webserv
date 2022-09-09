@@ -33,7 +33,7 @@ DEPS		= ${SRCS:%.cpp=${OBJSDIR}%.d}
 
 CC			= c++
 
-CFLAGS		= -Wall  -Wextra -Werror --std=c++98 -I ${INCSDIR} -g3 -fsanitize=address
+CFLAGS		= -Wall  -Wextra -Werror --std=c++98 -I ${INCSDIR}# -g3 -fsanitize=address
 
 RM			= rm -rf
 

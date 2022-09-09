@@ -330,6 +330,7 @@ class Response
 			status_messages[403] = "403 Forbidden";
 			status_messages[404] = "404 Not Found";
 			status_messages[405] = "405 Method Not Allowed";
+			status_messages[413] = "413 Payload Too Large";
 			status_messages[500] = "500 Internal Server status";
 			status_messages[502] = "502 Bad Gateway";
 			status_messages[503] = "503 Service Unavailable";
@@ -362,7 +363,7 @@ class Response
 						this->is_dir(this->get_index_path())) || !ext.compare(".html")
 							|| (!ext.compare(".php") && this->check_cgi()))
 			{
-				return ("text/html");
+				return ("text/html; charset=utf-8");
 			}
 			else if (ext == ".css")
 				return ("text/css");
@@ -372,12 +373,18 @@ class Response
 				return ("text/plain");
 			else if (ext == ".gif")
 				return ("image/gif");
-			else if (ext == ".jpeg")
+			else if (ext == ".jpeg" || ext == ".jpg")
 				return ("image/jpeg");
 			else if (ext == ".png")
 				return ("image/png");
 			else if (ext == ".svg")
 				return ("image/svg+xml");
+			else if (ext == ".pdf")
+					return ("application/pdf");
+			else if (ext == ".json")
+					return ("application/json");
+			else if (ext == ".ogg")
+					return ("application/ogg");
 			return ("application/octet-stream");
 		}
 
@@ -488,6 +495,11 @@ class Response
 			return (true);
 		}
 
+		bool	is_body_too_large(void)
+		{
+			return (this->get_request().get_body().size() > this->get_server().getClient());
+		}
+
 		int		create_status(Request const & request)
 		{
 			if (!request.get_format() || this->location.first == false)
@@ -506,6 +518,8 @@ class Response
 			{
 				return (404);
 			}
+			else if (this->is_body_too_large())
+				return (413);
 			return (200);
 		}
 
