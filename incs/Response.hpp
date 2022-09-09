@@ -520,7 +520,8 @@ class Response
 			}
 			else if (this->is_body_too_large())
 				return (413);
-			return (200);
+			else
+				return (200);
 		}
 
 		bool	is_dir(std::string const & path) const

@@ -80,7 +80,6 @@ class Autoindex
 				ss << "<h1>Index of " << this->get_request().get_source() << "</h1><hr><pre>" << END_RES_LINE;
 				for (std::map<std::string, FileData>::iterator it = content.begin(); it != content.end(); ++it)
 				{
-					std::cout << "FIRST = " << it->first << std::endl;
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
 					ss << "<a href=" << this->link_autoindex(it->first) << ">";
