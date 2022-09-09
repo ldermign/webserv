@@ -10,16 +10,17 @@
  * 				-> permet de faire le lien entre le server et les fonctions de traitemetn de requetes
 */
 
-Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server(Server())
+Socket::Socket(void) : _fd(-1), _data(), _message(""), _flag(NONE), _still_connected(false), _data_server(Server()), _client_max(0)
 {
 	std::cout << "empty socket was created" << std::endl;
 }
-Socket::Socket(int fd, struct sockaddr data, int flag, const Server &data_server) :	_fd(fd),
-																					_data(data),
-																					_message(""),
-																					_flag(flag),
-																					_still_connected(false),
-																					_data_server(data_server)
+Socket::Socket(int fd, struct sockaddr data, int flag, Server &data_server) :	_fd(fd),
+																				_data(data),
+																				_message(""),
+																				_flag(flag),
+																				_still_connected(false),
+																				_data_server(data_server),
+																				_client_max(data_server.getClient())
 {}
 Socket& Socket::operator=(const Socket& fc)
 {
@@ -154,7 +155,6 @@ void				Socket::receive_message(void)
 	Response		response;
 	Request				request;
 	
-	std::cout << RED << "I got to receive " << RESET << std::endl;
 	if (nbytes_content_length)
 	{
 		_receive_body(response, nbytes_content_length);
@@ -167,13 +167,14 @@ void				Socket::receive_message(void)
 		s1.append(buff.begin(), buff.begin() + ret_func);
 		first_time = false;
 		std::cout << "size of s1 -> " << s1.size() << std::endl;
-		std::cout << "s1 -> " << s1 << std::endl;
+		if (ret_func == BUFF_SIZE)
+			return ;
+		//std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
 	if (is_the_end(s1) || is_in_body_fill)
 	{
-		std::cout << YELLOW << "RECV"<< get_fd() <<" : \n" << YELLOW << get_message()<< RESET << std::endl << std::endl;
 		if (not is_in_body_fill)
 			_message.append(buff.begin(), buff.begin() + ret_func);
 		first_time = true;

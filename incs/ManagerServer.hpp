@@ -16,17 +16,10 @@ class ManagerServer
 			for (std::vector<Server>::iterator it = _all_data.begin(); it < _all_data.end(); it++)
 			{
 				 std::string	name(*(it->getServerName().begin()));
-				//std::cout << "this new serv details : name -> " << name << ", host -> " << it->getHost() << ", port -> " << it->getPort() << std::endl;
-				 in_addr_t	domain = inet_addr(it->getHost().c_str());
-				 u_short		port = htons(it->getPort());
-				 try {
-				 	FtServer	serv(name, domain, port, *it);
-				 	_all_servers.push_back(serv);
-				 } catch (std::exception &e)
-				 {
-					 std::cout << "error occured while initialization of " << name << ": " << e.what() << std::endl;
-					 continue ;
-				 }
+					 in_addr_t	domain = inet_addr(it->getHost().c_str());
+					 u_short		port = htons(it->getPort());
+					 FtServer	serv(name, domain, port, *it);
+					 _all_servers.push_back(serv);
 			}
 		}
 	public :
@@ -34,6 +27,8 @@ class ManagerServer
 		{
 			if (_all_servers.size() < 1)
 				return ;
+		//	time_t t = time(NULL) + 10;
+		//	while (time(NULL) < t)
 			while (true)
 			{
 				for (std::vector<FtServer>::iterator it = _all_servers.begin(); it < _all_servers.end(); it++)
@@ -49,7 +44,12 @@ class ManagerServer
 		std::cout << "nothing will append with this manager of server" << std::endl;
 	}
 	~ManagerServer(void)
-	{}
+	{
+		for (std::vector<FtServer>::iterator ite = _all_servers.begin(); ite < _all_servers.end(); ite++)
+		{
+			ite->destroy_me();
+		}
+	}
 	ManagerServer&	operator=(const ManagerServer &ma)
 	{
 		(void)ma;
