@@ -14,10 +14,9 @@
 #include <cstdlib>
 #include "Parse.hpp"
 
-
 void	Parse::checkFileAllTogether( void ) {
 
-	std::vector< std::string >::iterator	it;	// declare an iterator to a vector of strings
+	std::vector< std::string >::iterator	it;
 	int bracket = 0;
 	int server = 0;
 
@@ -53,7 +52,6 @@ void	Parse::checkFileAllTogether( void ) {
 	else if (server == 0)
 		throw Parse::NbrServer();
 
-	// std::string error_msg = "Error line [ ~~~ " + *it + " ~~~ ]";
 }
 
 void	Parse::checkFileName( void ) {
@@ -154,14 +152,11 @@ void	Parse::setArgsFile( void ) {
 		}
 		*it++;
 	}
-	// for (unsigned long i = 0 ; i < this->_args.size() ; i++)
-	// 	std::cout << "[" << this->_args[i] << "]" << std::endl;
-
 }
 
 void	Parse::checkNothingOut( void ) {
 
-	std::vector< std::string >::iterator	it;	// declare an iterator to a vector of strings
+	std::vector< std::string >::iterator	it;
 	int bracket = 0;
 	int server = 0;
 
@@ -238,6 +233,8 @@ int	Parse::dirServerName( std::vector< std::string >::iterator it ) {
 	*it++;
 	while (*it != ";") {
 
+		if (*it == "}")
+			throw Parse::BadDirectiveServerName();
 		for (int i = 0 ; tmp[i] ; i++) {
 			if (isupper(tmp[i]))
 				throw Parse::BadDirectiveServerName();
@@ -251,15 +248,17 @@ int	Parse::dirServerName( std::vector< std::string >::iterator it ) {
 
 int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 
-	// std::cout << "listen" << std::endl;
-
-
 	int i = 0, len = 0;
 	std::vector< std::string >	args;
 	
 	int ret = 0;
-	while (it[ret] != ";")
+	while (it[ret] != ";") {
+		if (ret == 4)
+			throw Parse::BadDirectiveListen();
 		ret++;
+	}
+	if (ret < 1)
+		throw Parse::BadDirectiveListen();
 
 	*it++;
 	std::string tmp, tmp2;
@@ -286,16 +285,8 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 		*it++;
 	}
 
-	// for (unsigned int i = 0 ; i < args.size() ; i++)
-	// 	std::cout << "[" << args[i] << "]" << std::endl;
-
-	// std::cout << args.size() << std::endl;
-
 	if (args.size() <= 0 || args.size() > 3 || (args.size() == 3 && args.back() != "default_server"))
-	{
-		// std::cout << args.size() << "\n";
 		throw Parse::BadDirectiveListen();
-	}
 	else if (args.size() == 1 && args[0] != "default_server"
 		&& wrongIP(args[0]) == EXIT_FAILURE
 		&& wrongPort(args[0]) == EXIT_FAILURE)
@@ -337,17 +328,12 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 
 	int ret = 0, i = 0;
 	
-	// std::cout << *it << std::endl;
 	*it++;
-		// std::cout << *it << std::endl;
 
-	while (it[ret] != ";")
+	while (it[ret] != ";") {
+		if (ret == 2)
+			throw std::runtime_error("Missing one ; at directive error_page.");
 		ret++;
-
-	if (ret != 2)
-	{
-		// std::cout << "pas assez arg" << std::endl;
-		throw Parse::BadDirectiveErrorPage();
 	}
 	
 	std::string file = it->c_str();
@@ -365,10 +351,8 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 		i++;
 	}
 
-
 	*it++;
 
-	// std::cout << *it << std::endl;
 	std::ifstream tmp;
 	std::string str = it->c_str();
 	tmp.open(str.c_str());
@@ -380,7 +364,6 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 		bool empty = (tmp.get(), tmp.eof());
 		if (empty) {
 			tmp.close();
-			// std::cout << str << std::endl;
 			throw Parse::BadDirectiveErrorPage();
 		}
 	}
@@ -396,8 +379,11 @@ int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
 	std::string	one, two, three;
 	
 	*it++;
-	while (it[len] != ";")
+	while (it[len] != ";") {
+		if (len == 3)
+			throw Parse::BadDirectiveMethods();
 		len++;
+	}
 	if (len < 1 || len > 3)
 		throw Parse::BadDirectiveMethods();
 	one = *it;
@@ -413,9 +399,6 @@ int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
 		*it++;
 		ret++;
 	}
-
-	
-	// std::cout << len << "\t\t\t\tone = " << one << " two = [" << two << "] three = " << three << std::endl;
 	
 	if ((one != "GET" && one != "POST" && one != "DELETE")
 		|| (len > 1 && two != "GET" && two != "POST" && two != "DELETE")
@@ -447,20 +430,22 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 		ret++;
 	}
 	
-		// if (file.substr())
-		//checker ici que c'est les bons chiffres pour le code
+	{
+		int tmp = atoi(it->c_str());
+		if (tmp < 100 || tmp > 599)
+			throw Parse::BadDirectiveReturn();
+	}
 
 	*it++;
 
 	std::ifstream tmp;
-	str = this->_locationTmp + it->c_str();
+	str = it->c_str();
 	tmp.open(str.c_str());
-	// if (tmp.fail())
-	// {
-	// 	std::cout << str << std::endl;
-	// 	throw Parse::BadDirectiveReturn();
-	// }
-
+	if (tmp.fail())
+	{
+		std::cout << str << std::endl;
+		throw Parse::BadDirectiveReturn();
+	}
 	{
 		bool empty = (tmp.get(), tmp.eof());
 		if (empty) {
@@ -495,20 +480,17 @@ int	Parse::dirRoot( std::vector< std::string >::iterator it ) {
 	return 3;
 }
 
-int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
+int	Parse::dirIndex( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last ) {
 	
 	int ret = 1;
 	std::string tmp;
 
-	*it++;
-	while (*it != ";") {
+	if (it != last)
+		*it++;
+	while (it != last && *it != ";") {
 
-		// {
-		// 	tmp = this->_locationTmp + it->c_str();
-		// 	struct stat buffer;
-		// 	if (stat(&(tmp[0]), &buffer) != 0 && 999999999999 == 999999999999999991)
-		// 		throw std::runtime_error("Wrong directory in directive index.");
-		// }
+		if (*it == "}")
+			throw std::runtime_error("Wrong info in directive index.");
 		*it++;
 		ret++;
 	}
@@ -519,9 +501,11 @@ int	Parse::dirIndex( std::vector< std::string >::iterator it ) {
 int	Parse::dirAutoindex( std::vector< std::string >::iterator it ) {
 
 	*it++;
-
 	if (*it != "on" && *it != "off")
 		throw Parse::BadDirectiveAutoindex();
+	*it++;
+	if (*it != ";")
+			throw std::runtime_error("Missing one ; at directive autoindex.");
 
 	return 3;
 
@@ -537,30 +521,24 @@ int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 			throw std::runtime_error("Missing one ; at directive cgi.");
 		ret++;
 	}
-	if (ret == 1)
+	if (ret == 1) {
+		std::cout << "ret == 1" << std::endl;
 		throw Parse::BadDirectiveCgi();
+	}
 	
 	{
 		std::string tmp = it->c_str();
-		if (tmp[0] != '.')
+		if (tmp != ".php")
 			throw Parse::BadDirectiveCgi();
 	}
 
 	*it++;
-	std::ifstream tmp;
-	std::string str = this->_locationTmp + it->c_str();
-	tmp.open(str.c_str());
-	if (tmp.fail())
-		throw Parse::BadDirectiveCgi();
-	
+
 	{
-		bool empty = (tmp.get(), tmp.eof());
-		if (empty) {
-			tmp.close();
-			throw Parse::BadDirectiveCgi();
-		}
+		struct stat buffer;
+		if (stat(it->c_str(), &buffer) != 0)
+			throw std::runtime_error("Wrong directory in directive download.");
 	}
-	tmp.close();
 
 	return 4;
 }
@@ -595,36 +573,36 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 	*it++;
 	if (*it == "{")
 		throw std::runtime_error("Missing path in directive location.");
-	{
-		struct stat buffer;
-		if (stat(it->c_str(), &buffer) != 0 && 1 == 2)
-    		throw std::runtime_error("Wrong directory in directive location.");
-	}
+	// {
+	// 	struct stat buffer;
+	// 	if (stat(it->c_str(), &buffer) != 0 && 1 == 2)
+    // 		throw std::runtime_error("Wrong directory in directive location.");
+	// }
 
 	this->_locationTmp = *it;
 	*it++;
 	if (*it != "{")
 		throw Parse::BadDirectiveLocation();
 	*it++;
-	// std::cout << *it << std::endl;
 
 	while (it != last && *it != "}") {
 
-		// std::cout << *it << std::endl;
+		std::cout << *it << std::endl;
 		if (*it == "get_methods")
 			len = this->dirGetMethods(it);
-		else if (*it == "return")
-			len = this->dirReturn(it);
+
 		else if (*it == "root")
 			len = this->dirRoot(it);
 		else if (*it == "index")
-			len = this->dirIndex(it);
+			len = this->dirIndex(it, last);
 		else if (*it == "autoindex")
 			len = this->dirAutoindex(it);
 		else if (*it == "cgi")
 			len = this->dirCgi(it);
 		else if (*it == "download")
 			len = this->dirDownload(it);
+		else if (*it == "return")
+			len = this->dirReturn(it);
 		else
 			throw Parse::BadDirectiveLocation();
 		ret += len;
@@ -632,7 +610,6 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 			*it++;
 	}
 	
-	// std::cout << "ici " << *it << std::endl;
 	return ret + 1;
 }
 
@@ -644,13 +621,15 @@ void	Parse::checkAllDirectives( void ) {
 	it = this->_args.begin();
 	while (it < this->_args.end()) {
 
-		if (*it == "server") {
+		if (it != this->_args.end() && *it == "server") {
 			
-			*it++;
-			*it++;
-			while (it < this->_args.end() && *it != "server") {
+			if (it < this->_args.end())
+				*it++;
+			if (it < this->_args.end())
+				*it++;
+			while (it != this->_args.end() && *it != "server") {
 
-				// std::cout << *it << std::endl;
+				std::cout << *it << std::endl;
 				if (*it == "server_name")
 					ret = this->dirServerName(it);
 				else if (*it == "listen")
@@ -663,7 +642,8 @@ void	Parse::checkAllDirectives( void ) {
 					ret = this->dirLocation(it, this->_args.end());
 				else if (it < this->_args.end() && *it != "{" && *it != "}" && *it != "server")
 				{
-					std::cout << "ca marche pas en fait la " << *it << std::endl;
+					std::cout << "ca marche pas en fait la [" << *it << "]" << std::endl;
+
 					throw Parse::WrongInfo();
 				}
 				for (int i = 0 ; it < this->_args.end() && i < ret ; i++)
