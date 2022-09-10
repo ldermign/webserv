@@ -30,7 +30,6 @@ class Request
 				it = this->parse_header(it);
 				it = this->parse_body(it);
 				this->parse_upload();
-//				std::cout << "filename = " << this->get_upload_file().first << " file content = "<< this-> get_upload_file().second << std::endl;
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -409,6 +408,41 @@ class Request
 			throw (FormatException());
 		}
 
+		std::string					decode_url(void)
+		{
+			std::string				url_decoded;
+			std::stringstream		ss;
+			std::string				hexa;
+			int						i;
+			char					c;
+
+
+			for (std::string::iterator it = this->source.begin(); it != this->source.end(); ++it)
+			{
+				if (*it == '%')
+				{
+					++it;
+					if (it == this->source.end())
+						break ;
+					hexa.clear();
+					hexa.append(1, *it);
+					++it;
+					if (it == this->source.end())
+						break ;
+					hexa.append(1, *it);
+					ss.str("");
+					ss << std::hex;
+					ss << hexa;
+					ss >> i;
+					c = static_cast<char>(i);
+					url_decoded.append(1, c);
+				}
+				else
+					url_decoded.append(1, *it);
+			}
+			return (url_decoded);
+		}
+
 		std::string::iterator		parse_start_line(void)
 		{
 			std::string::iterator it = this->request.begin();
@@ -423,6 +457,7 @@ class Request
 						break;
 					case 1:
 						it += (this->source = this->read_string_in_request(it, i)).length() + this->get_params().length();
+						this->source = this->decode_url();
 						if (!params.empty())
 							params.erase(params.begin());
 						break;
@@ -475,7 +510,6 @@ class Request
 		size_t						check_boundary(std::pair<std::string, std::string> header)
 		{
 			size_t					size;
-
 			std::string::iterator			it = header.second.begin();
 
 			std::for_each(header.first.begin(), header.first.end(), Lower());
