@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/08/05 11:17:05 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/10 12:25:55 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,7 @@ public:
 
 	Server( void )
 		: _host("0.0.0.0"), _port(80), _serverName(), _defaultServer(0),
-		// _errorCode(0), _errorPath(""), 
-		_errorPage(), _clientMaxBodySize(100), _location() {};
+		_errorPage(), _clientMaxBodySize(-1), _location() {};
 	Server	&operator=( const Server &rhs ) {
 		if (this == &rhs) 
 			return *this;

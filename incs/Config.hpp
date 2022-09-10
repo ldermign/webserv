@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:00:24 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/07 15:13:11 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/10 12:25:31 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 private:
 
 	Parse						_config;
-	std::vector< Server >		_servers; // reference ?
+	std::vector< Server >		_servers;
 
 
 };
