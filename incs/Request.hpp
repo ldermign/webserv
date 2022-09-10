@@ -30,7 +30,7 @@ class Request
 				it = this->parse_header(it);
 				it = this->parse_body(it);
 				this->parse_upload();
-				std::cout << "filename = " << this->get_upload_file().first << " file content = "<< this-> get_upload_file().second << std::endl;
+//				std::cout << "filename = " << this->get_upload_file().first << " file content = "<< this-> get_upload_file().second << std::endl;
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -222,27 +222,56 @@ class Request
 
 		bool					format;
 
-		std::string::iterator		skip_request_line(std::string::iterator it)
+		std::string::iterator		skip_request_line(std::string::iterator it, std::string::iterator const & end)
 		{
-			while (!end_of_request_line(it))
+			while (!end_of_request_line(it) && it != end)
 			{
 				++it;
 			}
+			if (it == end)
+				throw(FormatException());
 			it += 2;
 			return (it);
 		}
 
-		std::string			stock_request_line(std::string::iterator const & it)
+		std::string			stock_request_line(std::string::iterator const & it, std::string::iterator const & end)
 		{
 			std::string					request_line;
 			std::string::iterator		end_it = it;
 
-			while (!end_of_request_line(end_it))
+			while (!end_of_request_line(end_it) && end_it != end)
 			{
 				++end_it;
 			}
+			if (it == end)
+				throw(FormatException());
 			request_line = std::string(it, end_it);
 			return (request_line);
+		}
+
+		std::string		parse_boundary(void)
+		{
+			std::string		boundary;
+			std::string		content_type = this->get_content_type();
+			content_type.append("\r\n");
+			std::string::iterator		it = content_type.begin();
+
+			it += 19;
+			if (*it == ';')
+				++it;
+			else
+				throw (FormatException());
+			it = this->skip_space(it);
+			if (!stock_request_line(it, content_type.end()).compare(0, 9, "boundary="))
+				it += 9;
+			else
+				throw (FormatException());
+			while (!end_of_request_line(it))
+			{
+				boundary.append(1, *it);
+				++it;
+			}
+			return (boundary);
 		}
 
 		void			parse_upload(void)
@@ -250,13 +279,15 @@ class Request
 			std::string::iterator		it = this->body.begin();
 			std::string					content_disposition;
 			std::string					elem_content_dispo;
+			std::string					boundary;
 
 			if (!this->get_content_type().compare(0, 19, "multipart/form-data"))
 			{
+				boundary = parse_boundary();
 				if (this->body.empty())
 					throw (FormatException());
-				it = skip_request_line(it);
-				content_disposition = stock_request_line(it);
+				it = skip_request_line(it, this->body.end());
+				content_disposition = stock_request_line(it, this->body.end());
 				if (!content_disposition.compare(0, 20, "Content-Disposition:"))
 				{
 					it += 20;
@@ -279,11 +310,17 @@ class Request
 				}
 				else
 					throw (FormatException());
-				it = skip_request_line(it);
-				it = skip_request_line(it);
-				if (it == this->body.end())
-					throw (FormatException());
-				this->upload_file.second.append(stock_request_line(it));
+				it = skip_request_line(it, this->body.end());
+				it = skip_request_line(it, this->body.end());
+				while (this->stock_request_line(it, this->body.end()).size() != (boundary.size() + 4) && this->stock_request_line(it, this->body.end()).compare("--" + boundary + "--") && (it + boundary.size() + 4 != body.end()))
+				{
+					if (it == this->body.end())
+					{
+						throw (FormatException());
+					}
+					this->upload_file.second.append(stock_request_line(it, this->body.end()));
+					it = skip_request_line(it, this->body.end());
+				}
 			}
 		}
 

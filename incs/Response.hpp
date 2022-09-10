@@ -270,7 +270,7 @@ class Response
 
 		void	create_upload_file(std::string const & name, std::string const & content)
 		{
-			std::ofstream		upload_file((this->get_location().second.getDownload() + name).c_str());
+			std::ofstream		upload_file((this->get_location().second.getUpload() + name).c_str());
 			upload_file << content;
 			upload_file.close();
 		}
@@ -299,7 +299,6 @@ class Response
 				{
 					if (!this->get_request().get_content_type().compare(0, 19, "multipart/form-data"))
 					{
-						std::cout << "UPLOAD FILE" << std::endl;
 						create_upload_file(this->get_request().get_upload_file().first, this->get_request().get_upload_file().second);
 					}
 				}
@@ -511,7 +510,7 @@ class Response
 
 		bool	is_body_too_large(void)
 		{
-			return (this->get_request().get_body().size() > this->get_server().getClient());
+			return (this->get_server().getClient() >= 0 && this->get_request().get_body().size() > this->get_server().getClient());
 		}
 
 		int		create_status(Request const & request)
