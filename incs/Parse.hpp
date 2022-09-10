@@ -46,7 +46,7 @@ public:
 	int			dirIndex( std::vector< std::string >::iterator it, std::vector< std::string >::iterator last );
 	int			dirAutoindex( std::vector< std::string >::iterator it );
 	int			dirCgi( std::vector< std::string >::iterator it );
-	int			dirDownload( std::vector< std::string >::iterator it );
+	int			dirUpload( std::vector< std::string >::iterator it );
 	// 10 11
 	
 
@@ -171,9 +171,9 @@ public:
 			return ("\033[38;5;124mWrong info in directive cgi.\033[0m");
 		}
 	};
-	class BadDirectiveDownload : public std::exception {
+	class BadDirectiveUpload : public std::exception {
 		virtual const char	*what( void ) const throw() {
-			return ("\033[38;5;124mWrong info in directive download.\033[0m");
+			return ("\033[38;5;124mWrong info in directive upload.\033[0m");
 		}
 	};
 

@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 15:21:36 by ldermign          #+#    #+#             */
-/*   Updated: 2022/08/05 18:34:26 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/10 12:23:45 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,11 +84,11 @@ int	Location::setAutoindex( std::vector< std::string >::iterator it ) {
 	return 3;
 }
 
-int	Location::setDownload( std::vector< std::string >::iterator it ) {
+int	Location::setUpload( std::vector< std::string >::iterator it ) {
 	
 	*it++;
 
-	this->_download = it->c_str();
+	this->_upload = it->c_str();
 
 	return 3;
 }
@@ -117,8 +117,8 @@ int	Location::setLocation( std::vector< std::string >::iterator it ) {
 			len = this->setAutoindex(it);
 		else if (*it == "cgi")
 			len = this->setCgi(it);
-		else if (*it == "download")
-			len = this->setDownload(it);
+		else if (*it == "upload")
+			len = this->setUpload(it);
 		ret += len;
 		for (int i = 0 ; i < len ; i++)
 			*it++;

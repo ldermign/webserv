@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parse.cpp                              :+:      :+:    :+:   */
+/*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/20 14:22:32 by ldermign          #+#    #+#             */
-/*   Updated: 2022/07/15 14:53:07 by ldermign         ###   ########.fr       */
+/*   Created: 2022/09/10 12:29:51 by ldermign          #+#    #+#             */
+/*   Updated: 2022/09/10 12:29:58 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -543,23 +543,23 @@ int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 	return 4;
 }
 
-int	Parse::dirDownload( std::vector< std::string >::iterator it ) {
+int	Parse::dirUpload( std::vector< std::string >::iterator it ) {
 
 	int ret = 0;
 
 	*it++;
 	while (it[ret] != ";") {
 		if (ret == 1)
-			throw std::runtime_error("Missing one ; at directive download.");
+			throw std::runtime_error("Missing one ; at directive upload.");
 		ret++;
 	}
 	if (ret == 0)
-		throw Parse::BadDirectiveDownload();
+		throw Parse::BadDirectiveUpload();
 
 	{
 		struct stat buffer;
 		if (stat(it->c_str(), &buffer) != 0)
-			throw std::runtime_error("Wrong directory in directive download.");
+			throw std::runtime_error("Wrong directory in directive upload.");
 	}
 
 	return 3;
@@ -599,10 +599,10 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 			len = this->dirAutoindex(it);
 		else if (*it == "cgi")
 			len = this->dirCgi(it);
-		else if (*it == "download")
-			len = this->dirDownload(it);
 		else if (*it == "return")
 			len = this->dirReturn(it);
+		else if (*it == "upload")
+			len = this->dirUpload(it);
 		else
 			throw Parse::BadDirectiveLocation();
 		ret += len;
@@ -690,7 +690,7 @@ int	Parse::dirBlockServer( std::string str ) {
 
 int	Parse::dirBlockLocation( std::string str ) {
 
-	if (str != "get_methods" && str != "return" && str != "root" && str != "index" && str != "autoindex" && str != "cgi" && str != "download")
+	if (str != "get_methods" && str != "return" && str != "root" && str != "index" && str != "autoindex" && str != "cgi" && str != "upload")
 		return EXIT_SUCCESS;
 
 	return EXIT_SUCCESS;

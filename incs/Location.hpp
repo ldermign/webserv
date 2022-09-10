@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 15:20:51 by ldermign          #+#    #+#             */
-/*   Updated: 2022/08/05 18:32:07 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/10 12:23:13 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ public:
 	int							setIndex( std::vector< std::string >::iterator it );
 	int							setAutoindex( std::vector< std::string >::iterator it );
 	int							setCgi( std::vector< std::string >::iterator it );
-	int							setDownload( std::vector< std::string >::iterator it );
+	int							setUpload( std::vector< std::string >::iterator it );
 
 //	ACCESSORS
 
@@ -42,13 +42,13 @@ public:
 	size_t									getReturnCode( void ) const { return this->_returnCode; }
 	std::string								getReturnPath( void ) const { return this->_returnPath; }
 	std::pair< std::string, std::string >	&getCgi( void ) { return this->_cgi; }
-	std::string								getDownload( void ) const { return this->_download; }
+	std::string								getUpload( void ) const { return this->_upload; }
 
 //	CANONICAL FORM
 
 	Location( void )
 		: _path(""), _index(), _root("./files_config/"), _autoindex(0), _methods(), _returnCode(0),
-		_returnPath("./files_config/"), _cgi(), _download("./files_config/") {}
+		_returnPath("./files_config/"), _cgi(), _upload("./files_config/") {}
 	Location	&operator=( const Location &rhs ) {
 		if (this == &rhs)
 			return *this;
@@ -61,7 +61,7 @@ public:
 		this->_returnCode = rhs._returnCode;
 		this->_returnPath = rhs._returnPath;
 		this->_cgi = rhs._cgi;
-		this->_download = rhs._download;
+		this->_upload = rhs._upload;
 		
 		return *this;
 	}
@@ -80,7 +80,7 @@ private:
 	size_t									_returnCode;
 	std::string								_returnPath;
 	std::pair< std::string, std::string >	_cgi;
-	std::string								_download;
+	std::string								_upload;
 
 };
 
