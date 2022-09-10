@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:29:51 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/10 12:29:58 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/10 22:36:45 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,22 +438,22 @@ int	Parse::dirReturn( std::vector< std::string >::iterator it ) {
 
 	*it++;
 
-	std::ifstream tmp;
-	str = it->c_str();
-	tmp.open(str.c_str());
-	if (tmp.fail())
-	{
-		std::cout << str << std::endl;
-		throw Parse::BadDirectiveReturn();
-	}
-	{
-		bool empty = (tmp.get(), tmp.eof());
-		if (empty) {
-			tmp.close();
-			throw Parse::BadDirectiveReturn();
-		}
-	}
-	tmp.close();
+	// std::ifstream tmp;
+	// str = it->c_str();
+	// tmp.open(str.c_str());
+	// if (tmp.fail())
+	// {
+	// 	std::cout << str << std::endl;
+	// 	throw Parse::BadDirectiveReturn();
+	// }
+	// {
+	// 	bool empty = (tmp.get(), tmp.eof());
+	// 	if (empty) {
+	// 		tmp.close();
+	// 		throw Parse::BadDirectiveReturn();
+	// 	}
+	// }
+	// tmp.close();
 	
 	return 4;
 }
