@@ -37,8 +37,6 @@ class Request
 			{
 				this->format = false;
 			}
-			std::cout << "HEADER request :" << std::endl;
-			this->print_header();
 		}
 
 		virtual ~Request() {}
@@ -272,7 +270,7 @@ class Request
 							++it;
 						}
 						if (!elem_content_dispo.compare(0, 8, "filename"))
-							this->upload_file.first = elem_content_dispo.substr(8);
+							this->upload_file.first = elem_content_dispo.substr(10, elem_content_dispo.size() - 11);
 						if (*it == ';')
 							++it;
 					}
@@ -285,11 +283,7 @@ class Request
 				it = skip_request_line(it);
 				if (it == this->body.end())
 					throw (FormatException());
-				while (!end_of_request_line(it) && it != this->body.end())
-				{
-					this->upload_file.second.append(stock_request_line(it));
-					it = skip_request_line(it);
-				}
+				this->upload_file.second.append(stock_request_line(it));
 			}
 		}
 

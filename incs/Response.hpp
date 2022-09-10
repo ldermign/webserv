@@ -268,6 +268,13 @@ class Response
 
 	private : 
 
+		void	create_upload_file(std::string const & name, std::string const & content)
+		{
+			std::ofstream		upload_file((this->get_location().second.getDownload() + name).c_str());
+			upload_file << content;
+			upload_file.close();
+		}
+
 		void	process_method(void)
 		{
 			if (!this->get_request().get_method().compare("DELETE"))
@@ -288,7 +295,14 @@ class Response
 			}
 			else if (!this->get_request().get_method().compare("POST"))
 			{
-				// parse params
+				if (this->get_status() == 200)
+				{
+					if (!this->get_request().get_content_type().compare(0, 19, "multipart/form-data"))
+					{
+						std::cout << "UPLOAD FILE" << std::endl;
+						create_upload_file(this->get_request().get_upload_file().first, this->get_request().get_upload_file().second);
+					}
+				}
 			}
 		}
 
