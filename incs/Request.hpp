@@ -29,6 +29,8 @@ class Request
 				it = this->parse_start_line();
 				it = this->parse_header(it);
 				it = this->parse_body(it);
+				this->parse_upload();
+				std::cout << "filename = " << this->get_upload_file().first << " file content = "<< this-> get_upload_file().second << std::endl;
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -51,6 +53,7 @@ class Request
 			this->set_content_length(rhs.get_content_length());
 			this->set_body(rhs.get_body());
 			this->set_format(rhs.get_format());
+			this->set_upload_file(rhs.get_upload_file());
 		}
 
 		Request&		operator=(Request const & rhs)
@@ -65,6 +68,7 @@ class Request
 			this->set_content_length(rhs.get_content_length());
 			this->set_body(rhs.get_body());
 			this->set_format(rhs.get_format());
+			this->set_upload_file(rhs.get_upload_file());
 			return (*this);
 		}
 
@@ -120,6 +124,11 @@ class Request
 			return (this->content_length);
 		}
 
+		std::pair<std::string, std::string>		get_upload_file(void) const
+		{
+			return (this->upload_file);
+		}
+
 		// Setters
 
 		void	set_request(std::string const & request)
@@ -172,6 +181,11 @@ class Request
 			this->content_length = content_length;
 		}
 
+		void	set_upload_file(std::pair<std::string, std::string> upload_file)
+		{
+			this->upload_file = upload_file;
+		}
+
 		class FormatException : public std::exception
 		{
 			public :
@@ -202,10 +216,76 @@ class Request
 		size_t					content_length;
 
 		std::string				body;
+		std::pair<std::string, std::string>		upload_file;
 
 		// error
 
 		bool					format;
+
+		std::string::iterator		skip_request_line(std::string::iterator it)
+		{
+			while (!end_of_request_line(it))
+			{
+				++it;
+			}
+			it += 2;
+			return (it);
+		}
+
+		std::string			stock_request_line(std::string::iterator const & it)
+		{
+			std::string					request_line;
+			std::string::iterator		end_it = it;
+
+			while (!end_of_request_line(end_it))
+			{
+				++end_it;
+			}
+			request_line = std::string(it, end_it);
+			return (request_line);
+		}
+
+		void			parse_upload(void)
+		{
+			std::string::iterator		it = this->body.begin();
+			std::string					content_disposition;
+			std::string					elem_content_dispo;
+
+			if (!this->get_content_type().compare(0, 19, "multipart/form-data"))
+			{
+				if (this->body.empty())
+					throw (FormatException());
+				it = skip_request_line(it);
+				content_disposition = stock_request_line(it);
+				if (!content_disposition.compare(0, 20, "Content-Disposition:"))
+				{
+					it += 20;
+					while (it != this->body.end() && !end_of_request_line(it))
+					{
+						it = this->skip_space(it);
+						elem_content_dispo.erase(elem_content_dispo.begin(), elem_content_dispo.end());
+						while (it != this->body.end() && *it != ';' && !end_of_request_line(it))
+						{
+							elem_content_dispo.append(1, *it);
+							++it;
+						}
+						if (!elem_content_dispo.compare(0, 8, "filename"))
+							this->upload_file.first = elem_content_dispo.substr(10, elem_content_dispo.size() - 11);
+						if (*it == ';')
+							++it;
+					}
+					++it;
+					++it;
+				}
+				else
+					throw (FormatException());
+				it = skip_request_line(it);
+				it = skip_request_line(it);
+				if (it == this->body.end())
+					throw (FormatException());
+				this->upload_file.second.append(stock_request_line(it));
+			}
+		}
 
 		std::string		get_elem_at(int n)
 		{

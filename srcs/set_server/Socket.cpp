@@ -178,6 +178,7 @@ void				Socket::receive_message(void)
 		if (not is_in_body_fill)
 			_message.append(buff.begin(), buff.begin() + ret_func);
 		first_time = true;
+		std::cout << "Req: |" << _message << "|" << std::endl;
 		request = this->create_request(_message);
 		if ((nbytes_content_length = request.get_content_length()) != 0 && !got_a_body(_message))
 		{
