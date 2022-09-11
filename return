@@ -1,0 +1,67 @@
+server_name
+listen
+error_page
+error_page
+location
+root
+get_methods
+autoindex
+index
+cgi
+location
+autoindex
+root
+index
+location
+autoindex
+root
+
+	~~~~~~~~~~	Server num 1	~~~~~~~~~~
+host = [127.0.0.1]
+port = [4321]
+server name =
+	localhost
+error pages = 
+	404 ./www/html/error_404.html
+	301 ./www/html/error_301.html
+
+Location 1 ~~~~~
+path = [/]
+index =
+	index.php - index.html
+root = [/mnt/nfs/homes/jbondri/webserv/www/html/]
+autoindex = [0]
+methods =
+	GET	POST	DELETE
+return code = [0]
+return path = [./files_config/]
+cgi extension = [.php] and path = [/mnt/nfs/homes/jbondri/webserv/www/cgi-bin/]
+upload = [./files_config/]
+
+Location 2 ~~~~~
+path = [/kpouet]
+index =
+	index.html
+root = [/tmp/www/]
+autoindex = [1]
+methods =
+
+return code = [0]
+return path = [./files_config/]
+cgi extension = [] and path = []
+upload = [./files_config/]
+
+Location 3 ~~~~~
+path = [/monhome/]
+index =
+	root = [/home/jbondri/webserv/www/html]
+autoindex = [1]
+methods =
+
+return code = [0]
+return path = [./files_config/]
+cgi extension = [] and path = []
+upload = [./files_config/]
+
+[31mmain_fd in creation ..[0m[31mmain_fd in creation ...[0m[2K[32mmain_fd created in the "localhost" server[0m
+

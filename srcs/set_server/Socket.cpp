@@ -168,7 +168,10 @@ void				Socket::receive_message(void)
 		first_time = false;
 		std::cout << "size of s1 -> " << s1.size() << std::endl;
 		if (ret_func == BUFF_SIZE)
+		{
+			std::cout << "je overflow comme un bolosse!" << std::endl;
 			return ;
+		}
 		//std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
@@ -178,7 +181,7 @@ void				Socket::receive_message(void)
 		if (not is_in_body_fill)
 			_message.append(buff.begin(), buff.begin() + ret_func);
 		first_time = true;
-		std::cout << "Req: " << _message << std::endl;
+		//std::cout << "Req: " << _message << std::endl;
 		request = this->create_request(_message);
 		if ((nbytes_content_length = request.get_content_length()) != 0 && !got_a_body(_message))
 		{

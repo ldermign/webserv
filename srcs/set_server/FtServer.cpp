@@ -171,7 +171,7 @@ void					FtServer::_action_socket(void)
 		{
 			if (it2->get_fd() == it->get_fd())
 			{
-				_fds.erase(it);
+				_fds.erase(it);	
 				break ;
 			}
 		}

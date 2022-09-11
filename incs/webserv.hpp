@@ -16,7 +16,7 @@
 # define ACCEPT 101
 # define RECV 102
 # define NONE 99
-# define BUFF_SIZE 1000000
+# define BUFF_SIZE 65536
 # include <stdio.h>
 # include <netdb.h>
 # include <stdlib.h>
