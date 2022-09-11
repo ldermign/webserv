@@ -82,7 +82,7 @@ class Autoindex
 				{
 					if (!this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << this->link_autoindex(it->first) << ">";
+					ss << "<a href=\"" << this->link_autoindex(it->first) << "\">";
 					ss << this->index_in_autoindex(it->first, first_space_gap, true);
 					if (it->first.length() < first_space_gap)
 						ss << "/";
@@ -97,7 +97,7 @@ class Autoindex
 				{
 					if (this->is_dir(it->second.get_path()))
 						continue ;
-					ss << "<a href=" << this->link_autoindex(it->first) << ">";
+					ss << "<a href=\"" << this->link_autoindex(it->first) << "\">";
 					ss << this->index_in_autoindex(it->first, first_space_gap, false) << "</a>";
 					ss << this->add_spaces(first_space_gap, it->second.get_name().length());
 					ss << it->second.get_edit_date();

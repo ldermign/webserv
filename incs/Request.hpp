@@ -30,7 +30,6 @@ class Request
 				it = this->parse_header(it);
 				it = this->parse_body(it);
 				this->parse_upload();
-//				std::cout << "filename = " << this->get_upload_file().first << " file content = "<< this-> get_upload_file().second << std::endl;
 				this->format = true;
 			}
 			catch (std::exception const & e)
@@ -286,6 +285,16 @@ class Request
 				boundary = parse_boundary();
 				if (this->body.empty())
 					throw (FormatException());
+				if (this->stock_request_line(it, this->body.end()).size() != (boundary.size() + 2)
+						|| this->stock_request_line(it, this->body.end()).compare("--" + boundary))
+				{
+					throw (FormatException());
+				}
+
+				if (this->stock_request_line(it, this->body.end()).size()
+					!= (boundary.size() + 2) && this->stock_request_line(it,
+						this->body.end()).compare("--" + boundary))
+					throw (FormatException());
 				it = skip_request_line(it, this->body.end());
 				content_disposition = stock_request_line(it, this->body.end());
 				if (!content_disposition.compare(0, 20, "Content-Disposition:"))
@@ -404,6 +413,41 @@ class Request
 			throw (FormatException());
 		}
 
+		std::string					decode_url(void)
+		{
+			std::string				url_decoded;
+			std::stringstream		ss;
+			std::string				hexa;
+			int						i;
+			char					c;
+
+
+			for (std::string::iterator it = this->source.begin(); it != this->source.end(); ++it)
+			{
+				if (*it == '%')
+				{
+					++it;
+					if (it == this->source.end())
+						break ;
+					hexa.clear();
+					hexa.append(1, *it);
+					++it;
+					if (it == this->source.end())
+						break ;
+					hexa.append(1, *it);
+					ss.str("");
+					ss << std::hex;
+					ss << hexa;
+					ss >> i;
+					c = static_cast<char>(i);
+					url_decoded.append(1, c);
+				}
+				else
+					url_decoded.append(1, *it);
+			}
+			return (url_decoded);
+		}
+
 		std::string::iterator		parse_start_line(void)
 		{
 			std::string::iterator it = this->request.begin();
@@ -418,6 +462,7 @@ class Request
 						break;
 					case 1:
 						it += (this->source = this->read_string_in_request(it, i)).length() + this->get_params().length();
+						this->source = this->decode_url();
 						if (!params.empty())
 							params.erase(params.begin());
 						break;
@@ -467,15 +512,39 @@ class Request
 			std::cout << "Content-length: " << this->get_content_length() << std::endl;
 		}
 
+		size_t						check_boundary(std::pair<std::string, std::string> header)
+		{
+			size_t					size;
+			std::string::iterator			it = header.second.begin();
+
+			std::for_each(header.first.begin(), header.first.end(), Lower());
+			std::for_each(header.second.begin(), header.second.end(), Lower());
+			size = 0;
+			if (!header.first.compare("content-type"))
+			{
+				if (!header.second.compare(0, 19, "multipart/form-data"))
+				{
+					it += 19;
+					size += 19;
+					while (it != header.second.end() && (*it == ' ' || *it == '\t'))
+					{
+						++it;
+						size ++;
+					}
+				}
+			}
+			return (size);
+		}
+
 		std::string::iterator		parse_header(std::string::iterator it)
 		{
 			std::map<std::string, std::string>		fields;
 			std::pair<std::string, std::string>		header_line;
+			size_t									size;
 
 			it = skip_space(it);
 			while (!end_of_request_line(it))
 			{
-
 				while (*it != ':' && *it != '\r' && *it != '\n')
 				{
 					header_line.first.append(1, *it);
@@ -490,7 +559,12 @@ class Request
 					++it;
 				}
 				std::for_each(header_line.first.begin(), header_line.first.end(), Lower());
-				std::for_each(header_line.second.begin(), header_line.second.end(), Lower());
+				if ((size = check_boundary(header_line)) > 0)
+				{
+					std::for_each(header_line.second.begin(), header_line.second.begin() + size, Lower());
+				}
+				else
+					std::for_each(header_line.second.begin(), header_line.second.end(), Lower());
 				fields.insert(header_line);
 				header_line.first.clear();
 				header_line.second.clear();

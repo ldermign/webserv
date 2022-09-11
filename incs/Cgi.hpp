@@ -95,10 +95,8 @@ class Cgi
 			std_streams_fds[0] = fileno(stdout_buf);
 			std_streams_fds[1] = fileno(stdin_buf);
 			std_streams_fds[2] = fileno(stderr_buf);
-
-			fwrite(this->get_request().get_body().c_str(), sizeof(char), sizeof(this->get_request().get_body().c_str()), stdout_buf);
+			fwrite(this->get_request().get_body().c_str(), sizeof(char), this->get_request().get_body().size(), stdout_buf);
 			fseek(stdout_buf, 0, SEEK_SET);
-
 			pid = fork();
 			if (!pid)
 			{

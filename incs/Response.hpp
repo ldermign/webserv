@@ -268,9 +268,21 @@ class Response
 
 	private : 
 
+		std::string		create_upload_file_path(std::string const & dir_name, std::string const & file_name)
+		{
+			std::string		upload_file_path = dir_name;
+
+			if (upload_file_path.at(upload_file_path.size() - 1) != '/')
+				upload_file_path.append(1, '/');
+			return (upload_file_path + file_name);
+		}
+
 		void	create_upload_file(std::string const & name, std::string const & content)
 		{
-			std::ofstream		upload_file((this->get_location().second.getUpload() + name).c_str());
+			std::string			upload_dir = this->location.second.getUpload();
+			std::string			upload_file_path = create_upload_file_path(upload_dir, name).c_str();
+			std::ofstream		upload_file(upload_file_path.c_str());
+
 			upload_file << content;
 			upload_file.close();
 		}
