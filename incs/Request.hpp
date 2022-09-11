@@ -290,6 +290,11 @@ class Request
 				{
 					throw (FormatException());
 				}
+
+				if (this->stock_request_line(it, this->body.end()).size()
+					!= (boundary.size() + 2) && this->stock_request_line(it,
+						this->body.end()).compare("--" + boundary))
+					throw (FormatException());
 				it = skip_request_line(it, this->body.end());
 				content_disposition = stock_request_line(it, this->body.end());
 				if (!content_disposition.compare(0, 20, "Content-Disposition:"))
