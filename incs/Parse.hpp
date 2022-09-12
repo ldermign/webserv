@@ -95,6 +95,7 @@ public:
 		virtual const char	*what( void ) const throw() {
 			return ("\033[38;5;124mSomething's out of server block.\033[0m");
 		}
+		
 	};
 	class WrongInfo : public std::exception {
 		virtual const char	*what( void ) const throw() {

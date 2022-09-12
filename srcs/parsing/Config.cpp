@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:01:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/07 15:12:07 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 10:25:41 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,13 @@
 #include <vector>
 
 void	Config::checkAll( const char *str ) {
-	try {
-		this->getParse().setNameFile(str);
-		this->getParse().checkFileName();
-		this->getParse().setFileVector();
-		this->getParse().setArgsFile();
-		this->getParse().checkFileAllTogether();
-		this->getParse().checkAllDirectives();
-	}
-	catch (const std::exception &e) {
-		std::cout << e.what() << std::endl;
-		exit (EXIT_FAILURE);
-	}
+
+	this->getParse().setNameFile(str);
+	this->getParse().checkFileName();
+	this->getParse().setFileVector();
+	this->getParse().setArgsFile();
+	this->getParse().checkFileAllTogether();
+	this->getParse().checkAllDirectives();
 	this->recupInfoServer(this->getParse().getArgs());
 }
 
