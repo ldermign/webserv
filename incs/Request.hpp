@@ -23,7 +23,7 @@ class Request
 		Request(std::string const & request) : request(request), content_length(0)
 		{
 			std::string::iterator		it;
-			
+
 			try
 			{
 				it = this->parse_start_line();

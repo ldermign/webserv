@@ -130,6 +130,7 @@ class Autoindex
 					content_dir[diread->d_name] = file;
 				}
 			}
+			closedir(dir);
 			return (content_dir);
 		}
 

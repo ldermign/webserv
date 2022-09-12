@@ -29,6 +29,7 @@ class Response
 		{
 			this->set_server(rhs.get_server());
 			this->set_location(rhs.get_location());
+			this->set_index_path(rhs.get_index_path());
 			this->set_response(rhs.get_response());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
@@ -58,6 +59,7 @@ class Response
 		{
 			this->set_server(rhs.get_server());
 			this->set_location(rhs.get_location());
+			this->set_index_path(rhs.get_index_path());
 			this->set_response(rhs.get_response());
 			this->set_index(rhs.get_index());
 			this->set_autoindex(rhs.get_autoindex());
@@ -74,6 +76,7 @@ class Response
 			// body
 
 			this->set_body(rhs.get_body());
+			this->set_status_message(rhs.get_status_message());
 
 
 			// request
