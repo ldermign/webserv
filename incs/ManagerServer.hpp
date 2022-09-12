@@ -27,7 +27,7 @@ class ManagerServer
 		{
 			if (_all_servers.size() < 1)
 				return ;
-		//	time_t t = time(NULL) + 10;
+		//	time_t t = time(NULL) + 40;
 		//	while (time(NULL) < t)
 			while (true)
 			{
