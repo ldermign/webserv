@@ -107,7 +107,7 @@ Request				Socket::create_request(std::string & message)
 
 bool				got_a_body(std::string str)
 {
-	str = str.substr(0, str.size() - 1);
+	//str = str.substr(0, str.size() - 1);
 	return	(str.find("\r\n\r\n") != std::string::npos) ? true : false;
 }
 
@@ -156,7 +156,7 @@ void				Socket::recv_message(bool recv_accept)
 		if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) < 0)
 			throw exp;
 		_message.append(buff.begin(), buff.begin() + ret_func);
-		if (ret_func == BUFF_SIZE)
+		if (ret_func == BUFF_SIZE || !got_a_body(_message))
 			return ;
 		request = this->create_request(_message);
 		if (request.get_content_length() > request.get_body().size())
@@ -170,7 +170,7 @@ void				Socket::recv_message(bool recv_accept)
 			recv_message(false);
 		return ;
 	}
-	if (not recv_accept && _message != "")
+	if (not recv_accept && got_a_body(_message))
 	{
 		std::cout << "RECV from " << _fd << " : " << YELLOW << _message << std::endl << RESET;
 		request = this->create_request(_message);
