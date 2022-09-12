@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:00:24 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/10 12:25:31 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 12:40:28 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class Config {
 public:
 
 	void	recupInfoServer( std::vector< std::string > args );
-	void	checkAll( const char *str );
+	void	checkAll( const char *str, int argc );
 
 	//	ACCESSORS
 

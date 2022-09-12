@@ -82,26 +82,24 @@ void	printAllServer( std::vector< Server > all ) {
 
 int		main(int argc, char **argv)
 {
-	if (argc != 2) {
+	if (argc > 2) {
 		std::cout << "Wrong number of arguments." << std::endl;
 		exit (EXIT_FAILURE);
 	}
 
-	Config allConfig;
-	std::vector< Server > allServ;
 	try {
-		allConfig.checkAll(argv[1]);
+		Config allConfig;
+		std::vector< Server > allServ;
+		allConfig.checkAll(argv[1], argc);
 		allServ = allConfig.getVectorServers();
 		printAllServer(allServ);
-	}
-	catch (std::exception &e) {}
-	try {
 		ManagerServer	ms(allServ);
 		ms.main_loop();
-	} catch (std::exception &e)
-	{
-	    std::cout << RED << "error occured while initialization of a server : " << e.what() << RESET << std::endl;
-	    std::cout << "Quit" << std::endl;
+	}
+	catch (const std::exception &e) {
+		std::cout << e.what() << std::endl;
+		std::cout << "Quit" << std::endl;
+		return (EXIT_FAILURE);
 	}
 	return 1;
 }

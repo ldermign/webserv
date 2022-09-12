@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 15:21:36 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/10 12:23:45 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 10:39:22 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ int	Location::setLocation( std::vector< std::string >::iterator it ) {
 	
 	while (*it != "}") {
 
-		// std::cout << *it << std::endl;
 		if (*it == "get_methods")
 			len = this->setMethods(it);
 		else if (*it == "return")

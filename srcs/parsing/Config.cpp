@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 16:01:12 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/07 15:12:07 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 12:55:28 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,18 @@
 #include "Config.hpp"
 #include <vector>
 
-void	Config::checkAll( const char *str ) {
-	try {
+void	Config::checkAll( const char *str, int argc ) {
+
+	const char *dft = "./files_config/simple.conf";
+	if (argc == 1)
+		this->getParse().setNameFile(dft);
+	else
 		this->getParse().setNameFile(str);
-		this->getParse().checkFileName();
-		this->getParse().setFileVector();
-		this->getParse().setArgsFile();
-		this->getParse().checkFileAllTogether();
-		this->getParse().checkAllDirectives();
-	}
-	catch (const std::exception &e) {
-		std::cout << e.what() << std::endl;
-		exit (EXIT_FAILURE);
-	}
+	this->getParse().checkFileName();
+	this->getParse().setFileVector();
+	this->getParse().setArgsFile();
+	this->getParse().checkFileAllTogether();
+	this->getParse().checkAllDirectives();
 	this->recupInfoServer(this->getParse().getArgs());
 }
 
