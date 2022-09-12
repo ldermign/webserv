@@ -142,6 +142,45 @@ void				Socket::_receive_body(Response re, size_t &nbytes_content_length)
 	return ;
 }
 
+void				Socket::recv_message(bool recv_accept)
+{
+	int					ret_func = INT_MAX;
+	std::vector<char>	buff(BUFF_SIZE);
+	static size_t		nbytes = 0;
+	Request				request;
+	Response			response;
+	std::runtime_error	exp("Socket::receive_messsage()");
+
+	if (recv_accept && nbytes == 0)
+	{
+		if ((ret_func = recv(_fd, &buff[0], buff.size(), 0)) < 0)
+			throw exp;
+		_message.append(buff.begin(), buff.begin() + ret_func);
+		if (ret_func == BUFF_SIZE)
+			return ;
+		request = this->create_request(_message);
+		if (request.get_content_length() > request.get_body().size())
+			nbytes = request.get_content_length() - request.get_body().size();
+		return ;
+	}
+	if (recv_accept && nbytes)
+	{
+		_receive_body(response, nbytes);
+		if (nbytes == 0)
+			recv_message(false);
+		return ;
+	}
+	if (not recv_accept && _message != "")
+	{
+		std::cout << "RECV from " << _fd << " : " << YELLOW << _message << std::endl << RESET;
+		request = this->create_request(_message);
+		std::cout << "size of req -> " << request.get_body().size() << std::endl;
+		response = this->create_response(request);
+		_still_connected = (_still_connected) ? true : response.get_header().get_connection();
+		_flag = SEND;
+		return ;
+	}
+}
 
 void				Socket::receive_message(void)
 {
@@ -166,13 +205,12 @@ void				Socket::receive_message(void)
 	{
 		s1.append(buff.begin(), buff.begin() + ret_func);
 		first_time = false;
-		std::cout << "size of s1 -> " << s1.size() << std::endl;
 		if (ret_func == BUFF_SIZE)
 		{
-			std::cout << "je overflow comme un bolosse!" << std::endl;
+			_message.append(buff.begin(), buff.begin() + ret_func);
+			std::cout << "message -> \n" << _message << std::endl;
 			return ;
 		}
-		//std::cout << "s1 -> " << s1 << std::endl;
 	}
 	if (ret_func == -1 || (ret_func == 0 && first_time))
 		throw exp;
@@ -196,6 +234,7 @@ void				Socket::receive_message(void)
 	}
 	_message.append(buff.begin(), buff.begin() + ret_func);
 }
+
 
 struct sockaddr		Socket::get_data(void) const
 {

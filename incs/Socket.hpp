@@ -36,6 +36,7 @@ class Socket
 		Response			create_response(Request const & request);
 		Request				create_request(std::string & message);
 
+		void				recv_message(bool recv_accept);
 		void				receive_message(void);
 		void				destroy(void);
 };

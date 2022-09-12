@@ -136,11 +136,14 @@ void					FtServer::_action_socket(void)
 			std::cout << "new ACCEPT : " << GREEN << fd.get_fd() << RESET << std::endl;
 			buff_add.push_back(fd);
 		}
-		if (it->get_flag() == RECV && FD_ISSET(it->get_fd(), &_set[0]))
+		if (it->get_flag() == RECV)
 		{
 			try
 			{
-				it->receive_message();
+				if (FD_ISSET(it->get_fd(), &_set[0]))
+					it->recv_message(true);
+				else
+					it->recv_message(false);
 			}
 			catch (std::exception &e)
 			{
