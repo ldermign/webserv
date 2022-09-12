@@ -82,7 +82,7 @@ void	printAllServer( std::vector< Server > all ) {
 
 int		main(int argc, char **argv)
 {
-	if (argc != 2) {
+	if (argc > 2) {
 		std::cout << "Wrong number of arguments." << std::endl;
 		exit (EXIT_FAILURE);
 	}
@@ -90,7 +90,7 @@ int		main(int argc, char **argv)
 	try {
 		Config allConfig;
 		std::vector< Server > allServ;
-		allConfig.checkAll(argv[1]);
+		allConfig.checkAll(argv[1], argc);
 		allServ = allConfig.getVectorServers();
 		printAllServer(allServ);
 		ManagerServer	ms(allServ);

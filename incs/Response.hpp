@@ -525,7 +525,7 @@ class Response
 
 		bool	is_body_too_large(void)
 		{
-			return (this->get_server().getClient() >= 0 && this->get_request().get_body().size() > this->get_server().getClient());
+			return (this->get_server().getClient() >= 0 && this->get_request().get_body().size() > static_cast< unsigned long >(this->get_server().getClient()));
 		}
 
 		int		create_status(Request const & request)
