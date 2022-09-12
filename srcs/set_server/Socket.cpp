@@ -170,7 +170,7 @@ void				Socket::recv_message(bool recv_accept)
 			recv_message(false);
 		return ;
 	}
-	if (not recv_accept && got_a_body(_message))
+	if (not recv_accept && got_a_body(_message) && nbytes == 0)
 	{
 		std::cout << "RECV from " << _fd << " : " << YELLOW << _message << std::endl << RESET;
 		request = this->create_request(_message);
