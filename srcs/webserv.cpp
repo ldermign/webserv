@@ -101,13 +101,5 @@ int		main(int argc, char **argv)
 		std::cout << "Quit" << std::endl;
 		return (EXIT_FAILURE);
 	}
-	// try {
-	// 	ManagerServer	ms(allServ);
-	// 	ms.main_loop();
-	// } catch (std::exception &e)
-	// {
-	//     std::cout << RED << "error occured while initialization of a server : " << e.what() << RESET << std::endl;
-	//     std::cout << "Quit" << std::endl;
-	// }
 	return 1;
 }

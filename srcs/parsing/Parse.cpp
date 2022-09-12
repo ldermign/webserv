@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:29:51 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/12 10:13:29 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 10:54:56 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,11 +177,8 @@ void	Parse::checkNothingOut( void ) {
 			i++;
 
 		if (this->isDirectiveServer(&tmp[i]) == EXIT_FAILURE
-			&& this->noDirective(&tmp[i]) == EXIT_FAILURE) {
-			std::string error_msg = "Error line [ ~~~ " + *it + " ~~~ ]";
-			std::cout << error_msg << std::endl;
+			&& this->noDirective(&tmp[i]) == EXIT_FAILURE)
 			throw Parse::WrongInfo();
-		}
 	}
 }
 
@@ -224,12 +221,12 @@ int	wrongPort( std::string str ) {
 
 int	Parse::dirServerName( std::vector< std::string >::iterator it ) {
 
-	std::string tmp = it->c_str();
 	int ret = 1;
 
 	*it++;
 	while (*it != ";") {
 
+		std::string tmp = it->c_str();
 		if (*it == "}")
 			throw Parse::BadDirectiveServerName();
 		for (int i = 0 ; tmp[i] ; i++) {
@@ -300,7 +297,7 @@ int	Parse::dirListen( std::vector< std::string >::iterator it ) {
 
 int	Parse::dirClientMaxBodySize( std::vector< std::string >::iterator it ) {
 
-	it++;
+	*it++;
 	std::string tmp = it->c_str();
 	int i = 0;
 	while (tmp[i]) {
@@ -308,6 +305,10 @@ int	Parse::dirClientMaxBodySize( std::vector< std::string >::iterator it ) {
 			throw Parse::BadDirectiveClient();
 		i++;
 	}
+	
+	*it++;
+	if (*it != ";")
+		throw Parse::BadDirectiveClient();
 
 	return 3;
 }
@@ -317,7 +318,6 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	int ret = 0, i = 0;
 	
 	*it++;
-
 	while (it[ret] != ";") {
 		if (ret == 2)
 			throw Parse::BadDirectiveErrorPage();
@@ -344,9 +344,8 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	std::ifstream tmp;
 	std::string str = it->c_str();
 	tmp.open(str.c_str());
-	if (tmp.fail()) {
-		std::cout << str << std::endl;
-		throw Parse::BadDirectiveErrorPage();}
+	if (tmp.fail())
+		throw Parse::BadDirectiveErrorPage();
 	
 	{
 		bool empty = (tmp.get(), tmp.eof());
@@ -357,7 +356,6 @@ int	Parse::dirErrorPage( std::vector< std::string >::iterator it ) {
 	}
 	tmp.close();
 	
-
 	return 4;
 }
 
@@ -391,10 +389,7 @@ int	Parse::dirGetMethods( std::vector< std::string >::iterator it ) {
 	if ((one != "GET" && one != "POST" && one != "DELETE")
 		|| (len > 1 && two != "GET" && two != "POST" && two != "DELETE")
 		|| (len > 2 && three != "GET" && three != "POST" && three != "DELETE"))
-	{
-		std::cout << "1\n";
 		throw Parse::BadDirectiveMethods();
-	}
 
 	if (len > 1) {
 		if (one == two)
@@ -492,11 +487,8 @@ int	Parse::dirCgi( std::vector< std::string >::iterator it ) {
 			throw Parse::BadDirectiveCgi();
 		ret++;
 	}
-	if (ret == 1) {
-		std::cout << "ret == 1" << std::endl;
+	if (ret == 1)
 		throw Parse::BadDirectiveCgi();
-	}
-		std::cout << "2 ok" << std::endl;
 
 	{
 		std::string tmp = it->c_str();
@@ -554,10 +546,8 @@ int	Parse::dirLocation( std::vector< std::string >::iterator it, std::vector< st
 
 	while (it != last && *it != "}") {
 
-		std::cout << *it << std::endl;
 		if (*it == "get_methods")
 			len = this->dirGetMethods(it);
-
 		else if (*it == "root")
 			len = this->dirRoot(it);
 		else if (*it == "index")
@@ -596,7 +586,6 @@ void	Parse::checkAllDirectives( void ) {
 				*it++;
 			while (it != this->_args.end() && *it != "server") {
 
-				std::cout << *it << std::endl;
 				if (*it == "server_name")
 					ret = this->dirServerName(it);
 				else if (*it == "listen")
