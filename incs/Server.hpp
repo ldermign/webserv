@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 13:27:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/10 12:25:55 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/12 09:06:46 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ public:
 
 //	ACCESSORS
 
-	Server						&getServer( void ) { return *this; }
+	Server							&getServer( void ) { return *this; }
 
 	std::string						getHost( void ) { return this->_host; }
 	int								getPort( void ) { return this->_port; }
