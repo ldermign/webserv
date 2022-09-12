@@ -20,7 +20,7 @@ class Request
 
 		Request() {}
 
-		Request(std::string const & request) : request(request), content_length(0)
+		Request(std::string const & request) : request(request), connection(false), content_length(0)
 		{
 			std::string::iterator		it;
 
