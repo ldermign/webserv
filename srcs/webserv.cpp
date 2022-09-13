@@ -97,7 +97,7 @@ int		main(int argc, char **argv)
 		ms.main_loop();
 	}
 	catch (const std::exception &e) {
-		std::cout << e.what() << std::endl;
+		std::cout << RED << "Error -> " << e.what() << RESET << std::endl;
 		std::cout << "Quit" << std::endl;
 		return (EXIT_FAILURE);
 	}

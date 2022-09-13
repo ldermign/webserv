@@ -23,11 +23,15 @@ class ManagerServer
 		{
 			for (std::vector<Server>::iterator it = _all_data.begin(); it < _all_data.end(); it++)
 			{
-				 std::string	name(*(it->getServerName().begin()));
-					 in_addr_t	domain = inet_addr(it->getHost().c_str());
-					 u_short		port = htons(it->getPort());
-					 FtServer	serv(name, domain, port, *it);
-					 _all_servers.push_back(serv);
+				std::string name;
+				if (it->getServerName().begin() != it->getServerName().end())
+					name = *(it->getServerName().begin());
+				else
+					name = "default";
+				in_addr_t	domain = inet_addr(it->getHost().c_str());
+				u_short		port = htons(it->getPort());
+				FtServer	serv(name, domain, port, *it);
+				_all_servers.push_back(serv);
 			}
 		}
 	public :
