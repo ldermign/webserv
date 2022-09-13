@@ -45,9 +45,7 @@ const FtServer& FtServer::operator=(const FtServer& fs)
 void		FtServer::_init_server(void)
 {
 	
-	std::cout << RED << "main_fd in creation .." << RESET << "\r" << std::flush;
 	_create_main_socket();
-	std::cout << RED << "main_fd in creation ..." << RESET << "\r" << std::flush;
 	_bind_main_socket();
 	std::cout << RMLINE << GREEN << "main_fd created in the \"" << _name << "\" server" << RESET << std::endl << std::endl;
 }
