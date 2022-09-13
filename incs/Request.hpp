@@ -360,8 +360,14 @@ class Request
 					this->upload_file.second.append(stock_file_line(it, this->body.end()) + "\n");
 					skip_file_line(it, this->body.end());
 				}
+
 				if (it == this->body.end())
 					throw (FormatException());
+				if (!stock_file_line(it, this->body.end()).compare("--" + boundary + "--" + '\r'))
+				{
+					if (end_of_request_line(it - 2))
+						this->upload_file.second.erase(this->upload_file.second.end() - 2, this->upload_file.second.end());
+				}
 			}
 		}
 
