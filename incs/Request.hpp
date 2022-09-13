@@ -248,6 +248,20 @@ class Request
 			return (request_line);
 		}
 
+		std::string			stock_file_line(std::string::iterator it, std::string::iterator end)
+		{
+			std::string					request_line;
+			std::string::iterator		it_begin = it;
+
+			while (it != end && *it != '\n')
+			{
+				++it;
+			}
+			request_line = std::string(it_begin, it);
+			it = it_begin;
+			return (request_line);
+		}
+
 		std::string		parse_boundary(void)
 		{
 			std::string		boundary;
@@ -271,6 +285,26 @@ class Request
 				++it;
 			}
 			return (boundary);
+		}
+
+		void			skip_file_line(std::string::iterator & it, std::string::iterator end_it)
+		{
+			while (*it != '\n' && it != end_it)
+			{
+				it++;
+			}
+			if (end_it != it)
+				it++;
+		}
+
+		bool			end_of_file_content(std::string::iterator it, std::string::iterator end_it, std::string const & boundary)
+		{
+			const std::string		line = stock_file_line(it, end_it);
+			const std::string		next_line = stock_file_line(it + 2, end_it);
+			std::string				closing_boundary("--" + boundary + "--" + '\r');
+
+			return ((!line.compare("\r") && !next_line.compare(closing_boundary))
+					|| !line.compare(closing_boundary));
 		}
 
 		void			parse_upload(void)
@@ -321,14 +355,14 @@ class Request
 					throw (FormatException());
 				it = skip_request_line(it, this->body.end());
 				it = skip_request_line(it, this->body.end());
-				while (this->stock_request_line(it, this->body.end()).size() != (boundary.size() + 4) && this->stock_request_line(it, this->body.end()).compare("--" + boundary + "--") && (it + boundary.size() + 4 != body.end()))
+				while (!end_of_file_content(it, this->body.end(), boundary))
 				{
 					if (it == this->body.end())
 					{
 						throw (FormatException());
 					}
-					this->upload_file.second.append(stock_request_line(it, this->body.end()));
-					it = skip_request_line(it, this->body.end());
+					this->upload_file.second.append(stock_file_line(it, this->body.end()) + "\n");
+					skip_file_line(it, this->body.end());
 				}
 			}
 		}
