@@ -105,7 +105,7 @@ class Response
 
 		void	print_response(void)
 		{
-			std::cout << this->get_response();
+			//std::cout << this->get_response();
 		}
 
 		// Getters

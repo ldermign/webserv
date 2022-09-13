@@ -538,10 +538,10 @@ class Request
 
 		void	print_header(void) const
 		{
-			std::cout << "header: " << std::endl;
-			std::cout << "Connection: " << this->get_connection() << std::endl;
-			std::cout << "Content-Type: " << this->get_content_type() << std::endl;
-			std::cout << "Content-length: " << this->get_content_length() << std::endl;
+			//std::cout << "header: " << std::endl;
+			//std::cout << "Connection: " << this->get_connection() << std::endl;
+			//std::cout << "Content-Type: " << this->get_content_type() << std::endl;
+			//std::cout << "Content-length: " << this->get_content_length() << std::endl;
 		}
 
 		size_t						check_boundary(std::pair<std::string, std::string> header)

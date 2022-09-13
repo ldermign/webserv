@@ -174,7 +174,6 @@ void				Socket::recv_message(bool recv_accept)
 	{
 		std::cout << "RECV from " << _fd << " : " << YELLOW << _message << std::endl << RESET;
 		request = this->create_request(_message);
-		std::cout << "size of req -> " << request.get_body().size() << std::endl;
 		response = this->create_response(request);
 		_still_connected = (_still_connected) ? true : response.get_header().get_connection();
 		_flag = SEND;

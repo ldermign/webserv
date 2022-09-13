@@ -6,6 +6,14 @@
 #include "Socket.hpp"
 #include "FtServer.hpp"
 
+bool g_keep_going = true;
+
+void handle_death (int num)
+{
+	(void)num;
+	g_keep_going = false;
+}
+
 class ManagerServer
 {
 	private :
@@ -27,9 +35,8 @@ class ManagerServer
 		{
 			if (_all_servers.size() < 1)
 				return ;
-		//	time_t t = time(NULL) + 40;
-		//	while (time(NULL) < t)
-			while (true)
+			signal(SIGINT, handle_death);
+			while (g_keep_going)
 			{
 				for (std::vector<FtServer>::iterator it = _all_servers.begin(); it < _all_servers.end(); it++)
 					it->main_loop();	

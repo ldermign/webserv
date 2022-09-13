@@ -101,5 +101,6 @@ int		main(int argc, char **argv)
 		std::cout << "Quit" << std::endl;
 		return (EXIT_FAILURE);
 	}
-	return 1;
+	std::cout << "Quit" << std::endl;
+	return 0;
 }
