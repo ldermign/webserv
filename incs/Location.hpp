@@ -48,7 +48,7 @@ public:
 
 	Location( void )
 		: _path(""), _index(), _root("./files_config/"), _autoindex(0), _methods(), _returnCode(0),
-		_returnPath("./files_config/"), _cgi(), _upload("./files_config/") {}
+		_returnPath("./files_config/"), _cgi(), _upload("./www/upload/") {}
 	Location	&operator=( const Location &rhs ) {
 		if (this == &rhs)
 			return *this;

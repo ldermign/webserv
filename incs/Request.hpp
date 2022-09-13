@@ -355,15 +355,13 @@ class Request
 					throw (FormatException());
 				it = skip_request_line(it, this->body.end());
 				it = skip_request_line(it, this->body.end());
-				while (!end_of_file_content(it, this->body.end(), boundary))
+				while (it != this->body.end() && !end_of_file_content(it, this->body.end(), boundary))
 				{
-					if (it == this->body.end())
-					{
-						throw (FormatException());
-					}
 					this->upload_file.second.append(stock_file_line(it, this->body.end()) + "\n");
 					skip_file_line(it, this->body.end());
 				}
+				if (it == this->body.end())
+					throw (FormatException());
 			}
 		}
 
