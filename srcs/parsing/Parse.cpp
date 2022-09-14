@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:29:51 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/12 12:51:42 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/14 09:42:54 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,25 +186,26 @@ int	wrongIP( std::string str ) {
 
 	int i = 0, tmp = 0, ret1 = 0, ret2 = 0;
 	
-	if (str.find_first_not_of("0123456789.") != std::string::npos)
-		return EXIT_FAILURE;
-	while (str[i]) {
-		
-		if (str[i] == '.')
-			return EXIT_FAILURE;
-		tmp = atoi(&(str[i]));
-		if (tmp < 0 || tmp > 256)
-			return EXIT_FAILURE;
-		while (str[i] && str[i] != '.')
-			i++;
-		if (str[i] == '.') {
-			ret2++;
-			i++;
+	if (str.find_first_not_of("0123456789.") == std::string::npos)
+	{
+		while (str[i]) {
+			
+			if (str[i] == '.')
+				return EXIT_FAILURE;
+			tmp = atoi(&(str[i]));
+			if (tmp < 0 || tmp > 256)
+				return EXIT_FAILURE;
+			while (str[i] && str[i] != '.')
+				i++;
+			if (str[i] == '.') {
+				ret2++;
+				i++;
+			}
+			ret1++;
 		}
-		ret1++;
+		if (ret1 != 4 || ret2 != 3)
+			return EXIT_FAILURE;
 	}
-	if (ret1 != 4 || ret2 != 3)
-		return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;
 }
