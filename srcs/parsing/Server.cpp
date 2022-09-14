@@ -6,7 +6,7 @@
 /*   By: ldermign <ldermign@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/18 16:57:06 by ldermign          #+#    #+#             */
-/*   Updated: 2022/09/07 15:55:46 by ldermign         ###   ########.fr       */
+/*   Updated: 2022/09/14 09:50:57 by ldermign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,17 @@ int	Server::setListen( std::vector< std::string >::iterator it ) {
 
 	{
 		std::string tmp = it[0].c_str();
-		if (tmp.find(".") != std::string::npos)
+		if ((tmp.find_first_not_of(".") != std::string::npos
+			&& tmp != "default_server") || tmp.find(".") != std::string::npos)
 			this->_host = tmp;
 		else if (tmp == "default_server")
 			this->_defaultServer = 1;
 		else
 			this->_port = atoi(tmp.c_str());
 	}
+
+	if (ret == 3)
+		this->_defaultServer = 1;
 
 	if (ret > 1)
 	{
@@ -58,9 +62,6 @@ int	Server::setListen( std::vector< std::string >::iterator it ) {
 		else
 			this->_port = atoi(tmp.c_str());
 	}
-
-	if (ret == 3)
-		this->_defaultServer = 1;
 
 	return ret + 2;
 }
