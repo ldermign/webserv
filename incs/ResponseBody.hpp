@@ -112,6 +112,7 @@ class ResponseBody
 				{
 					body.append(line + '\n');
 				}
+				ifs.close();
 				if (!this->get_ext(this->get_index_path()).compare(".php"))
 					body = execute_cgi(this->get_index_path());
 			}

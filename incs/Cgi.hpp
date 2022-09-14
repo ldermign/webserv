@@ -105,7 +105,10 @@ class Cgi
 				dup2(std_streams_fds[2], 2);
 				execve((this->get_location().getCgi().second + create_exe_name()).c_str(), argv, this->get_envp());
 				std::cout << "error: cannot execute cgi" << std::endl;
-				exit(0);
+				fclose(stdin_buf);
+				fclose(stdout_buf);
+				fclose(stderr_buf);
+				return ("");
 			}
 			wait(NULL);
 			script_executed = this->read_file(stdin_buf);
