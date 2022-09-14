@@ -14,6 +14,14 @@ void handle_death (int num)
 	g_keep_going = false;
 }
 
+std::string check_host(std::string s1)
+{
+	std::cout << "s1 -> " << s1 << std::endl;
+	if(s1 != "127.0.0.1" && s1 != "localhost")
+		throw (std::runtime_error("bind()"));
+	return "127.0.0.1";
+}
+
 class ManagerServer
 {
 	private :
@@ -28,7 +36,7 @@ class ManagerServer
 					name = *(it->getServerName().begin());
 				else
 					name = "default";
-				in_addr_t	domain = inet_addr(it->getHost().c_str());
+				in_addr_t	domain = inet_addr(check_host(it->getHost()).c_str());
 				u_short		port = htons(it->getPort());
 				FtServer	serv(name, domain, port, *it);
 				_all_servers.push_back(serv);
