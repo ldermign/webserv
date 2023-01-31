@@ -6,9 +6,8 @@
 	</head>
 <body>
 
-	<h1>Welcome to Webserv</h1>
-	<p><?php echo "salut"; ?></p>
-	<p>GET = <?php echo $_GET['name']; ?></p>
-	<p>POST = <?php echo $_POST['name']; ?></p>
+	<h1><?php echo 'Welcome to Webserv' ?></h1>
+	<h3>Name = <?php echo $_GET['name']; ?></h3>
+	<h3>Name = <?php echo $_POST['name']; ?></h3>
 </body>
 </html>

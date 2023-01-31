@@ -340,5 +340,4 @@ class ResponseBody
 			ss << "</html>" << END_RES_LINE;
 			return (ss.str());
 		}
-
 };
